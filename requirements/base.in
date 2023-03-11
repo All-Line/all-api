@@ -1,0 +1,17 @@
+awscli
+django==3.2.16
+django-redis
+djangorestframework
+django-s3-storage
+drf-yasg
+django-storages
+redis
+psycopg2
+psycopg2-binary==2.8.6
+geoip2
+python-decouple
+python-jose[cryptography]
+git+https://github.com/uzi0espil/django-suit.git@v2
+django-colorfield
+safety
+zappa

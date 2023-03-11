@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: '{"receipt-data": "some_receipt", "password": "dedf69fff63044a9a0c85db4867decf0"}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '80'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: POST
+    uri: https://buy.itunes.apple.com/verifyReceipt
+  response:
+    body:
+      string: '{"status":21002}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '16'
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 25 Nov 2022 21:54:01 GMT
+      Server:
+      - daiquiri/3.0.0
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      apple-originating-system:
+      - CommerceGateway
+      apple-seq:
+      - '0.0'
+      apple-timing-app:
+      - 1 ms
+      apple-tk:
+      - 'false'
+      b3:
+      - dc26736f0e085c6e8290327011b8ee19-2d5a4e18c9d4f389
+      x-apple-jingle-correlation-key:
+      - 3QTHG3YOBBOG5AUQGJYBDOHODE
+      x-apple-request-uuid:
+      - dc26736f-0e08-5c6e-8290-327011b8ee19
+      x-b3-spanid:
+      - 2d5a4e18c9d4f389
+      x-b3-traceid:
+      - dc26736f0e085c6e8290327011b8ee19
+      x-daiquiri-instance:
+      - daiquiri:15824002:mr85p00it-hyhk03174701:7987:22RELEASE148:daiquiri-amp-commerce-clients-ext-001-mr
+      x-responding-instance:
+      - 'CommerceGateway:020109:::'
+    status:
+      code: 200
+      message: OK
+version: 1

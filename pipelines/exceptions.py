@@ -1,0 +1,2 @@
+class StopPipelineException(Exception):
+    pass

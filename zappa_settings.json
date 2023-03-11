@@ -1,0 +1,18 @@
+{
+  "hml": {
+    "django_settings": "core_api.settings.hml",
+    "profile_name": null,
+    "project_name": "startnow-api",
+    "runtime": "python3.9",
+    "s3_bucket": "zappa-uyy57zk01",
+    "timeout_seconds": 600
+  },
+  "prd": {
+    "django_settings": "core_api.settings.prod",
+    "profile_name": null,
+    "project_name": "startnow-api",
+    "runtime": "python3.9",
+    "s3_bucket": "zappa-uyy57zk02",
+    "timeout_seconds": 600
+  }
+}
