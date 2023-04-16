@@ -1,0 +1,45 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Squirrel's ChangeLog
+
+on:
+  pull_request:
+    branches: [ "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Verifying ChangeLOG
+      if: ${{ github.head_ref != 'main' && github.head_ref != 'develop' }}
+      run: |
+        sudo apt-get -y update && sudo apt-get install -y figlet
+        figlet -f small -w 100 -p "Valida Changelog..."
+        FILE=$(git diff --name-only origin/develop...HEAD | grep -E 'CHANGELOG\.md' -c)
+        if [[ $FILE == "1" ]];
+        then
+        echo "======================================================================="
+        echo "===================================________________________________===="
+        echo "===============___☗_ ============|                                 |==="
+        echo "=============/       \===========/      VALEU PELO CHANGELOG!!!    |==="
+        echo "=========== /  ◙      |==========\                                 |==="
+        echo "===========◆         /==____======|________________________________|==="
+        echo "============\/__    |==| ◆ ||=========================================="
+        echo "=============/    / / \|___||=========================================="
+        echo "============/  _|_/ /   /   /=========================================="
+        echo "===========|▓|____/  /   /============================================="
+        echo "=========== \_____    _/==============================================="
+        echo "=============|_|______| ==============================================="
+        echo "======================================================================="
+        exit 0
+        fi;
