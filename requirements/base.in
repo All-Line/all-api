@@ -7,11 +7,11 @@ drf-yasg
 django-storages
 redis
 psycopg2
-psycopg2-binary==2.8.6
+psycopg2-binary
 geoip2
 python-decouple
 python-jose[cryptography]
 git+https://github.com/uzi0espil/django-suit.git@v2
 django-colorfield
 safety
-zappa
+zappa==0.55.0

@@ -4,17 +4,17 @@
 #
 #    pip-compile requirements/tests.in
 #
-attrs==22.1.0
+attrs==22.2.0
     # via pytest
 coverage==6.0b1
     # via
     #   -r requirements/tests.in
     #   pytest-cov
-exceptiongroup==1.0.4
+exceptiongroup==1.1.1
     # via pytest
 factory-boy==3.2.1
     # via pytest-factoryboy
-faker==15.3.3
+faker==18.4.0
     # via factory-boy
 flake8==4.0.1
     # via
@@ -26,13 +26,13 @@ idna==3.4
     # via yarl
 inflection==0.5.1
     # via pytest-factoryboy
-iniconfig==1.1.1
+iniconfig==2.0.0
     # via pytest
 mccabe==0.6.1
     # via flake8
-multidict==6.0.2
+multidict==6.0.4
     # via yarl
-packaging==21.3
+packaging==23.1
     # via pytest
 pluggy==1.0.0
     # via pytest
@@ -40,8 +40,6 @@ pycodestyle==2.8.0
     # via flake8
 pyflakes==2.4.0
     # via flake8
-pyparsing==3.0.9
-    # via packaging
 pytest==7.2.0
     # via
     #   -r requirements/tests.in
@@ -79,7 +77,7 @@ vcrpy==4.0.2
     # via
     #   -r requirements/tests.in
     #   pytest-vcr
-wrapt==1.14.1
+wrapt==1.15.0
     # via vcrpy
-yarl==1.8.1
+yarl==1.8.2
     # via vcrpy
