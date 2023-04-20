@@ -137,7 +137,7 @@ class TestUserViewSet:
         )
 
         result = self.view.confirm_email(None, token)
-        select_related = mock_token.objects.select_related
+        select_related = mock_token.objects.select_related.return_value
 
         mock_token.objects.select_related.assert_called_once_with("user")
         select_related.only.assert_called_once_with("user", "created")
@@ -172,7 +172,7 @@ class TestUserViewSet:
         mock_timezone.now.return_value = 3
 
         result = self.view.confirm_email(request, token_key)
-        select_related = mock_token.objects.select_related
+        select_related = mock_token.objects.select_related.return_value
 
         mock_token.objects.select_related.assert_called_once_with("user")
         select_related.only.assert_called_once_with("user", "created")
