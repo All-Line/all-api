@@ -4,7 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 from utils.admin import admin_method_attributes
 
-from .models import ServiceCredentialConfigModel, ServiceEmailConfigModel, ServiceModel
+from ..social.models import EventModel, ReactionTypeModel
+from .models import (
+    ServiceCredentialConfigModel,
+    ServiceEmailConfigModel,
+    ServiceModel,
+)
 
 
 class ServiceEmailConfigInline(admin.TabularInline):
@@ -56,13 +61,32 @@ class ServiceCredentialRegisterConfigInline(admin.TabularInline):
         return queryset.filter(credential_config_type="register")
 
 
+class ReactionTypeInline(admin.TabularInline):
+    model = ReactionTypeModel
+    verbose_name_plural = "Reaction Types"
+    extra = 0
+    fields = (
+        "name",
+        "attachment",
+    )
+
+
+class EventInline(admin.TabularInline):
+    model = EventModel
+    verbose_name_plural = "Events"
+    extra = 0
+    fields = (
+        "title",
+        "description",
+        "attachment",
+        "event_type",
+        "guests",
+    )
+
+
 @admin.register(ServiceModel)
 class ServiceAdmin(admin.ModelAdmin):
-    inlines = [
-        ServiceEmailConfigInline,
-        ServiceCredentialLoginConfigInline,
-        ServiceCredentialRegisterConfigInline,
-    ]
+    inlines = [ReactionTypeInline, EventInline]
     list_display = [
         "name",
         "slug",

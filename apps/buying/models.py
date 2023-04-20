@@ -9,11 +9,18 @@ from utils.abstract_models.base_model import BaseModel
 
 
 class StoreModel(BaseModel):
-    BACKEND_CHOICES = (("dummy", _("Dummy Backend")), ("apple", _("Apple Backend")))
+    BACKEND_CHOICES = (
+        ("dummy", _("Dummy Backend")),
+        ("apple", _("Apple Backend")),
+    )
 
-    name = models.CharField(verbose_name=_("Title"), max_length=255, unique=True)
+    name = models.CharField(
+        verbose_name=_("Title"), max_length=255, unique=True
+    )
     backend = models.CharField(
-        verbose_name=_("Integration Backend"), max_length=255, choices=BACKEND_CHOICES
+        verbose_name=_("Integration Backend"),
+        max_length=255,
+        choices=BACKEND_CHOICES,
     )
 
     class Meta:

@@ -14,7 +14,12 @@ class TestUserPermissions:
         assert issubclass(self.permission, BasePermission)
 
     def test_attr_protected_methods(self):
-        assert self.permission.protected_methods == ("GET", "PATCH", "PUT", "DELETE")
+        assert self.permission.protected_methods == (
+            "GET",
+            "PATCH",
+            "PUT",
+            "DELETE",
+        )
 
     def test_has_permission_successfully_with_path_has_confirm_email(self):
         mock_user = Mock(is_authenticated=False)

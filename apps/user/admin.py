@@ -87,13 +87,7 @@ class UserAdmin(NoPhysicalDeletionActionMixin, admin.ModelAdmin):
         ),
         (
             _("Interaction"),
-            {
-                "fields": (
-                    "is_active",
-                    "date_joined",
-                    "last_login",
-                )
-            },
+            {"fields": ("is_active", "date_joined", "last_login", "event")},
         ),
     )
 

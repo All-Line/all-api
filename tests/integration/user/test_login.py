@@ -1,6 +1,8 @@
 import pytest
 
-from tests.factories.service_credential_config import ServiceCredentialConfigFactory
+from tests.factories.service_credential_config import (
+    ServiceCredentialConfigFactory,
+)
 
 
 @pytest.mark.django_db
@@ -30,7 +32,9 @@ class TestUserLogin:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {"service": ["Object with slug=foo does not exist."]}
+        assert response.json() == {
+            "service": ["Object with slug=foo does not exist."]
+        }
 
     def test_login_failure_does_not_exist(self, api_client, dummy_service):
         path = self.endpoint

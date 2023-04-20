@@ -15,7 +15,7 @@ class TestCreateUser:
     @patch("pipelines.items.create_user.UserModel")
     @patch("pipelines.items.create_user.CreateUser.log")
     def test_run(self, mock_log, mock_user_model):
-        mock_pipeline = Mock()
+        mock_pipeline = Mock(kwargs={})
         pipe_item = self.item(mock_pipeline)
         pipe_item._run()
         user = mock_user_model.objects.create.return_value
@@ -27,12 +27,10 @@ class TestCreateUser:
             email=mock_pipeline.email,
             password=mock_pipeline.password,
             service=mock_pipeline.service,
-            birth_date=mock_pipeline.birth_date,
-            document=mock_pipeline.document,
-            country=mock_pipeline.country,
-            profile_image=mock_pipeline.profile_image,
+            **mock_pipeline.kwargs,
         )
         mock_log.assert_called_once_with(
-            f"A new user was created: {user.first_name} {user.last_name} ({user.id})"
+            f"A new user was created: {user.first_name} "
+            f"{user.last_name} ({user.id})"
         )
         assert mock_pipeline.user == user

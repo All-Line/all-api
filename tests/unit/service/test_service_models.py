@@ -107,7 +107,9 @@ class TestServiceModel:
         )
         mock_config_type = Mock()
         mock_self = Mock()
-        filtered_configs = mock_self.credential_configs.only.return_value.filter
+        filtered_configs = (
+            mock_self.credential_configs.only.return_value.filter
+        )
         filtered_configs.return_value.iterator.return_value = [mock_field]
         request_data = {"bar": "foo"}
 
@@ -135,7 +137,9 @@ class TestServiceModel:
         )
         mock_config_type = Mock()
         mock_self = Mock()
-        filtered_configs = mock_self.credential_configs.only.return_value.filter
+        filtered_configs = (
+            mock_self.credential_configs.only.return_value.filter
+        )
         filtered_configs.return_value.iterator.return_value = [mock_field]
         request_data = {"foo": "bar"}
 
@@ -155,7 +159,9 @@ class TestServiceModel:
             credential_config_type=mock_config_type
         )
         filtered_config.iterator.assert_called_once()
-        assert err.value.detail == {"foo": "The field does not have a valid format"}
+        assert err.value.detail == {
+            "foo": "The field does not have a valid format"
+        }
 
     def test_has_credential_configs(self):
         mock_self = Mock()
@@ -184,13 +190,18 @@ class TestServiceModel:
             call(field="password"),
             call(field="password"),
         ]
-        assert mock_configs.filter.return_value.count.call_args_list == [call(), call()]
+        assert mock_configs.filter.return_value.count.call_args_list == [
+            call(),
+            call(),
+        ]
         assert mock_configs.count.call_args_list == [call(), call()]
 
     @patch("apps.service.models.settings")
     @patch("apps.service.models.ServiceCredentialConfigModel")
     @patch("apps.service.models.super")
-    def test_save(self, mock_super, mock_service_credential_config, mock_settings):
+    def test_save(
+        self, mock_super, mock_service_credential_config, mock_settings
+    ):
         mock_settings.DEFAULT_CREDENTIAL_CONFIGS = [
             {
                 "credential_config_type": "register",
@@ -206,19 +217,25 @@ class TestServiceModel:
         self.model.save(mock_self)
 
         mock_super.return_value.save.assert_called_once_with(
-            force_insert=False, force_update=False, using=None, update_fields=None
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None,
         )
-        assert mock_service_credential_config.objects.create.call_args_list == [
-            call(
-                service=mock_self,
-                credential_config_type="register",
-                field="email",
-                label="Write your email",
-                field_html_type="email",
-                rule=r"^[a-z]{12,}",
-                no_match_message="Invalid email",
-            )
-        ]
+        assert (
+            mock_service_credential_config.objects.create.call_args_list
+            == [
+                call(
+                    service=mock_self,
+                    credential_config_type="register",
+                    field="email",
+                    label="Write your email",
+                    field_html_type="email",
+                    rule=r"^[a-z]{12,}",
+                    no_match_message="Invalid email",
+                )
+            ]
+        )
 
 
 class TestServiceEmailConfigModel:
@@ -241,7 +258,9 @@ class TestServiceEmailConfigModel:
         assert self.model._meta.verbose_name_plural == "Service Email Configs"
 
     def test_meta_unique_together(self):
-        assert self.model._meta.unique_together == (("email_config_type", "service"),)
+        assert self.model._meta.unique_together == (
+            ("email_config_type", "service"),
+        )
 
     def test_service_field(self):
         field = self.model._meta.get_field("service")
@@ -257,7 +276,9 @@ class TestServiceEmailConfigModel:
 
         assert type(field) == models.CharField
         assert field.max_length == 255
-        assert field.choices == ServiceEmailConfigModel.EMAIL_CONFIG_TYPE_CHOICES
+        assert (
+            field.choices == ServiceEmailConfigModel.EMAIL_CONFIG_TYPE_CHOICES
+        )
 
     def test_email_html_template_field(self):
         field = self.model._meta.get_field("email_html_template")
@@ -308,7 +329,10 @@ class TestServiceCredentialConfigModel:
         assert self.model._meta.verbose_name == "Service Credential Config"
 
     def test_meta_verbose_name_plural(self):
-        assert self.model._meta.verbose_name_plural == "Service Credential Configs"
+        assert (
+            self.model._meta.verbose_name_plural
+            == "Service Credential Configs"
+        )
 
     def test_service_field(self):
         field = self.model._meta.get_field("service")

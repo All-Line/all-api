@@ -18,10 +18,8 @@ class CreateUserPipeline(BasePipeline):
         password,
         service,
         username=None,
-        birth_date=None,
-        document=None,
-        country=None,
-        profile_image=None,
+        send_mail=False,
+        **kwargs,
     ):
         self.first_name = first_name
         self.last_name = last_name
@@ -29,10 +27,8 @@ class CreateUserPipeline(BasePipeline):
         self.password = make_password(password)
         self.service = service
         self.username = username
-        self.birth_date = birth_date
-        self.document = document
-        self.country = country
-        self.profile_image = profile_image
+        self.send_mail = send_mail
+        self.kwargs = kwargs
 
         super().__init__(
             steps=[

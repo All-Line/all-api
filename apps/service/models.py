@@ -11,11 +11,12 @@ from utils.choices.language_choices import LANGUAGE_CHOICES
 
 
 class ServiceModel(BaseModel):
-
     name = models.CharField(verbose_name=_("Name"), max_length=255)
     slug = models.SlugField(verbose_name=_("Slug Field"))
     url = models.URLField(verbose_name=_("URL"), null=True, blank=True)
-    smtp_email = models.EmailField(verbose_name=_("SMTP Email"), null=True, blank=True)
+    smtp_email = models.EmailField(
+        verbose_name=_("SMTP Email"), null=True, blank=True
+    )
     colors_palettes = models.ManyToManyField(
         ColorPaletteModel,
         related_name="services",
@@ -58,7 +59,9 @@ class ServiceModel(BaseModel):
                 raise ValidationError({field: [_("This field is required.")]})
 
             if rule:
-                rule_doesnt_match = rule is not None and not re.match(rf"{rule}", value)
+                rule_doesnt_match = rule is not None and not re.match(
+                    rf"{rule}", value
+                )
 
                 if rule_doesnt_match:
                     raise ValidationError({field: config.no_match_message})
@@ -82,9 +85,9 @@ class ServiceModel(BaseModel):
                 register_configs.filter(field="password").count() == 1
             )
 
-            if (login_configs.count() < 2 or register_configs.count() < 2) or not (
-                login_has_password_field or register_has_password_field
-            ):
+            if (
+                login_configs.count() < 2 or register_configs.count() < 2
+            ) or not (login_has_password_field or register_has_password_field):
                 raise ValidationError(
                     _(
                         "Invalid credentials configuration. At least one email and "
@@ -93,7 +96,11 @@ class ServiceModel(BaseModel):
                 )
 
     def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
         super().save(
             force_insert=force_insert,
@@ -104,7 +111,9 @@ class ServiceModel(BaseModel):
 
         if not self.has_credential_configs():
             for config in settings.DEFAULT_CREDENTIAL_CONFIGS:
-                ServiceCredentialConfigModel.objects.create(service=self, **config)
+                ServiceCredentialConfigModel.objects.create(
+                    service=self, **config
+                )
 
 
 class ServiceEmailConfigModel(BaseModel):

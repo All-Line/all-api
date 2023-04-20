@@ -25,7 +25,10 @@ class TestAppleBackend:
 
         mock_requests.post.assert_called_once_with(
             "https://buy.itunes.apple.com/verifyReceipt",
-            json={"receipt-data": "some_receipt", "password": mock_env.return_value},
+            json={
+                "receipt-data": "some_receipt",
+                "password": mock_env.return_value,
+            },
         )
 
         assert result is True

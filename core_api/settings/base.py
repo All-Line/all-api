@@ -4,7 +4,9 @@ from decouple import config as env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
+SECRET_KEY = (
+    "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
+)
 DEBUG = True
 
 AUTH_USER_MODEL = "user.UserModel"
@@ -20,13 +22,19 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
-THIRD_APPS = ["rest_framework", "rest_framework.authtoken", "drf_yasg", "colorfield"]
+THIRD_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken",
+    "drf_yasg",
+    "colorfield",
+]
 LOCAL_APPS = [
     "apps.user",
     "apps.service",
     "apps.material",
     "apps.visual_structure",
     "apps.buying",
+    "apps.social",
 ]
 
 

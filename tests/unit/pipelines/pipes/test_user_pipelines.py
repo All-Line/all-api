@@ -31,7 +31,9 @@ class TestCreateUserPipeline:
         assert user_create_pipeline.email == "some_email"
         assert user_create_pipeline.password == mock_make_password.return_value
         assert user_create_pipeline.service == "some_service"
-        assert user_create_pipeline.birth_date == "some_birth_date"
+        assert user_create_pipeline.kwargs == {
+            "birth_date": "some_birth_date",
+        }
 
     def test_pipelines_items(self):
         user_create_pipeline = self.pipeline(**self.base_pipeline_data)

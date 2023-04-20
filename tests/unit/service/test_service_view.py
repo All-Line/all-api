@@ -79,9 +79,12 @@ class TestServiceViewSet:
         )
 
         mock_get_serializer.assert_called_once_with(
-            service.credential_configs.only.return_value.filter.return_value, many=True
+            service.credential_configs.only.return_value.filter.return_value,
+            many=True,
         )
-        mock_response.assert_called_once_with(mock_get_serializer.return_value.data)
+        mock_response.assert_called_once_with(
+            mock_get_serializer.return_value.data
+        )
         assert result == mock_response.return_value
 
     @patch("apps.service.views.Response")

@@ -10,8 +10,12 @@ from .utils.file import material_file_directory_path
 
 
 class CourseCategoryModel(BaseModel):
-    title = models.CharField(verbose_name=_("Title"), max_length=255, unique=True)
-    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    title = models.CharField(
+        verbose_name=_("Title"), max_length=255, unique=True
+    )
+    description = models.TextField(
+        verbose_name=_("Description"), null=True, blank=True
+    )
     color = models.ForeignKey(
         ColorModel,
         verbose_name=_("Color"),
@@ -30,7 +34,10 @@ class CourseCategoryModel(BaseModel):
 
 
 class CourseModel(BaseModel):
-    COURSE_MODE_CHOICES = (("open", _("Open")), ("progressive", _("Progressive")))
+    COURSE_MODE_CHOICES = (
+        ("open", _("Open")),
+        ("progressive", _("Progressive")),
+    )
 
     title = models.CharField(verbose_name=_("Title"), max_length=255)
     description = models.TextField(verbose_name=_("Description"))
@@ -55,7 +62,9 @@ class CourseModel(BaseModel):
         on_delete=models.CASCADE,
     )
     categories = models.ManyToManyField(
-        CourseCategoryModel, related_name="courses", verbose_name=_("Categories")
+        CourseCategoryModel,
+        related_name="courses",
+        verbose_name=_("Categories"),
     )
     color_palette = models.ForeignKey(
         ColorPaletteModel,
@@ -108,11 +117,16 @@ class LessonModel(BaseModel):
     )
     order = models.IntegerField(verbose_name=_("Order"), null=True, blank=True)
     lesson_type = models.CharField(
-        verbose_name=_("Lesson Type"), choices=LESSON_TYPE_CHOICES, max_length=255
+        verbose_name=_("Lesson Type"),
+        choices=LESSON_TYPE_CHOICES,
+        max_length=255,
     )
     text = models.TextField(verbose_name=_("Text"), null=True, blank=True)
     reading_time = models.IntegerField(
-        help_text=_("In minutes"), verbose_name=_("Reading Time"), null=True, blank=True
+        help_text=_("In minutes"),
+        verbose_name=_("Reading Time"),
+        null=True,
+        blank=True,
     )
     video = models.FileField(
         upload_to=material_file_directory_path,
@@ -177,4 +191,6 @@ class CommentModel(BaseModel):
         verbose_name_plural = _("Comments")
 
     def __str__(self):
-        return f"{self.author.username}'s comment in {self.lesson.title} lesson"
+        return (
+            f"{self.author.username}'s comment in {self.lesson.title} lesson"
+        )

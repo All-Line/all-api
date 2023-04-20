@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from apps.buying.urls import *  # noqa
 from apps.material.urls import *  # noqa
 from apps.service.urls import *  # noqa
+from apps.social.urls import *  # noqa
 from apps.user.urls import *  # noqa
 
 

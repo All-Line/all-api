@@ -33,5 +33,8 @@ class LiveAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (_("Settings"), {"fields": ("starts_at", "integration_field", "live_type")}),
+        (
+            _("Settings"),
+            {"fields": ("starts_at", "integration_field", "live_type")},
+        ),
     )

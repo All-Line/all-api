@@ -16,7 +16,9 @@ class CourseCategoryAdmin(admin.ModelAdmin):
     list_display = ["id", "title_style", "description", "date_modified"]
     search_fields = ["title"]
     readonly_fields = ["id", "date_modified"]
-    fieldsets = ((_("Identification"), {"fields": ("title", "description", "color")}),)
+    fieldsets = (
+        (_("Identification"), {"fields": ("title", "description", "color")}),
+    )
 
     @admin_method_attributes(short_description=_("Title"))
     def title_style(self, category):
@@ -86,7 +88,10 @@ class CourseAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (_("Settings"), {"fields": ("service", "categories", "color_palette")}),
+        (
+            _("Settings"),
+            {"fields": ("service", "categories", "color_palette")},
+        ),
     )
 
 

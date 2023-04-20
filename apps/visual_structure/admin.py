@@ -36,11 +36,12 @@ class ColorPaletteAdmin(admin.ModelAdmin):
     search_fields = ["title"]
     filter_horizontal = ["colors"]
     readonly_fields = ["id"]
-    fieldsets = ((_("Identification"), {"fields": ("title", "colors", "description")}),)
+    fieldsets = (
+        (_("Identification"), {"fields": ("title", "colors", "description")}),
+    )
 
     @admin_method_attributes(short_description=_("Colors preview"))
     def colors_preview(self, color_palette):
-
         result = "".join(
             [
                 f"<div style='background-color: {color.color}; "

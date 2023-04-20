@@ -39,7 +39,9 @@ class TestCreateContractSerializer:
         assert self.serializer.Meta.model == ContractModel
 
     def test_parent_class(self):
-        assert issubclass(CreateContractSerializer, serializers.ModelSerializer)
+        assert issubclass(
+            CreateContractSerializer, serializers.ModelSerializer
+        )
 
     def test_meta_fields(self):
         assert self.serializer.Meta.fields == ("id", "receipt", "package")
@@ -55,7 +57,10 @@ class TestCreateContractSerializer:
 
         mock_store.get_backend.assert_called_once()
         mock_backend.is_valid_receipt.assert_called_once_with(mock_get_return)
-        assert mock_data.get.call_args_list == [call("package"), call("receipt")]
+        assert mock_data.get.call_args_list == [
+            call("package"),
+            call("receipt"),
+        ]
         assert result == mock_data
 
     def test_validate_with_not_valid_receipt(self):
@@ -72,7 +77,10 @@ class TestCreateContractSerializer:
 
         mock_store.get_backend.assert_called_once()
         mock_backend.is_valid_receipt.assert_called_once_with(mock_get_return)
-        assert mock_data.get.call_args_list == [call("package"), call("receipt")]
+        assert mock_data.get.call_args_list == [
+            call("package"),
+            call("receipt"),
+        ]
         assert err.value.detail[0] == "Something went wrong."
 
     @patch("apps.buying.serializers.CreateContractPipeline")
@@ -81,8 +89,12 @@ class TestCreateContractSerializer:
         mock_validated_data.get.return_value = "foo"
         mock_user = Mock()
         mock_context = {"request": Mock(user=mock_user)}
-        mock_self = Mock(validated_data=mock_validated_data, context=mock_context)
+        mock_self = Mock(
+            validated_data=mock_validated_data, context=mock_context
+        )
         self.serializer.save(mock_self)
 
-        mock_create_contract_pipeline.assert_called_once_with("foo", "foo", mock_user)
+        mock_create_contract_pipeline.assert_called_once_with(
+            "foo", "foo", mock_user
+        )
         mock_create_contract_pipeline.return_value.run.assert_called_once()

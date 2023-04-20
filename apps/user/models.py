@@ -2,7 +2,10 @@ from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from storages.backends.s3boto3 import S3Boto3Storage
 
 from apps.service.models import ServiceModel
 from apps.user.managers import UserForRetentionManager, UserManager
@@ -20,9 +23,15 @@ class UserModel(AbstractUser):
     user_permissions = None
     objects = UserManager()
 
-    is_verified = models.BooleanField(verbose_name=_("Is Verified"), default=False)
-    is_premium = models.BooleanField(verbose_name=_("Is Premium"), default=False)
-    is_deleted = models.BooleanField(verbose_name=_("Is Deleted"), default=False)
+    is_verified = models.BooleanField(
+        verbose_name=_("Is Verified"), default=False
+    )
+    is_premium = models.BooleanField(
+        verbose_name=_("Is Premium"), default=False
+    )
+    is_deleted = models.BooleanField(
+        verbose_name=_("Is Deleted"), default=False
+    )
     document = models.CharField(
         verbose_name=_("Document"), max_length=255, null=True, blank=True
     )
@@ -40,7 +49,9 @@ class UserModel(AbstractUser):
         null=True,
         blank=True,
     )
-    birth_date = models.DateField(verbose_name=_("Birth Date"), null=True, blank=True)
+    birth_date = models.DateField(
+        verbose_name=_("Birth Date"), null=True, blank=True
+    )
     last_login = models.DateTimeField(
         verbose_name=_("Last Login"), null=True, blank=True
     )
@@ -66,6 +77,14 @@ class UserModel(AbstractUser):
         null=True,
         blank=True,
     )
+    event = models.ForeignKey(
+        "social.EventModel",
+        verbose_name=_("Event"),
+        related_name="users",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         verbose_name = _("User")
@@ -85,6 +104,10 @@ class UserModel(AbstractUser):
             return contracts_amount > 0
         return True
 
+    @property
+    def is_guest(self):
+        return self.event is not None
+
 
 class UserForRetentionProxy(UserModel):
     objects = UserForRetentionManager()
@@ -93,3 +116,18 @@ class UserForRetentionProxy(UserModel):
         proxy = True
         verbose_name = _("User for retention")
         verbose_name_plural = _("Users for retention")
+
+
+@receiver(pre_save, sender=UserModel)
+def delete_old_profile_image(sender, instance, **_kwargs):
+    if instance.pk:
+        try:
+            old_instance = sender.objects.get(pk=instance.pk)
+            if old_instance.profile_image != instance.profile_image:
+                storage = S3Boto3Storage()
+                path = old_instance.profile_image.name
+                if path:
+                    if storage.exists(path):
+                        storage.delete(path)
+        except sender.DoesNotExist:  # pragma: no cover
+            pass

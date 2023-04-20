@@ -245,7 +245,16 @@ class TestLessonAdmin:
     def test_fieldsets_settings(self):
         assert self.admin.fieldsets[1] == (
             "Settings",
-            {"fields": ("course", "order", "reading_time", "text", "video", "audio")},
+            {
+                "fields": (
+                    "course",
+                    "order",
+                    "reading_time",
+                    "text",
+                    "video",
+                    "audio",
+                )
+            },
         )
 
     def test_fieldsets_accessibility_fields(self):

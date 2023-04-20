@@ -3,7 +3,12 @@ from unittest.mock import Mock, patch
 from django.contrib import admin
 from django.contrib.admin import AdminSite
 
-from apps.buying.admin import ContractAdmin, PackageAdmin, PackageInline, StoreAdmin
+from apps.buying.admin import (
+    ContractAdmin,
+    PackageAdmin,
+    PackageInline,
+    StoreAdmin,
+)
 from apps.buying.models import ContractModel, PackageModel, StoreModel
 
 
@@ -126,11 +131,12 @@ class TestPackageAdmin:
     def test_sales_amount(self, mock_mark_safe):
         mock_package = Mock()
         result = self.admin.sales_amount(mock_package)
+        filtered_package = mock_package.contracts.filter.return_value
 
         mock_package.contracts.filter.assert_called_once_with(is_active=True)
         mock_package.contracts.filter.return_value.count.assert_called_once()
         mock_mark_safe.assert_called_once_with(
-            f"<p>{mock_package.contracts.filter.return_value.count.return_value}</p>"
+            f"<p>{filtered_package.count.return_value}</p>"
         )
         assert result == mock_mark_safe.return_value
 
@@ -147,10 +153,20 @@ class TestContractAdmin:
         assert issubclass(ContractAdmin, admin.ModelAdmin)
 
     def test_list_display(self):
-        assert self.admin.list_display == ["id", "user", "package", "is_active"]
+        assert self.admin.list_display == [
+            "id",
+            "user",
+            "package",
+            "is_active",
+        ]
 
     def test_readonly_fields(self):
-        assert self.admin.readonly_fields == ["id", "package", "user", "receipt"]
+        assert self.admin.readonly_fields == [
+            "id",
+            "package",
+            "user",
+            "receipt",
+        ]
 
     def test_search_fields(self):
         assert self.admin.search_fields == ["id"]

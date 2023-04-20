@@ -38,7 +38,8 @@ class TestPipelineListViewSet:
         )
         mock_get_pipeline.return_value.return_value.run.assert_called_once()
         mock_serializer.assert_called_once_with(
-            mock_get_pipeline.return_value.return_value.run.return_value, many=True
+            mock_get_pipeline.return_value.return_value.run.return_value,
+            many=True,
         )
         mock_response.assert_called_once_with(
             mock_serializer.return_value.data, status=status.HTTP_200_OK

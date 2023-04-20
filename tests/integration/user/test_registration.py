@@ -1,11 +1,12 @@
 from unittest.mock import patch
 
 import pytest
-from django.conf import settings
 from rest_framework.authtoken.models import Token
 
 from tests.factories.service import ServiceFactory
-from tests.factories.service_credential_config import ServiceCredentialConfigFactory
+from tests.factories.service_credential_config import (
+    ServiceCredentialConfigFactory,
+)
 from tests.factories.user import UserFactory
 
 
@@ -44,7 +45,9 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {"password": ["The passwords doesn't match."]}
+        assert response.json() == {
+            "password": ["The passwords doesn't match."]
+        }
 
     def test_registration_failure_password_does_not_match_rule(
         self, api_client, dummy_service
@@ -93,7 +96,9 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {"service": ["Object with slug=foo does not exist."]}
+        assert response.json() == {
+            "service": ["Object with slug=foo does not exist."]
+        }
 
     def test_registration_failure_with_email_duplicated(
         self, api_client, dummy_service
@@ -111,7 +116,9 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {"user": ["A user with this email already exists."]}
+        assert response.json() == {
+            "user": ["A user with this email already exists."]
+        }
 
     def test_registration_failure_due_to_required_extra_field(
         self, api_client, dummy_service
@@ -180,7 +187,6 @@ class TestUserRegistration:
         )
         dummy_service.credential_configs.add(service_credential_config)
         dummy_service.save()
-        email_config = service_email_config_registration
         path = self.endpoint
         data = {
             "first_name": "test",
@@ -195,18 +201,7 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_called_once_with(
-            email_config.email_subject,
-            "",
-            dummy_service.smtp_email,
-            [settings.DEV_EMAIL],
-            fail_silently=True,
-            html_message=email_config.email_html_template.replace(
-                "ACTIVATE_LINK_CONFIG", f"{email_config.email_link}{token.key}/"
-            )
-            .replace("USER_NAME", "test 2")
-            .replace("SERVICE_NAME", dummy_service.name),
-        )
+        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "test",
@@ -226,7 +221,6 @@ class TestUserRegistration:
         dummy_service,
         service_email_config_registration,
     ):
-        email_config = service_email_config_registration
         path = self.endpoint
         data = {
             "first_name": "foo",
@@ -241,18 +235,7 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_called_once_with(
-            email_config.email_subject,
-            "",
-            dummy_service.smtp_email,
-            [settings.DEV_EMAIL],
-            fail_silently=True,
-            html_message=email_config.email_html_template.replace(
-                "ACTIVATE_LINK_CONFIG", f"{email_config.email_link}{token.key}/"
-            )
-            .replace("USER_NAME", "foo bar")
-            .replace("SERVICE_NAME", dummy_service.name),
-        )
+        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",
@@ -273,7 +256,6 @@ class TestUserRegistration:
         service_email_config_registration,
     ):
         user_email = "foobar@gmail.com"
-        email_config = service_email_config_registration
         service = ServiceFactory()
         UserFactory(email=user_email, service=service)
 
@@ -291,18 +273,7 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_called_once_with(
-            email_config.email_subject,
-            "",
-            dummy_service.smtp_email,
-            [settings.DEV_EMAIL],
-            fail_silently=True,
-            html_message=email_config.email_html_template.replace(
-                "ACTIVATE_LINK_CONFIG", f"{email_config.email_link}{token.key}/"
-            )
-            .replace("USER_NAME", "foo bar")
-            .replace("SERVICE_NAME", dummy_service.name),
-        )
+        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",
@@ -322,7 +293,6 @@ class TestUserRegistration:
         dummy_service,
         service_email_config_registration,
     ):
-        email_config = service_email_config_registration
         path = self.endpoint
         data = {
             "first_name": "foo",
@@ -336,18 +306,7 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_called_once_with(
-            email_config.email_subject,
-            "",
-            dummy_service.smtp_email,
-            [settings.DEV_EMAIL],
-            fail_silently=True,
-            html_message=email_config.email_html_template.replace(
-                "ACTIVATE_LINK_CONFIG", f"{email_config.email_link}{token.key}/"
-            )
-            .replace("USER_NAME", "foo bar")
-            .replace("SERVICE_NAME", dummy_service.name),
-        )
+        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",

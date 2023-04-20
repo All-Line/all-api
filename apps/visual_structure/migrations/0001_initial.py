@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -28,16 +27,21 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Title"),
+                ),
                 (
                     "color",
                     colorfield.fields.ColorField(
@@ -70,19 +74,26 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Title"),
+                ),
                 (
                     "description",
-                    models.TextField(blank=True, null=True, verbose_name="Description"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Description"
+                    ),
                 ),
                 (
                     "colors",

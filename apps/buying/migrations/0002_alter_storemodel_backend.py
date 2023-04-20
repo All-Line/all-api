@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("buying", "0001_initial"),
     ]
@@ -14,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="storemodel",
             name="backend",
             field=models.CharField(
-                choices=[("dummy", "Dummy Backend"), ("apple", "Apple Backend")],
+                choices=[
+                    ("dummy", "Dummy Backend"),
+                    ("apple", "Apple Backend"),
+                ],
                 max_length=255,
                 verbose_name="Integration Backend",
             ),

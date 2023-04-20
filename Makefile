@@ -53,7 +53,7 @@ test-no-cache: ## To test application and coverage no cache tests
 
 style-check: ## To check code-styling
 	@echo "--> \033[0;32mChecking the code style...\033[0m"
-	docker-compose run start-api black -S -t py38 -l 88 --check . --exclude '/(\.git|venv|env|build|dist)/'
+	docker-compose run start-api black -S -t py38 -l 79 --check . --exclude '/(\.git|venv|env|build|dist)/'
 	docker-compose down
 
 safe: ## To check code dependencies

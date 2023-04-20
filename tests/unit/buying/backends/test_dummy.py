@@ -13,7 +13,8 @@ class TestDummyBackend:
         assert issubclass(DummyBackend, BaseBackend)
 
     @pytest.mark.parametrize(
-        "receipt,expected", (("dummy_receipt", True), ("invalid_receipt", False))
+        "receipt,expected",
+        (("dummy_receipt", True), ("invalid_receipt", False)),
     )
     def test_is_valid_receipt(self, receipt, expected):
         result = self.backend._is_valid_receipt(receipt)

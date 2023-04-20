@@ -9,7 +9,6 @@ from apps.material.models.utils.file import material_file_directory_path
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -35,22 +34,28 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 (
                     "title",
-                    models.CharField(max_length=255, unique=True, verbose_name="Title"),
+                    models.CharField(
+                        max_length=255, unique=True, verbose_name="Title"
+                    ),
                 ),
                 (
                     "description",
-                    models.TextField(blank=True, null=True, verbose_name="Description"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Description"
+                    ),
                 ),
                 (
                     "color",
@@ -85,16 +90,21 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Title"),
+                ),
                 ("description", models.TextField(verbose_name="Description")),
                 (
                     "image",
@@ -114,12 +124,18 @@ class Migration(migrations.Migration):
                         verbose_name="Trailer",
                     ),
                 ),
-                ("is_paid", models.BooleanField(default=True, verbose_name="Is Paid")),
+                (
+                    "is_paid",
+                    models.BooleanField(default=True, verbose_name="Is Paid"),
+                ),
                 ("slug", models.SlugField(verbose_name="Slug")),
                 (
                     "course_mode",
                     models.CharField(
-                        choices=[("open", "Open"), ("progressive", "Progressive")],
+                        choices=[
+                            ("open", "Open"),
+                            ("progressive", "Progressive"),
+                        ],
                         default="open",
                         help_text=(
                             "Open so you can access any class at any time. Progressive "
@@ -180,16 +196,21 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Title"),
+                ),
                 ("description", models.TextField(verbose_name="Description")),
                 (
                     "thumbnail",
@@ -200,7 +221,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "order",
-                    models.IntegerField(blank=True, null=True, verbose_name="Order"),
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Order"
+                    ),
                 ),
                 (
                     "lesson_type",
@@ -214,7 +237,12 @@ class Migration(migrations.Migration):
                         verbose_name="Lesson Type",
                     ),
                 ),
-                ("text", models.TextField(blank=True, null=True, verbose_name="Text")),
+                (
+                    "text",
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Text"
+                    ),
+                ),
                 (
                     "reading_time",
                     models.IntegerField(
@@ -305,13 +333,15 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 ("text", models.TextField(verbose_name="Text")),

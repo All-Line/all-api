@@ -8,7 +8,6 @@ from apps.material.models.utils.file import material_file_directory_path
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("service", "0001_initial"),
         ("material", "0001_initial"),
@@ -31,19 +30,27 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "title",
+                    models.CharField(max_length=255, verbose_name="Title"),
+                ),
                 ("description", models.TextField(verbose_name="Description")),
                 ("slug", models.SlugField(verbose_name="Slug")),
-                ("is_paid", models.BooleanField(default=True, verbose_name="Is Paid")),
+                (
+                    "is_paid",
+                    models.BooleanField(default=True, verbose_name="Is Paid"),
+                ),
                 (
                     "starts_at",
                     models.DateTimeField(

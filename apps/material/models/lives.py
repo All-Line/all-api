@@ -18,7 +18,8 @@ class LiveModel(BaseModel):
     slug = models.SlugField(verbose_name=_("Slug"))
     is_paid = models.BooleanField(verbose_name=_("Is Paid"), default=True)
     starts_at = models.DateTimeField(
-        verbose_name=_("Starts At"), help_text=_("The day and time the live will start")
+        verbose_name=_("Starts At"),
+        help_text=_("The day and time the live will start"),
     )
     integration_field = models.TextField(
         verbose_name=_("Integration Field"),

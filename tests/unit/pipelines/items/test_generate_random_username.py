@@ -13,13 +13,14 @@ class TestGenerateRandomUsername:
         assert issubclass(self.item, BasePipeItem)
 
     @patch("pipelines.items.generate_random_username.UserModel")
-    @patch("pipelines.items.generate_random_username.randint")
-    def test_generate_random_username_successfully(self, mock_randint, mock_user_model):
-        pipeline = Mock(first_name="some_first_name", last_name="some_last_name")
+    @patch("pipelines.items.generate_random_username.randint", return_value=1)
+    def test_generate_random_username_successfully(
+        self, mock_randint, mock_user_model
+    ):
+        pipeline = Mock(service=Mock(slug="some_slug"))
         item = self.item(pipeline)
 
-        mock_randint.return_value = 1
-        username = "some_first_name-some_last_name-1111"
+        username = "some_slug-1111"
 
         mock_user_model.DoesNotExist = Exception
         mock_user_model.objects.get.side_effect = Exception()

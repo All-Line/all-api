@@ -8,6 +8,7 @@ from apps.user.managers import UserForRetentionManager, UserManager
 from apps.user.models import (
     UserForRetentionProxy,
     UserModel,
+    delete_old_profile_image,
     profile_image_directory_path,
 )
 
@@ -156,7 +157,7 @@ class TestUserModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 20
+        assert len(self.model._meta.fields) == 21
 
     def test_can_access_with_paid_course(self):
         course = Mock(is_paid=True)
@@ -182,6 +183,27 @@ class TestUserModel:
         result = user.can_access(mock_self, course)
 
         assert result is True
+
+    def test_is_guest(self):
+        user = UserModel()
+        assert user.is_guest is False
+
+    @patch("apps.user.models.S3Boto3Storage")
+    def test_delete_old_profile_image_receiver(self, mock_storage):
+        instance = Mock()
+        sender = Mock()
+        instance.profile_image = "profile_image.jpg"
+        delete_old_profile_image(sender, instance)
+
+        sender.objects.get.assert_called_once_with(pk=instance.pk)
+
+        mock_storage.assert_called_once()
+        mock_storage.return_value.exists.assert_called_once_with(
+            sender.objects.get.return_value.profile_image.name
+        )
+        mock_storage.return_value.delete.assert_called_once_with(
+            sender.objects.get.return_value.profile_image.name
+        )
 
 
 class TestUserForRetentionProxy:
@@ -212,7 +234,9 @@ def test_profile_image_directory_path(mock_datetime):
     result = profile_image_directory_path(instance, filename)
 
     mock_datetime.now.assert_called_once()
-    mock_datetime.now.return_value.strftime.assert_called_once_with("%d%m%Y_%H:%M:%S")
+    mock_datetime.now.return_value.strftime.assert_called_once_with(
+        "%d%m%Y_%H:%M:%S"
+    )
 
     assert result == (
         f"media/{instance.first_name}_"

@@ -19,7 +19,11 @@ class TestColorAdmin:
         assert issubclass(ColorAdmin, admin.ModelAdmin)
 
     def test_list_display(self):
-        assert self.admin.list_display == ["id", "title_with_color_preview", "color"]
+        assert self.admin.list_display == [
+            "id",
+            "title_with_color_preview",
+            "color",
+        ]
 
     def test_list_filter(self):
         assert self.admin.list_filter == ["color"]

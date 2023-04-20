@@ -6,12 +6,13 @@ from pipelines.base import BasePipeItem
 
 class GenerateRandomUsername(BasePipeItem):
     def _generate_random_username(self):
-        first_name = self.pipeline.first_name.lower()
-        last_name = self.pipeline.last_name.lower()
+        service_slug = self.pipeline.service.slug
 
-        numbers = f"{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}"
+        numbers = (
+            f"{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}"
+        )
 
-        username = f"{first_name}-{last_name}-{numbers}"
+        username = f"{service_slug}-{numbers}"
 
         try:
             UserModel.objects.get(username=username)

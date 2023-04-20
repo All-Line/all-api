@@ -12,10 +12,7 @@ class CreateUser(BasePipeItem):
             email=pipeline.email,
             password=pipeline.password,
             service=pipeline.service,
-            birth_date=pipeline.birth_date,
-            document=pipeline.document,
-            country=pipeline.country,
-            profile_image=pipeline.profile_image,
+            **pipeline.kwargs,
         )
 
         self.pipeline.user = user

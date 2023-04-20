@@ -43,7 +43,9 @@ class TestContractInline:
 
         mock_len.assert_called_once()
         mock_mark_safe.assert_called_once_with(
-            f"{receipt[:receipt_length // 2] + mask + receipt[-5:receipt_length]}"
+            f"{receipt[:receipt_length // 2]}"
+            f"{mask}"
+            f"{receipt[-5:receipt_length]}"
         )
         assert result == mock_mark_safe.return_value
 
@@ -153,13 +155,7 @@ class TestUserAdmin:
     def test_fieldsets_interaction(self):
         assert self.admin.fieldsets[2] == (
             "Interaction",
-            {
-                "fields": (
-                    "is_active",
-                    "date_joined",
-                    "last_login",
-                )
-            },
+            {"fields": ("is_active", "date_joined", "last_login", "event")},
         )
 
     @patch("apps.user.admin.make_password")
@@ -195,7 +191,9 @@ class TestUserAdmin:
         mock_queryset = Mock()
         self.admin.make_superuser(None, queryset=mock_queryset)
 
-        mock_queryset.update.assert_called_once_with(is_staff=True, is_superuser=True)
+        mock_queryset.update.assert_called_once_with(
+            is_staff=True, is_superuser=True
+        )
 
 
 class TestUserForRetentionAdmin:
@@ -247,7 +245,9 @@ class TestUserForRetentionAdmin:
         mock_queryset = Mock()
         self.admin.make_retention(None, mock_queryset)
 
-        mock_queryset.update.assert_called_once_with(is_active=True, delete_reason=None)
+        mock_queryset.update.assert_called_once_with(
+            is_active=True, delete_reason=None
+        )
 
     def test_delete_users(self):
         mock_queryset = Mock()

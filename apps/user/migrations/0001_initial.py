@@ -10,7 +10,6 @@ import apps.user.models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -30,7 +29,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "password",
+                    models.CharField(max_length=128, verbose_name="password"),
+                ),
                 (
                     "is_superuser",
                     models.BooleanField(
@@ -66,30 +68,42 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "is_verified",
-                    models.BooleanField(default=False, verbose_name="Is Verified"),
+                    models.BooleanField(
+                        default=False, verbose_name="Is Verified"
+                    ),
                 ),
                 (
                     "is_premium",
-                    models.BooleanField(default=False, verbose_name="Is Premium"),
+                    models.BooleanField(
+                        default=False, verbose_name="Is Premium"
+                    ),
                 ),
                 (
                     "is_deleted",
-                    models.BooleanField(default=False, verbose_name="Is Deleted"),
+                    models.BooleanField(
+                        default=False, verbose_name="Is Deleted"
+                    ),
                 ),
                 (
                     "document",
                     models.CharField(
-                        blank=True, max_length=255, null=True, verbose_name="Document"
+                        blank=True,
+                        max_length=255,
+                        null=True,
+                        verbose_name="Document",
                     ),
                 ),
                 (
                     "email",
-                    models.EmailField(max_length=254, verbose_name="Email Address"),
+                    models.EmailField(
+                        max_length=254, verbose_name="Email Address"
+                    ),
                 ),
                 (
                     "first_name",
@@ -117,7 +131,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "birth_date",
-                    models.DateField(blank=True, null=True, verbose_name="Birth Date"),
+                    models.DateField(
+                        blank=True, null=True, verbose_name="Birth Date"
+                    ),
                 ),
                 (
                     "last_login",
@@ -128,7 +144,10 @@ class Migration(migrations.Migration):
                 (
                     "country",
                     models.CharField(
-                        blank=True, max_length=255, null=True, verbose_name="Country"
+                        blank=True,
+                        max_length=255,
+                        null=True,
+                        verbose_name="Country",
                     ),
                 ),
                 (

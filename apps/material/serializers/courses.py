@@ -7,7 +7,10 @@ from apps.material.models import (
     LessonModel,
 )
 from apps.user.models import UserModel
-from apps.visual_structure.serializers import ColorPaletteSerializer, ColorSerializer
+from apps.visual_structure.serializers import (
+    ColorPaletteSerializer,
+    ColorSerializer,
+)
 
 
 class AuthorSerializer(serializers.ModelSerializer):

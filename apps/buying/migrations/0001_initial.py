@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -33,18 +32,22 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 (
                     "name",
-                    models.CharField(max_length=255, unique=True, verbose_name="Title"),
+                    models.CharField(
+                        max_length=255, unique=True, verbose_name="Title"
+                    ),
                 ),
                 (
                     "backend",
@@ -76,16 +79,21 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("label", models.CharField(max_length=255, verbose_name="Label")),
+                (
+                    "label",
+                    models.CharField(max_length=255, verbose_name="Label"),
+                ),
                 ("price", models.FloatField(verbose_name="Price")),
                 ("slug", models.SlugField(verbose_name="Slug")),
                 (
@@ -136,13 +144,15 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 ("receipt", models.TextField(verbose_name="Receipt")),

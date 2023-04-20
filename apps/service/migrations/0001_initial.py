@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -30,22 +29,33 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
-                ("name", models.CharField(max_length=255, verbose_name="Name")),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Name"),
+                ),
                 ("slug", models.SlugField(verbose_name="Slug Field")),
-                ("url", models.URLField(blank=True, null=True, verbose_name="URL")),
+                (
+                    "url",
+                    models.URLField(blank=True, null=True, verbose_name="URL"),
+                ),
                 (
                     "smtp_email",
                     models.EmailField(
-                        blank=True, max_length=254, null=True, verbose_name="SMTP Email"
+                        blank=True,
+                        max_length=254,
+                        null=True,
+                        verbose_name="SMTP Email",
                     ),
                 ),
                 (
@@ -79,7 +89,9 @@ class Migration(migrations.Migration):
                 (
                     "terms",
                     models.TextField(
-                        blank=True, null=True, verbose_name="Terms and Conditions"
+                        blank=True,
+                        null=True,
+                        verbose_name="Terms and Conditions",
                     ),
                 ),
                 (
@@ -113,13 +125,15 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 (
@@ -130,8 +144,14 @@ class Migration(migrations.Migration):
                         verbose_name="Credential Config Type",
                     ),
                 ),
-                ("field", models.CharField(max_length=255, verbose_name="Field")),
-                ("label", models.CharField(max_length=255, verbose_name="Label")),
+                (
+                    "field",
+                    models.CharField(max_length=255, verbose_name="Field"),
+                ),
+                (
+                    "label",
+                    models.CharField(max_length=255, verbose_name="Label"),
+                ),
                 (
                     "field_html_type",
                     models.CharField(
@@ -202,13 +222,15 @@ class Migration(migrations.Migration):
                 (
                     "date_joined",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
+                        default=django.utils.timezone.now,
+                        verbose_name="date joined",
                     ),
                 ),
                 (
                     "date_modified",
                     models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date modified"
+                        default=django.utils.timezone.now,
+                        verbose_name="date modified",
                     ),
                 ),
                 (
@@ -221,7 +243,10 @@ class Migration(migrations.Migration):
                         max_length=255,
                     ),
                 ),
-                ("email_html_template", models.TextField(verbose_name="HTML Template")),
+                (
+                    "email_html_template",
+                    models.TextField(verbose_name="HTML Template"),
+                ),
                 (
                     "email_subject",
                     models.CharField(max_length=255, verbose_name="Subject"),
