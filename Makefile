@@ -24,6 +24,7 @@ build-no-cache:  ## To build with docker-compose and without cache
 	export DOCKER_BUILDKIT=1;docker-compose build --no-cache
 
 install-requirements:  ## To install requirements
+	pip install --upgrade pip
 	pip install -r requirements/dev.txt
 	pip install -r requirements/tests.txt
 	pip install -r requirements/base.txt
