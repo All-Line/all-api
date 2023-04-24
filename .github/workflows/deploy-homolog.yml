@@ -11,16 +11,16 @@ permissions:
   contents: read
 
 env:
-  POSTGRES_USER: $ {{ POSTGRES_HML_USER }}
-  POSTGRES_PASSWORD: $ {{ POSTGRES_HML_PASSWORD }}
-  POSTGRES_DB: $ {{ POSTGRES_HML_DB }}
-  DB_HOST: $ {{ POSTGRES_HML_HOST }}
-  DB_PORT: $ {{ POSTGRES_HML_PORT }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_HML_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_HML_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_HML_DB }}
+  DB_HOST: ${{ secrets.POSTGRES_HML_HOST }}
+  DB_PORT: ${{ secrets.POSTGRES_HML_PORT }}
 
-  EMAIL_HOST_PASSWORD: $ {{ EMAIL_HOST_PASSWORD_HML }}
+  EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD_HML }}
 
-  APPLE_SECRET_KEY: $ {{ APPLE_SECRET_KEY }}
-  APPLE_SHARED_SECRET: $ {{ APPLE_SHARED_SECRET }}
+  APPLE_SECRET_KEY: ${{ secrets.APPLE_SECRET_KEY }}
+  APPLE_SHARED_SECRET: ${{ secrets.APPLE_SHARED_SECRET }}
 
   ENVIRONMENT: hml
 
@@ -37,13 +37,13 @@ jobs:
         python-version: "3.8"
     - name: Building Environment
       run: |
-        echo POSTGRES_USER=${{ POSTGRES_HML_USER }} >> .env
-        echo POSTGRES_PASSWORD=${{ POSTGRES_HML_PASSWORD }} >> .env
-        echo POSTGRES_DB=${{ POSTGRES_HML_DB }} >> .env
-        echo DB_HOST=${{ POSTGRES_HML_HOST }} >> .env
-        echo DB_PORT=${{ POSTGRES_HML_PORT }} >> .env
-        echo EMAIL_HOST_PASSWORD=${{ EMAIL_HOST_PASSWORD_HML }} >> .env
-        echo APPLE_SECRET_KEY=${{ APPLE_SHARED_SECRET }} >> .env
+        echo POSTGRES_USER=${{ secrets.POSTGRES_HML_USER }} >> .env
+        echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_HML_PASSWORD }} >> .env
+        echo POSTGRES_DB=${{ secrets.POSTGRES_HML_DB }} >> .env
+        echo DB_HOST=${{ secrets.POSTGRES_HML_HOST }} >> .env
+        echo DB_PORT=${{ secrets.POSTGRES_HML_PORT }} >> .env
+        echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD_HML }} >> .env
+        echo APPLE_SECRET_KEY=${{ secrets.APPLE_SHARED_SECRET }} >> .env
         echo ENVIRONMENT=hml >> .env
 
     - name: Install dependencies
@@ -58,8 +58,8 @@ jobs:
         source venv/bin/activate
         aws configure set region us-east-2
         aws configure set output json
-        aws configure set aws_access_key_id ${{ AWS_ACCESS_KEY_ID }}
-        aws configure set aws_secret_access_key ${{ AWS_SECRET_ACCESS_KEY }}
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Migrating the database
       run: |
