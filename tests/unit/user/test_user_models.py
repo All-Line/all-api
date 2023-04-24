@@ -234,9 +234,7 @@ def test_profile_image_directory_path(mock_datetime):
     result = profile_image_directory_path(instance, filename)
 
     mock_datetime.now.assert_called_once()
-    mock_datetime.now.return_value.strftime.assert_called_once_with(
-        "%d%m%Y_%H:%M:%S"
-    )
+    mock_datetime.now.return_value.strftime.assert_called_once_with("%d%m%Y_%H:%M:%S")
 
     assert result == (
         f"media/{instance.first_name}_"

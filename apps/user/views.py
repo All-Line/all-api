@@ -22,9 +22,7 @@ from utils.auth import BearerTokenAuthentication
 from utils.mixins.multiserializer import MultiSerializerMixin
 
 
-class UserViewSet(
-    MultiSerializerMixin, GenericViewSet, mixins.CreateModelMixin
-):
+class UserViewSet(MultiSerializerMixin, GenericViewSet, mixins.CreateModelMixin):
     authentication_classes = [BearerTokenAuthentication]
     permission_classes = [UserPermissions]
     serializers = {
@@ -87,9 +85,7 @@ class UserViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @swagger_auto_schema(operation_summary=_("Confirm Email"))
-    @action(
-        detail=False, url_path="confirm_email/(?P<token>.+)", methods=["get"]
-    )
+    @action(detail=False, url_path="confirm_email/(?P<token>.+)", methods=["get"])
     def confirm_email(self, request, token):
         try:
             token = (

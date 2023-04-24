@@ -14,9 +14,7 @@ class TestGenerateRandomUsername:
 
     @patch("pipelines.items.generate_random_username.UserModel")
     @patch("pipelines.items.generate_random_username.randint", return_value=1)
-    def test_generate_random_username_successfully(
-        self, mock_randint, mock_user_model
-    ):
+    def test_generate_random_username_successfully(self, mock_randint, mock_user_model):
         pipeline = Mock(service=Mock(slug="some_slug"))
         item = self.item(pipeline)
 

@@ -12,9 +12,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="eventmodel",
             name="event_link",
-            field=models.URLField(
-                blank=True, null=True, verbose_name="Event Link"
-            ),
+            field=models.URLField(blank=True, null=True, verbose_name="Event Link"),
         ),
         migrations.AlterField(
             model_name="eventmodel",

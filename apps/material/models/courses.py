@@ -10,12 +10,8 @@ from .utils.file import material_file_directory_path
 
 
 class CourseCategoryModel(BaseModel):
-    title = models.CharField(
-        verbose_name=_("Title"), max_length=255, unique=True
-    )
-    description = models.TextField(
-        verbose_name=_("Description"), null=True, blank=True
-    )
+    title = models.CharField(verbose_name=_("Title"), max_length=255, unique=True)
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     color = models.ForeignKey(
         ColorModel,
         verbose_name=_("Color"),
@@ -191,6 +187,4 @@ class CommentModel(BaseModel):
         verbose_name_plural = _("Comments")
 
     def __str__(self):
-        return (
-            f"{self.author.username}'s comment in {self.lesson.title} lesson"
-        )
+        return f"{self.author.username}'s comment in {self.lesson.title} lesson"

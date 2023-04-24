@@ -8,9 +8,7 @@ class GenerateRandomUsername(BasePipeItem):
     def _generate_random_username(self):
         service_slug = self.pipeline.service.slug
 
-        numbers = (
-            f"{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}"
-        )
+        numbers = f"{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}"
 
         username = f"{service_slug}-{numbers}"
 

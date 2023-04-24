@@ -57,9 +57,7 @@ class TestUserViewSet:
         result = self.view.me(request)
 
         mock_get_serializer.assert_called_once_with(request.user)
-        mock_response.assert_called_once_with(
-            mock_get_serializer.return_value.data
-        )
+        mock_response.assert_called_once_with(mock_get_serializer.return_value.data)
         assert result == mock_response.return_value
 
     @patch("apps.user.views.Response")
@@ -76,9 +74,7 @@ class TestUserViewSet:
         )
         mock_get_serializer.return_value.save.assert_called_once()
 
-        mock_response.assert_called_once_with(
-            mock_get_serializer.return_value.data
-        )
+        mock_response.assert_called_once_with(mock_get_serializer.return_value.data)
         assert result == mock_response.return_value
 
     @patch("apps.user.views.Response")
@@ -117,9 +113,7 @@ class TestUserViewSet:
             raise_exception=True
         )
         mock_request.user.save.assert_called_once()
-        mock_response.assert_called_once_with(
-            status=status.HTTP_204_NO_CONTENT
-        )
+        mock_response.assert_called_once_with(status=status.HTTP_204_NO_CONTENT)
         assert mock_request.user.delete_reason == "delete test"
         assert mock_request.user.is_deleted is True
         assert mock_request.user.is_active is False
@@ -176,19 +170,13 @@ class TestUserViewSet:
 
         mock_token.objects.select_related.assert_called_once_with("user")
         select_related.only.assert_called_once_with("user", "created")
-        select_related.only.return_value.get.assert_called_once_with(
-            key=token_key
-        )
-        service.email_configs.only.assert_called_once_with(
-            "email_link_expiration"
-        )
+        select_related.only.return_value.get.assert_called_once_with(key=token_key)
+        service.email_configs.only.assert_called_once_with("email_link_expiration")
         service.email_configs.only.return_value.filter.assert_called_once_with(
             email_config_type="register"
         )
         service.email_configs.only.return_value.filter.return_value.first.assert_called_once()  # noqa: E501
-        mock_timedelta.assert_called_once_with(
-            hours=email_config.email_link_expiration
-        )
+        mock_timedelta.assert_called_once_with(hours=email_config.email_link_expiration)
         mock_timezone.now.assert_called_once()
         token.delete.assert_called_once()
         user.delete.assert_called_once()
@@ -228,9 +216,7 @@ class TestUserViewSet:
         select_related.only.return_value.get.assert_called_once_with(  # noqa: E501
             key=token_key
         )
-        service.email_configs.only.assert_called_once_with(
-            "email_link_expiration"
-        )
+        service.email_configs.only.assert_called_once_with("email_link_expiration")
         service.email_configs.only.return_value.filter.assert_called_once_with(
             email_config_type="register"
         )
@@ -275,19 +261,13 @@ class TestUserViewSet:
 
         mock_token.objects.select_related.assert_called_once_with("user")
         select_related.only.assert_called_once_with("user", "created")
-        select_related.only.return_value.get.assert_called_once_with(
-            key=token_key
-        )
-        service.email_configs.only.assert_called_once_with(
-            "email_link_expiration"
-        )
+        select_related.only.return_value.get.assert_called_once_with(key=token_key)
+        service.email_configs.only.assert_called_once_with("email_link_expiration")
         service.email_configs.only.return_value.filter.assert_called_once_with(
             email_config_type="register"
         )
         service.email_configs.only.return_value.filter.return_value.first.assert_called_once()  # noqa: E501
-        mock_timedelta.assert_called_once_with(
-            hours=email_config.email_link_expiration
-        )
+        mock_timedelta.assert_called_once_with(hours=email_config.email_link_expiration)
         mock_timezone.now.assert_called_once()
         token.delete.assert_called_once()
         user.delete.assert_not_called()

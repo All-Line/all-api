@@ -152,9 +152,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "description",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Description"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Description"),
                 ),
                 (
                     "attachment",

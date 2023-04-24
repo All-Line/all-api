@@ -45,9 +45,7 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {
-            "password": ["The passwords doesn't match."]
-        }
+        assert response.json() == {"password": ["The passwords doesn't match."]}
 
     def test_registration_failure_password_does_not_match_rule(
         self, api_client, dummy_service
@@ -96,9 +94,7 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {
-            "service": ["Object with slug=foo does not exist."]
-        }
+        assert response.json() == {"service": ["Object with slug=foo does not exist."]}
 
     def test_registration_failure_with_email_duplicated(
         self, api_client, dummy_service
@@ -116,9 +112,7 @@ class TestUserRegistration:
         response = api_client.post(path, data)
 
         assert response.status_code == 400
-        assert response.json() == {
-            "user": ["A user with this email already exists."]
-        }
+        assert response.json() == {"user": ["A user with this email already exists."]}
 
     def test_registration_failure_due_to_required_extra_field(
         self, api_client, dummy_service
