@@ -9,7 +9,7 @@ django-cors-headers
 redis
 psycopg2
 psycopg2-binary
-setuptools==57.5.0
+setuptools==65.5.1
 geoip2
 python-decouple
 python-jose[cryptography]
