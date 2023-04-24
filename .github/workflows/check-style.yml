@@ -28,4 +28,4 @@ jobs:
         pip install -r requirements/dev.txt
     - name: Style Check
       run: |
-        black -S -t py38 -l 79 --check . --exclude '/(\.git|venv|env|build|dist)/'
+        black -S -t py38 -l 88 --check . --exclude '/(\.git|venv|env|build|dist)/'
