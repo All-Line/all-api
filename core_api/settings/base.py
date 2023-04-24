@@ -4,9 +4,7 @@ from decouple import config as env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = (
-    "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
-)
+SECRET_KEY = "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
 DEBUG = True
 
 AUTH_USER_MODEL = "user.UserModel"
@@ -27,6 +25,7 @@ THIRD_APPS = [
     "rest_framework.authtoken",
     "drf_yasg",
     "colorfield",
+    "corsheaders",
 ]
 LOCAL_APPS = [
     "apps.user",
@@ -41,6 +40,7 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -158,3 +158,5 @@ DEFAULT_REGISTER_CREDENTIAL_CONFIGS = [
 DEFAULT_CREDENTIAL_CONFIGS = (
     DEFAULT_LOGIN_CREDENTIAL_CONFIGS + DEFAULT_REGISTER_CREDENTIAL_CONFIGS
 )
+
+CORS_ORIGIN_ALLOW_ALL = True

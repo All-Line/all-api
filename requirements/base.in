@@ -1,13 +1,15 @@
 awscli
-django==3.2.16
+django==3.2.18
 django-redis
 djangorestframework
 django-s3-storage
 drf-yasg
 django-storages
+django-cors-headers
 redis
 psycopg2
 psycopg2-binary
+setuptools==57.5.0
 geoip2
 python-decouple
 python-jose[cryptography]

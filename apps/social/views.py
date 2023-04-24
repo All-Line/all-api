@@ -16,6 +16,7 @@ from .serializers import (
     ListPostCommentSerializer,
     ListPostSerializer,
     ListReactTypesSerializer,
+    UnreactSerializer,
 )
 
 
@@ -37,6 +38,7 @@ class PostViewSet(
         "retrieve": ListPostSerializer,
         "comment": CreatePostCommentSerializer,
         "react": CreateReactionSerializer,
+        "unreact": UnreactSerializer,
         "react_types": ListReactTypesSerializer,
     }
 
@@ -73,6 +75,16 @@ class PostViewSet(
     @swagger_auto_schema(operation_summary=_("React to post"))
     @action(detail=False, methods=["post"])
     def react(self, request):
+        data = request.data
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @swagger_auto_schema(operation_summary=_("Remove reaction"))
+    @action(detail=False, methods=["post"])
+    def unreact(self, request):
         data = request.data
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)

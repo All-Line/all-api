@@ -36,7 +36,7 @@ def test_post_attachment_directory_path(mock_datetime):
 def test_event_directory_path(mock_datetime):
     mock_datetime.now.return_value.strftime.return_value = "01012020_12:00:00"
     instance = Mock()
-    instance.name = "Test"
+    instance.title = "Test"
     instance.id = 1
     filename = "test.jpg"
 
@@ -49,11 +49,12 @@ class TestReactionsMixin:
     def test_reactions_amount(self):
         mixin = ReactionsMixin()
         mixin.reactions = Mock()
-        mixin.reactions.count.return_value = 1
 
         result = mixin.reactions_amount
 
-        assert result == 1
+        mixin.reactions.count.assert_called_once()
+
+        assert result == mixin.reactions.count.return_value
 
     def test_react_with_user_reaction(self):
         user = Mock()
@@ -83,23 +84,9 @@ class TestReactionsMixin:
         result = mixin.react(user, 1)
         mixin.reactions.filter.assert_called_once_with(user=user)
         mixin.reactions.filter.return_value.first.assert_called_once()
-        mixin.reactions.create.assert_called_once_with(
-            reaction_type_id=1, user=user
-        )
+        mixin.reactions.create.assert_called_once_with(reaction_type_id=1, user=user)
 
         assert result == user_reaction
-
-    def test_unreact(self):
-        user = Mock()
-        user_reaction = Mock()
-        mixin = ReactionsMixin()
-        mixin.reactions = Mock()
-        mixin.reactions.filter.return_value = user_reaction
-
-        mixin.unreact(user)
-
-        mixin.reactions.filter.assert_called_once_with(user=user)
-        user_reaction.delete.assert_called_once()
 
 
 class TestReactionTypeModel:
@@ -353,16 +340,14 @@ class TestEventModel:
         assert type(field) == models.BooleanField
         assert field.verbose_name == "Send email to guests"
         assert field.default is False
-        assert field.help_text == (
-            "Send email to guests with their credentials"
-        )
+        assert field.help_text == ("Send email to guests with their credentials")
 
     def test_event_link_field(self):
         field = self.model._meta.get_field("event_link")
 
         assert type(field) == models.URLField
         assert field.verbose_name == "Event Link"
-        assert field.help_text == ("Link for guests to access the event")
+        assert field.help_text == "Link for guests to access the event"
         assert field.null is True
         assert field.blank is True
 
@@ -390,6 +375,107 @@ class TestEventModel:
             "0 Wrong password format: //",
         ]
 
+    @pytest.mark.parametrize(
+        "email, password, line_number, expected",
+        [
+            # Email fail cases
+            (
+                "andrew.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew.com"],
+            ),
+            (
+                "andrew@.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@.com"],
+            ),
+            (
+                "andrew@gmail.c",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@gmail.c"],
+            ),
+            (
+                "andrew@com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@com"],
+            ),
+            (
+                "andrew@com.",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@com."],
+            ),
+            (
+                "andrew@gmail",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@gmail"],
+            ),
+            (
+                "andrew@gmail.",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@gmail."],
+            ),
+            (
+                "andrew@gmail!",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@gmail!"],
+            ),
+            (
+                "andrew@$gmail.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew@$gmail.com"],
+            ),
+            (
+                ".andrew@gmail.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: .andrew@gmail.com"],
+            ),
+            (
+                "andrew..marques@gmail.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew..marques@gmail.com"],
+            ),
+            (
+                "andrew...marques@gmail.com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew...marques@gmail.com"],
+            ),
+            (
+                "andrew.@gmail..com",
+                "change1234",
+                "0",
+                ["0 Wrong email format: andrew.@gmail..com"],
+            ),
+            # Email success cases
+            ("andrew@gmail.com", "change1234", "0", []),
+            ("andrew@gmail.com.br", "change1234", "0", []),
+            ("andrew.marques@gmail.com", "change1234", "0", []),
+            ("andrew!$%^&*@gmail.com", "change1234", "0", []),
+        ],
+    )
+    def test_verify_errors_functional(
+        self,
+        email,
+        password,
+        line_number,
+        expected,
+    ):
+        errors = []
+        self.model._verify_errors(errors, email, password, line_number)
+
+        assert errors == expected
+
     @patch.object(EventModel, "_verify_errors")
     @patch.object(EventModel, "get_guests", return_value=["email,password"])
     def test_validate_guests_format_successfully(
@@ -405,9 +491,7 @@ class TestEventModel:
         )
 
     @patch.object(EventModel, "_verify_errors")
-    @patch.object(
-        EventModel, "get_guests", return_value=["email", "email,password"]
-    )
+    @patch.object(EventModel, "get_guests", return_value=["email", "email,password"])
     def test_validate_guests_format_with_errors(
         self, mock_get_guests, mock_verify_errors
     ):

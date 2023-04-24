@@ -78,3 +78,6 @@ setup: ## To setup local environment
 superuser: ## To create super user
 	@echo "--> \033[0;32mIntroduce your local credentials:\033[0m"
 	docker-compose run start-api $(DJANGO_COMMAND) createsuperuser
+
+deploy: ## To deploy
+	zappa update $(env)

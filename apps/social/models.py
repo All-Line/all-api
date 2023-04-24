@@ -17,8 +17,7 @@ def post_attachment_directory_path(instance, filename):
     date = date_now.strftime("%d%m%Y_%H:%M:%S")
 
     return (
-        f"media/posts/{instance.author.first_name}_"
-        f"{instance.id}_{date}_{filename}"
+        f"media/posts/{instance.author.first_name}_" f"{instance.id}_{date}_{filename}"
     )
 
 
@@ -26,7 +25,7 @@ def event_directory_path(instance, filename):
     date_now = datetime.now()
     date = date_now.strftime("%d%m%Y_%H:%M:%S")
 
-    return f"media/event/{instance.name}_" f"{instance.id}_{date}_{filename}"
+    return f"media/event/{instance.title}_" f"{instance.id}_{date}_{filename}"
 
 
 class ReactionsMixin:
@@ -40,14 +39,7 @@ class ReactionsMixin:
             user_reaction.reaction_type_id = reaction_type_id
             user_reaction.save()
             return user_reaction
-        return self.reactions.create(
-            reaction_type_id=reaction_type_id, user=user
-        )
-
-    def unreact(self, user: UserModel):
-        user_reaction = self.reactions.filter(user=user)
-        if user_reaction:
-            user_reaction.delete()
+        return self.reactions.create(reaction_type_id=reaction_type_id, user=user)
 
 
 class ReactionTypeModel(BaseModel):
@@ -99,9 +91,7 @@ class ReactionModel(BaseModel):
 
 
 class PostCommentModel(BaseModel, ReactionsMixin):
-    content = models.TextField(
-        verbose_name=_("Content"), null=True, blank=True
-    )
+    content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
     post = models.ForeignKey(
         "PostModel",
         verbose_name=_("Post"),
@@ -153,9 +143,7 @@ class EventModel(BaseModel):
         verbose_name=_("Title"),
         max_length=255,
     )
-    description = models.TextField(
-        verbose_name=_("Description"), null=True, blank=True
-    )
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     attachment = models.FileField(
         verbose_name=_("Attachment"),
         upload_to=event_directory_path,
@@ -215,10 +203,12 @@ class EventModel(BaseModel):
         return result
 
     @staticmethod
-    def _verify_errors(
-        errors: list, email: str, password: str, line_number: str
-    ):
-        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    def _verify_errors(errors: list, email: str, password: str, line_number: str):
+        # A wrong email regex:
+        email_regex = (
+            r"^([a-z0-9]+)[a-z0-9.-][^\.]*([a-z0-9!@#$%^&*()_+]+)"
+            r"@([a-z0-9]+)[a-z0-9.-]*\.[a-z0-9]*([a-z0-9]+){2,}$"
+        )
         password_regex = r"^[a-zA-Z0-9!@#$%^&*()_+]+$"
 
         if not re.match(email_regex, email):
@@ -270,9 +260,7 @@ class EventModel(BaseModel):
 
 
 class PostModel(BaseModel, ReactionsMixin):
-    description = models.TextField(
-        verbose_name=_("Description"), null=True, blank=True
-    )
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     attachment = models.FileField(
         verbose_name=_("Attachment"),
         upload_to=post_attachment_directory_path,

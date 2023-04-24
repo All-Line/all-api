@@ -1,12 +1,8 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from ..user.serializers import UserDataSerializer
-from .models import (
-    PostCommentModel,
-    PostModel,
-    ReactionModel,
-    ReactionTypeModel,
-)
+from .models import PostCommentModel, PostModel, ReactionModel, ReactionTypeModel
 
 
 class ListReactionSerializer(serializers.ModelSerializer):
@@ -88,3 +84,20 @@ class ListReactTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReactionTypeModel
         fields = "__all__"
+
+
+class UnreactSerializer(serializers.Serializer):
+    reaction = serializers.PrimaryKeyRelatedField(
+        queryset=ReactionModel.objects.all(),
+    )
+
+    def create(self, validated_data):
+        request = self.context["request"]
+        user = request.user
+
+        reaction = validated_data["reaction"]
+
+        if user != reaction.user:
+            raise ValidationError({"error": "You can't delete this reaction"})
+
+        return reaction.delete()
