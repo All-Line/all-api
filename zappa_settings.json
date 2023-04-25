@@ -10,7 +10,8 @@
     "slim_handler": true,
     "cors_enabled": true,
     "cors_origin": "*",
-    "cors_headers": "*"
+    "cors_headers": "*",
+    "cors_methods": ["GET", "POST", "PUT", "DELETE"]
   },
   "prd": {
     "django_settings": "core_api.settings.prod",
@@ -23,6 +24,7 @@
     "slim_handler": true,
     "cors_enabled": true,
     "cors_origin": "*",
-    "cors_headers": "*"
+    "cors_headers": "*",
+    "cors_methods": ["GET", "POST", "PUT", "DELETE"]
   }
 }
