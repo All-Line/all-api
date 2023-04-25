@@ -22,6 +22,7 @@ example: * date_at - fixed some bug.
 
 * 2023-04-24 - Limpado o arquivo `CHANGELOG.md` para iniciar o versionamento do projeto.
 * 2023-04-24 - Modificado nome dos arquivos de workflow e título dos mesmos
+* 2023-04-25 - Modificado nome do sistema para All Line System
 
 ### Added
 
