@@ -12,7 +12,9 @@ AUTH_USER_MODEL = "user.UserModel"
 ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
-CORS_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOWED_ORIGINS = [
+    "*",
+]
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -35,6 +37,7 @@ CORS_ALLOW_HEADERS = [
 ]
 
 DJANGO_APPS = [
+    "corsheaders",
     "core_api.config.suit.SuitConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -48,7 +51,6 @@ THIRD_APPS = [
     "rest_framework.authtoken",
     "drf_yasg",
     "colorfield",
-    "corsheaders",
 ]
 LOCAL_APPS = [
     "apps.user",
