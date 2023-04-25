@@ -40,9 +40,9 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -159,7 +159,7 @@ DEFAULT_CREDENTIAL_CONFIGS = (
     DEFAULT_LOGIN_CREDENTIAL_CONFIGS + DEFAULT_REGISTER_CREDENTIAL_CONFIGS
 )
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
