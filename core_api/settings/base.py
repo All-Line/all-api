@@ -159,6 +159,7 @@ DEFAULT_CREDENTIAL_CONFIGS = (
     DEFAULT_LOGIN_CREDENTIAL_CONFIGS + DEFAULT_REGISTER_CREDENTIAL_CONFIGS
 )
 
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -178,4 +179,5 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "access-control-allow-origin",
 ]
