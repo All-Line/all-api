@@ -10,6 +10,29 @@ DEBUG = True
 AUTH_USER_MODEL = "user.UserModel"
 
 ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "access-control-allow-origin",
+]
 
 DJANGO_APPS = [
     "core_api.config.suit.SuitConfig",
@@ -158,26 +181,3 @@ DEFAULT_REGISTER_CREDENTIAL_CONFIGS = [
 DEFAULT_CREDENTIAL_CONFIGS = (
     DEFAULT_LOGIN_CREDENTIAL_CONFIGS + DEFAULT_REGISTER_CREDENTIAL_CONFIGS
 )
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = ["*"]
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-    "access-control-allow-origin",
-]
