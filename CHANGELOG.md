@@ -26,7 +26,7 @@ example: * date_at - fixed some bug.
 ### Added
 
 * 2023-04-24 - Adicionado upgrade do pip no comando `make install-requirements`
-* 2023-04-35 - Adicionada integração com a mensagem do slack para o deploy
+* 2023-04-25 - Adicionada integração com a mensagem do slack para o deploy
 
 ### Fixed
 
