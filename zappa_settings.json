@@ -9,7 +9,6 @@
     "timeout_seconds": 600,
     "slim_handler": true,
     "cors_enabled": true,
-    "cors_expose_headers": "Content-Length, X-Kuma-Revision, X-Kuma-Tag",
     "cors_origin": "*",
     "cors_headers": "*"
   },
@@ -23,7 +22,6 @@
     "timeout_seconds": 600,
     "slim_handler": true,
     "cors_enabled": true,
-    "cors_expose_headers": "Content-Length, X-Kuma-Revision, X-Kuma-Tag",
     "cors_origin": "*",
     "cors_headers": "*"
   }
