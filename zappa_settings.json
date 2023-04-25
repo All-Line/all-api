@@ -9,9 +9,9 @@
     "timeout_seconds": 600,
     "slim_handler": true,
     "cors_enabled": true,
-    "cors_origin": "*",
-    "cors_headers": "*",
-    "cors_methods": ["GET", "POST", "PUT", "DELETE"]
+    "cors_origin": "http://localhost:3000",
+    "cors_headers": "Content-Type,Authorization,X-CSRFToken",
+    "cors_methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"]
   },
   "prd": {
     "django_settings": "core_api.settings.prod",
