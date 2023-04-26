@@ -79,5 +79,5 @@ vcrpy==4.0.2
     #   pytest-vcr
 wrapt==1.15.0
     # via vcrpy
-yarl==1.9.1
+yarl==1.9.2
     # via vcrpy
