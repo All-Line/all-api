@@ -18,6 +18,8 @@ def test_send_message_to_slack(mock_env, mock_requests, mock_argparse):
 
     args = parser.parse_args.return_value
 
+    mock_env.assert_called_once_with("SLACK_MESSAGE_URL")
+
     mock_requests.post.assert_called_once_with(
         mock_env.return_value, json={"text": args.message}
     )
