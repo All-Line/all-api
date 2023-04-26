@@ -21,15 +21,15 @@ class PingViewAPI(APIView):
         return Response("pong")
 
 
-admin.site.site_header = "Start System"
-admin.site.site_title = "Start System"
-admin.site.index_title = "Start System"
+admin.site.site_header = "All Line System"
+admin.site.site_title = "All Line System"
+admin.site.index_title = "All Line System"
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="StartSystem API Gateway",
+        title="All Line System API Gateway",
         default_version="v1",
-        description=_("This is the StartNow system API layer documentation."),
+        description=_("This is the All Line system API layer documentation."),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
