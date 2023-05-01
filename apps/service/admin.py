@@ -6,6 +6,7 @@ from utils.admin import admin_method_attributes
 
 from ..social.models import EventModel, ReactionTypeModel
 from .models import (
+    ServiceClientModel,
     ServiceCredentialConfigModel,
     ServiceEmailConfigModel,
     ServiceModel,
@@ -139,3 +140,36 @@ class ServiceAdmin(admin.ModelAdmin):
             f'{_("Access the service page")}'
             "</a>"
         )
+
+
+@admin.register(ServiceClientModel)
+class ServiceClientAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "slug", "url", "is_active", "service"]
+    readonly_fields = ["id", "date_joined", "date_modified"]
+    list_filter = ["service", "is_active"]
+    filter_horizontal = ["colors_palettes"]
+    fieldsets = (
+        (
+            _("Identification"),
+            {
+                "fields": (
+                    "id",
+                    "service",
+                    "name",
+                    "slug",
+                    "url",
+                )
+            },
+        ),
+        (
+            _("Config"),
+            {
+                "fields": (
+                    "is_active",
+                    "date_joined",
+                    "date_modified",
+                    "colors_palettes",
+                )
+            },
+        ),
+    )

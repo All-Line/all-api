@@ -219,8 +219,21 @@ class LoginSerializer(serializers.Serializer):
 
 
 class AuthenticatedUserSerializer(CreateUserSerializer):
+    login_questions = serializers.SerializerMethodField()
+
     def get_token(self, user):
         return Token.objects.get_or_create(user=user)[0].key
+
+    def get_login_questions(self, user):
+        is_guest = user.is_guest
+
+        if is_guest:
+            return user.event.require_login_answers
+
+        return False
+
+    class Meta(CreateUserSerializer.Meta):
+        fields = CreateUserSerializer.Meta.fields + ["login_questions"]
 
 
 class UserForRetentionSerializer(serializers.Serializer):

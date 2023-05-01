@@ -199,3 +199,28 @@ class ServiceCredentialConfigModel(BaseModel):
 
     def __str__(self):
         return f"{self.field}'s {self.credential_config_type} config"
+
+
+class ServiceClientModel(BaseModel):
+    service = models.ForeignKey(
+        ServiceModel,
+        related_name="clients",
+        verbose_name=_("Service"),
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(verbose_name=_("Name"), max_length=255)
+    slug = models.SlugField(verbose_name=_("Slug Field"))
+    url = models.URLField(verbose_name=_("URL"), null=True, blank=True)
+    colors_palettes = models.ManyToManyField(
+        ColorPaletteModel,
+        related_name="service_clients",
+        verbose_name=_("Colors Palettes"),
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _("Client")
+        verbose_name_plural = _("Clients")
+
+    def __str__(self):
+        return f"{self.name} ({self.service.name}'s client)"
