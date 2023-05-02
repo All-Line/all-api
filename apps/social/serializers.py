@@ -45,6 +45,7 @@ class CreatePostCommentSerializer(serializers.Serializer):
         queryset=PostCommentModel.objects.all(),
         required=False,
     )
+    attachment = serializers.FileField(required=False)
 
     def create(self, validated_data):
         request = self.context["request"]
