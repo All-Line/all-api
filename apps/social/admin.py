@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 from apps.social.models import (
+    AITextReportModel,
     EventModel,
     LoginAnswer,
     LoginQuestionOption,
@@ -16,6 +17,22 @@ from utils.admin.mixins import (
     UpdateDateModifiedMixin,
     UpdateDateModifiedOrSetAuthorMixin,
 )
+
+
+@admin.register(AITextReportModel)
+class AITextReportAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "text_ai", "is_active"]
+    readonly_fields = ["id"]
+    list_filter = [
+        "is_active",
+    ]
+    search_fields = ["text_ai"]
+    fieldsets = (
+        (
+            _("Text AI Config"),
+            {"fields": ("id", "title", "pre_set", "text_ai", "is_active")},
+        ),
+    )
 
 
 class PostCommentInline(admin.TabularInline):
@@ -37,7 +54,7 @@ class PostCommentInline(admin.TabularInline):
 @admin.register(PostModel)
 class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
     list_display = ["id", "author", "service", "reactions_amount", "type"]
-    readonly_fields = ["id", "author"]
+    readonly_fields = ["id", "author", "ai_report"]
     list_filter = [
         "service__name",
     ]
@@ -46,8 +63,23 @@ class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
 
     fieldsets = (
         (_("Post"), {"fields": ("description", "attachment")}),
+        (
+            _("AI Report"),
+            {
+                "fields": (
+                    "ai_text_report",
+                    "ai_report",
+                )
+            },
+        ),
         (_("Config"), {"fields": ("author", "service", "event", "type")}),
     )
+
+    actions = ["generate_ai_report"]
+
+    def generate_ai_report(self, _, queryset):
+        for post in queryset:
+            post.generate_ai_text_report()
 
 
 @admin.register(PostCommentModel)

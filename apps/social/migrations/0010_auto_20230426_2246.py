@@ -9,7 +9,6 @@ import apps.social.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("service", "0002_serviceclientmodel"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

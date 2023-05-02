@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.service.models import ServiceClientModel, ServiceModel
+from apps.social.chat_ai import TEXT_AI
 from apps.user.models import UserModel
 from pipelines.pipes import CreateUserPipeline
 from utils.abstract_models.base_model import BaseModel
@@ -297,6 +298,36 @@ class EventModel(BaseModel):
                     pipeline.run()
 
 
+class AITextReportModel(BaseModel):
+    TEXT_AI_CHOICES = (
+        ("dummy", "Dummy"),
+        ("gpt-3", "GPT-3"),
+    )
+
+    title = models.CharField(
+        verbose_name=_("Title"),
+        max_length=255,
+    )
+    pre_set = models.TextField(verbose_name=_("Pre Set"))
+    text_ai = models.CharField(
+        verbose_name=_("Text AI"),
+        max_length=255,
+        choices=TEXT_AI_CHOICES,
+        default="dummy",
+    )
+
+    @property
+    def text_ai_client(self):
+        return TEXT_AI[self.text_ai]
+
+    class Meta:
+        verbose_name = _("AI Text Report")
+        verbose_name_plural = _("AI Text Reports")
+
+    def __str__(self):
+        return self.title
+
+
 class PostModel(BaseModel, ReactionsMixin):
     POST_TYPE = (
         ("text", "Text"),
@@ -344,6 +375,78 @@ class PostModel(BaseModel, ReactionsMixin):
         blank=True,
         on_delete=models.CASCADE,
     )
+    ai_text_report = models.ForeignKey(
+        AITextReportModel,
+        verbose_name=_("AI Text Report"),
+        related_name="posts",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    ai_report = models.TextField(
+        verbose_name=_("AI Report"),
+        null=True,
+        blank=True,
+    )
+
+    def count_reactions(self):
+        reactions = self.reactions.all()
+
+        reactions_count = {}
+
+        for reaction in reactions:
+            reactions_count[reaction.reaction_type.name] = (
+                reactions_count.get(reaction.reaction_type.name, 0) + 1
+            )
+
+        return reactions_count
+
+    def format_reactions_to_text(self):
+        reactions = self.count_reactions()
+
+        result = ""
+
+        for reaction_type, reaction_count in reactions.items():
+            result += f"{reaction_type}: {reaction_count}\n"
+
+        return result
+
+    def format_comments_to_text(self):
+        comments = self.comments.all()
+
+        result = ""
+
+        for comment in comments:
+            result += f"{comment.author.first_name}: {comment.content}\n"
+
+        return result
+
+    def get_message_to_send(self):
+        reactions = self.format_reactions_to_text()
+        comments = self.format_comments_to_text()
+
+        return f"""
+        Post:
+
+        {self.description}
+
+        Reactions:
+
+        {reactions}
+
+        Comments:
+
+        {comments}
+        """
+
+    def generate_ai_text_report(self):
+        if self.ai_text_report:
+            text_ai = self.ai_text_report.text_ai_client
+            message = self.get_message_to_send()
+            client = text_ai(self.ai_text_report.pre_set, message)
+
+            self.ai_report = client.get_response()
+            self.save()
 
     class Meta:
         verbose_name = _("Post")

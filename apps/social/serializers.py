@@ -68,6 +68,7 @@ class ListPostCommentSerializer(serializers.ModelSerializer):
             "author",
             "answers",
             "reactions",
+            "attachment",
         ]
         depth = 9
 

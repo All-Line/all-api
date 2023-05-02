@@ -51,6 +51,7 @@ jobs:
         echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> .env
         echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env
         echo SLACK_MESSAGE_URL=${{ secrets.SLACK_MESSAGE_URL }} >> .env
+        echo OPEN_AI_KEY=${{ secrets.OPEN_AI_KEY }} >> .env
         echo ENVIRONMENT=hml >> .env
 
     - name: Install dependencies

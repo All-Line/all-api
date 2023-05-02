@@ -1,4 +1,5 @@
 awscli
+chatgptonic
 django==3.2.18
 django-redis
 djangorestframework

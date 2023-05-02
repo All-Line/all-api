@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("service", "0002_serviceclientmodel"),
         ("social", "0012_missionmodel_service_client"),

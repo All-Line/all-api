@@ -8,7 +8,6 @@ import apps.social.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("social", "0008_alter_postcommentmodel_post"),
