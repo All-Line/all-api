@@ -1,9 +1,9 @@
 from unittest.mock import Mock, patch
 
 from rest_framework import mixins
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
-from apps.social.permissions import PostPermissions
 from apps.social.serializers import (
     CreatePostCommentSerializer,
     CreateReactionSerializer,
@@ -31,7 +31,7 @@ class TestPostViewSet:
         assert PostViewSet.authentication_classes == [BearerTokenAuthentication]
 
     def test_permission_classes(self):
-        assert PostViewSet.permission_classes == [PostPermissions]
+        assert PostViewSet.permission_classes == [IsAuthenticated]
 
     def test_serializers(self):
         assert PostViewSet.serializers == {

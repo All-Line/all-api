@@ -13,7 +13,7 @@ class DummyClient:
 
 
 class DummyTextAI(TextAI):
-    def __int__(self, pre_set: str = "You are Dummy Tester", message: str = None):
+    def __init__(self, pre_set: str = "You are Dummy Tester", message: str = None):
         super().__init__(pre_set, message)
 
     def get_client(self):

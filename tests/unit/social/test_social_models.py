@@ -251,7 +251,7 @@ class TestPostCommentModel:
         assert post_comment.is_answer is False
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 8
+        assert len(self.model._meta.fields) == 9
 
 
 class TestEventModel:
@@ -352,7 +352,7 @@ class TestEventModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 12
+        assert len(self.model._meta.fields) == 14
 
     def test_get_guests(self):
         event = EventModel(guests="email1,password1\nemail2,password2")
@@ -629,4 +629,4 @@ class TestPostModel:
         assert field.remote_field.on_delete.__name__ == "CASCADE"
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 9
+        assert len(self.model._meta.fields) == 12

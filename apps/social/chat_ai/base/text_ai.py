@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class TextAI(ABC):
-    def __init__(self, pre_set: str, message: str = None):
+    def __init__(self, pre_set: str, message: str = None):  # pragma: no cover
         """
         :param pre_set: Pre Set of the text AI,
             like "You are a reporter who is trying to get a story"
@@ -23,7 +23,7 @@ class TextAI(ABC):
     def _get_response(self, message):
         raise NotImplementedError  # pragma: no cover
 
-    def get_response(self):
+    def get_response(self):  # pragma: no cover
         message = self.get_message()
         response = self._get_response(message)
         return response

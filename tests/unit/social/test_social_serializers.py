@@ -115,7 +115,14 @@ class TestListPostCommentSerializer:
         assert self.serializer.Meta.model == PostCommentModel
 
     def test_meta_fields(self):
-        assert self.serializer.Meta.fields == "__all__"
+        assert self.serializer.Meta.fields == [
+            "id",
+            "content",
+            "author",
+            "answers",
+            "reactions",
+            "attachment",
+        ]
 
 
 class TestCreateReactionSerializer:
