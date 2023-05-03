@@ -56,6 +56,18 @@ class CreatePostCommentSerializer(serializers.Serializer):
         )
 
 
+class UpdatePostCommentSerializer(serializers.Serializer):
+    content = serializers.CharField()
+    attachment = serializers.FileField(required=False)
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get("content", instance.content)
+        instance.attachment = validated_data.get("attachment", instance.attachment)
+        instance.save()
+
+        return instance
+
+
 class ListPostCommentSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
     reactions = ListReactionSerializer(many=True)
