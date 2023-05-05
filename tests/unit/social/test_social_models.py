@@ -8,6 +8,8 @@ from apps.service.models import ServiceModel
 from apps.social.models import (
     AITextReportModel,
     EventModel,
+    LoginAnswer,
+    LoginQuestionOption,
     PostCommentModel,
     PostModel,
     ReactionModel,
@@ -718,6 +720,53 @@ class TestPostModel:
         assert field.related_model is EventModel
         assert field.verbose_name == "Event"
         assert field.remote_field.related_name == "posts"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 12
+
+
+class TestLoginAnswer:
+    @classmethod
+    def setup_class(cls):
+        cls.model = LoginAnswer
+
+    def test_str(self):
+        login = LoginAnswer(option=LoginQuestionOption(option="Mock Option"))
+
+        assert str(login) == "Mock Option"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Login Answer"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Login Answers"
+
+    def test_user_field(self):
+        field = self.model._meta.get_field("user")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "User"
+        assert field.remote_field.related_name == "login_answers"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_question_field(self):
+        field = self.model._meta.get_field("question")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "Question"
+        assert field.remote_field.related_name == "answers"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_option_field(self):
+        field = self.model._meta.get_field("option")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "Option"
+        assert field.remote_field.related_name == "answers"
         assert field.remote_field.on_delete.__name__ == "CASCADE"
 
     def test_length_fields(self):
