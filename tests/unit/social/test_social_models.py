@@ -6,6 +6,7 @@ from django.db import models
 
 from apps.service.models import ServiceModel
 from apps.social.models import (
+    AITextReportModel,
     EventModel,
     PostCommentModel,
     PostModel,
@@ -13,6 +14,8 @@ from apps.social.models import (
     ReactionsMixin,
     ReactionTypeModel,
     event_directory_path,
+    mission_directory_path,
+    mission_interaction_directory_path,
     post_attachment_directory_path,
 )
 from apps.user.models import UserModel
@@ -43,6 +46,36 @@ def test_event_directory_path(mock_datetime):
     result = event_directory_path(instance, filename)
 
     assert result == "media/event/Test_1_01012020_12:00:00_test.jpg"
+
+
+@patch("apps.social.models.get_formatted_datetime_now")
+def test_mission_interaction_directory_path(mock_get_formatted_datetime_now):
+    mock_instance = Mock()
+    mock_filename = "name"
+    result = mission_interaction_directory_path(mock_instance, mock_filename)
+
+    mock_get_formatted_datetime_now.assert_called_once()
+    assert result == (
+        f"media/mission_interaction/{mock_instance.user.id}"
+        f"_{mock_instance.id}"
+        f"_{mock_get_formatted_datetime_now.return_value}"
+        f"_{mock_filename}"
+    )
+
+
+@patch("apps.social.models.get_formatted_datetime_now")
+def test_mission_directory_path(mock_get_formatted_datetime_now):
+    mock_instance = Mock()
+    mock_filename = "name"
+    result = mission_directory_path(mock_instance, mock_filename)
+
+    mock_get_formatted_datetime_now.assert_called_once()
+    assert result == (
+        f"media/mission/{mock_instance.title}"
+        f"_{mock_instance.id}"
+        f"_{mock_get_formatted_datetime_now.return_value}"
+        f"_{mock_filename}"
+    )
 
 
 class TestReactionsMixin:
@@ -554,6 +587,65 @@ class TestEventModel:
             ]
         )
         mock_create_user_pipeline.return_value.run.assert_called_once()
+
+
+class TestAITextReportModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = AITextReportModel
+
+    def test_str(self):
+        report = AITextReportModel(title="some title")
+
+        assert str(report) == "some title"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "AI Text Report"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "AI Text Reports"
+
+    def test_text_ai_choices(self):
+        assert self.model.TEXT_AI_CHOICES == (
+            ("dummy", "Dummy"),
+            ("gpt-3", "GPT-3"),
+        )
+
+    def test_title_field(self):
+        field = self.model._meta.get_field("title")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Title"
+        assert field.max_length == 255
+
+    def test_pre_set_field(self):
+        field = self.model._meta.get_field("pre_set")
+
+        assert type(field) == models.TextField
+        assert field.verbose_name == "Pre Set"
+
+    def test_text_ai_field(self):
+        field = self.model._meta.get_field("text_ai")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Text AI"
+        assert field.max_length == 255
+        assert field.choices == AITextReportModel.TEXT_AI_CHOICES
+        assert field.default == "dummy"
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 7
+
+    @patch("apps.social.models.TEXT_AI")
+    def test_text_ai_client(self, mock_text_ai):
+        instance = self.model(text_ai="some_text_ai")
+        result = instance.text_ai_client
+
+        mock_text_ai.__getitem__.assert_called_once_with(instance.text_ai)
+        assert result == mock_text_ai.__getitem__.return_value
 
 
 class TestPostModel:
