@@ -6,9 +6,7 @@ from utils.admin.mixins import UpdateDateModifiedOrSetAuthorMixin
 class TestUpdateDateModifiedOrSetAuthorMixin:
     @patch("utils.admin.mixins.super")
     @patch("utils.admin.mixins.timezone")
-    def test_save_model_with_change_equal_true(
-        self, mock_timezone, mock_super
-    ):
+    def test_save_model_with_change_equal_true(self, mock_timezone, mock_super):
         mixin = UpdateDateModifiedOrSetAuthorMixin()
         mock_obj = Mock()
         mixin.save_model(None, form=None, obj=mock_obj, change=True)
@@ -23,9 +21,7 @@ class TestUpdateDateModifiedOrSetAuthorMixin:
 
     @patch("utils.admin.mixins.super")
     @patch("utils.admin.mixins.timezone")
-    def test_save_model_with_change_equal_false(
-        self, mock_timezone, mock_super
-    ):
+    def test_save_model_with_change_equal_false(self, mock_timezone, mock_super):
         mixin = UpdateDateModifiedOrSetAuthorMixin()
         mock_obj = Mock()
         mock_request = Mock()

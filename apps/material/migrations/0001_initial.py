@@ -47,15 +47,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    models.CharField(
-                        max_length=255, unique=True, verbose_name="Title"
-                    ),
+                    models.CharField(max_length=255, unique=True, verbose_name="Title"),
                 ),
                 (
                     "description",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Description"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Description"),
                 ),
                 (
                     "color",
@@ -221,9 +217,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "order",
-                    models.IntegerField(
-                        blank=True, null=True, verbose_name="Order"
-                    ),
+                    models.IntegerField(blank=True, null=True, verbose_name="Order"),
                 ),
                 (
                     "lesson_type",
@@ -239,9 +233,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "text",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Text"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Text"),
                 ),
                 (
                     "reading_time",

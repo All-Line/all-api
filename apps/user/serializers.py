@@ -47,9 +47,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     @staticmethod
     def _validate_password(data):
         if data.get("password") != data.get("confirm_password"):
-            raise ValidationError(
-                {"password": _("The passwords doesn't match.")}
-            )
+            raise ValidationError({"password": _("The passwords doesn't match.")})
 
     @staticmethod
     def _validate_duplicated_email(data):
@@ -58,9 +56,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
         try:
             UserModel.objects.get(email=email, service=service)
-            raise ValidationError(
-                {"user": _("A user with this email already exists.")}
-            )
+            raise ValidationError({"user": _("A user with this email already exists.")})
         except UserModel.DoesNotExist:
             pass
 
@@ -70,16 +66,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
         if document:
             try:
-                UserModel.objects.get(
-                    document=data.get("document"), service=service
-                )
+                UserModel.objects.get(document=data.get("document"), service=service)
 
                 raise ValidationError(
-                    {
-                        "document": _(
-                            "A user with this document already exists."
-                        )
-                    }
+                    {"document": _("A user with this document already exists.")}
                 )
             except UserModel.DoesNotExist:
                 pass
@@ -95,9 +85,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return data
 
     def get_token(self, obj):
-        user = UserModel.objects.get(
-            email=obj.get("email"), service=obj.get("service")
-        )
+        user = UserModel.objects.get(email=obj.get("email"), service=obj.get("service"))
 
         return Token.objects.get(user=user).key
 
@@ -214,9 +202,7 @@ class LoginSerializer(serializers.Serializer):
         try:
             user = (
                 UserModel.objects.select_related("service")
-                .only(
-                    "password", "is_verified", "service__confirmation_required"
-                )
+                .only("password", "is_verified", "service__confirmation_required")
                 .get(email=email, service=service)
             )
 
@@ -233,8 +219,21 @@ class LoginSerializer(serializers.Serializer):
 
 
 class AuthenticatedUserSerializer(CreateUserSerializer):
+    login_questions = serializers.SerializerMethodField()
+
     def get_token(self, user):
         return Token.objects.get_or_create(user=user)[0].key
+
+    def get_login_questions(self, user):
+        is_guest = user.is_guest
+
+        if is_guest:
+            return user.event.require_login_answers
+
+        return False
+
+    class Meta(CreateUserSerializer.Meta):
+        fields = CreateUserSerializer.Meta.fields + ["login_questions"]
 
 
 class UserForRetentionSerializer(serializers.Serializer):

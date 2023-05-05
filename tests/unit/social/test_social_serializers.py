@@ -1,6 +1,8 @@
 from unittest.mock import Mock, patch
 
+import pytest
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from apps.social.models import (
     PostCommentModel,
@@ -15,6 +17,7 @@ from apps.social.serializers import (
     ListPostSerializer,
     ListReactionSerializer,
     ListReactTypesSerializer,
+    UnreactSerializer,
 )
 
 
@@ -90,9 +93,7 @@ class TestCreatePostCommentSerializer:
         request.user = Mock()
         validated_data = {}
 
-        result = self.serializer(context={"request": request}).create(
-            validated_data
-        )
+        result = self.serializer(context={"request": request}).create(validated_data)
 
         mock_post_comment_model_objects_create.assert_called_once_with(
             author=request.user,
@@ -156,3 +157,35 @@ class TestListReactTypesSerializer:
 
     def test_meta_fields(self):
         assert self.serializer.Meta.fields == "__all__"
+
+
+class TestUnreactSerializer:
+    @classmethod
+    def setup_class(cls):
+        cls.serializer = UnreactSerializer
+
+    def test_parent_class(self):
+        assert issubclass(self.serializer, serializers.Serializer)
+
+    def test_create(self):
+        user = Mock()
+        validated_data = {"reaction": Mock(user=user)}
+        request = Mock(user=user)
+        serializer = self.serializer(context={"request": request})
+
+        result = serializer.create(validated_data)
+
+        validated_data["reaction"].delete.assert_called_once()
+
+        assert result == validated_data["reaction"].delete.return_value
+
+    def test_create_with_validation_error(self):
+        user = Mock()
+        validated_data = {"reaction": Mock(user=user)}
+        request = Mock(user=None)
+        serializer = self.serializer(context={"request": request})
+
+        with pytest.raises(ValidationError):
+            serializer.create(validated_data)
+
+        validated_data["reaction"].delete.assert_not_called()

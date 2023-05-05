@@ -74,21 +74,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "is_verified",
-                    models.BooleanField(
-                        default=False, verbose_name="Is Verified"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Is Verified"),
                 ),
                 (
                     "is_premium",
-                    models.BooleanField(
-                        default=False, verbose_name="Is Premium"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Is Premium"),
                 ),
                 (
                     "is_deleted",
-                    models.BooleanField(
-                        default=False, verbose_name="Is Deleted"
-                    ),
+                    models.BooleanField(default=False, verbose_name="Is Deleted"),
                 ),
                 (
                     "document",
@@ -101,9 +95,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "email",
-                    models.EmailField(
-                        max_length=254, verbose_name="Email Address"
-                    ),
+                    models.EmailField(max_length=254, verbose_name="Email Address"),
                 ),
                 (
                     "first_name",
@@ -131,9 +123,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "birth_date",
-                    models.DateField(
-                        blank=True, null=True, verbose_name="Birth Date"
-                    ),
+                    models.DateField(blank=True, null=True, verbose_name="Birth Date"),
                 ),
                 (
                     "last_login",

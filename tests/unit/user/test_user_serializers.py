@@ -86,14 +86,10 @@ class TestCreateUserSerializer:
             self.serializer._validate_duplicated_email(data)
 
         mock_user_model.objects.get.assert_called_once_with(**data)
-        assert err.value.detail == {
-            "user": "A user with this email already exists."
-        }
+        assert err.value.detail == {"user": "A user with this email already exists."}
 
     @patch("apps.user.serializers.UserModel")
-    def test_validate_document_failure_with_user_already_exists(
-        self, mock_user_model
-    ):
+    def test_validate_document_failure_with_user_already_exists(self, mock_user_model):
         mock_user_model.DoesNotExist = UserModel.DoesNotExist
         data = {
             "email": "some_email",
@@ -188,9 +184,7 @@ class TestCreateUserSerializer:
         service = mock_service_model.objects.get.return_value
         credential_configs = service.credential_configs.filter.return_value
 
-        mock_service_model.objects.get.assert_called_once_with(
-            slug="some_service"
-        )
+        mock_service_model.objects.get.assert_called_once_with(slug="some_service")
         service.credential_configs.filter.assert_called_once_with(
             credential_config_type="register"
         )
@@ -266,14 +260,10 @@ class TestLoginSerializer:
         with pytest.raises(UserModel.DoesNotExist):
             self.serializer._validate_password(password, password_to_check)
 
-        mock_check_password.assert_called_once_with(
-            password, password_to_check
-        )
+        mock_check_password.assert_called_once_with(password, password_to_check)
 
     def test_validate_verified_user(self):
-        blocked_user = Mock(
-            is_verified=False, service=Mock(confirmation_required=True)
-        )
+        blocked_user = Mock(is_verified=False, service=Mock(confirmation_required=True))
 
         with pytest.raises(ValidationError):
             self.serializer._validate_verified_user(blocked_user)
@@ -335,9 +325,7 @@ class TestLoginSerializer:
         mock_service.validate_credential_fields.assert_called_once_with(
             mock_self.context["request"].data, "login"
         )
-        mock_user_model.objects.select_related.assert_called_once_with(
-            "service"
-        )
+        mock_user_model.objects.select_related.assert_called_once_with("service")
         mock_user_model.objects.select_related.return_value.only.assert_called_once_with(  # noqa: E501
             "password", "is_verified", "service__confirmation_required"
         )
@@ -362,9 +350,7 @@ class TestLoginSerializer:
         mock_service.validate_credential_fields.assert_called_once_with(
             mock_self.context["request"].data, "login"
         )
-        mock_user_model.objects.select_related.assert_called_once_with(
-            "service"
-        )
+        mock_user_model.objects.select_related.assert_called_once_with("service")
         mock_user_model.objects.select_related.return_value.only.assert_called_once_with(  # noqa: E501
             "password", "is_verified", "service__confirmation_required"
         )

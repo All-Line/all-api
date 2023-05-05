@@ -42,9 +42,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "content",
-                    models.TextField(
-                        blank=True, null=True, verbose_name="Content"
-                    ),
+                    models.TextField(blank=True, null=True, verbose_name="Content"),
                 ),
                 (
                     "answer",

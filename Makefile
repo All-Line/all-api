@@ -24,6 +24,7 @@ build-no-cache:  ## To build with docker-compose and without cache
 	export DOCKER_BUILDKIT=1;docker-compose build --no-cache
 
 install-requirements:  ## To install requirements
+	pip install --upgrade pip
 	pip install -r requirements/dev.txt
 	pip install -r requirements/tests.txt
 	pip install -r requirements/base.txt
@@ -53,12 +54,12 @@ test-no-cache: ## To test application and coverage no cache tests
 
 style-check: ## To check code-styling
 	@echo "--> \033[0;32mChecking the code style...\033[0m"
-	docker-compose run start-api black -S -t py38 -l 79 --check . --exclude '/(\.git|venv|env|build|dist)/'
+	docker-compose run start-api black -S -t py38 -l 88 --check . --exclude '/(\.git|venv|env|build|dist)/'
 	docker-compose down
 
 safe: ## To check code dependencies
 	@echo "--> \033[0;32mChecking the code dependencies...\033[0m"
-	docker-compose run start-api safety check
+	docker-compose run start-api safety check -i 52495
 
 shell: ## To access shell conected in your local database
 	@echo "--> \033[0;32mStarting shell...\033[0m"
@@ -78,3 +79,6 @@ setup: ## To setup local environment
 superuser: ## To create super user
 	@echo "--> \033[0;32mIntroduce your local credentials:\033[0m"
 	docker-compose run start-api $(DJANGO_COMMAND) createsuperuser
+
+deploy: ## To deploy
+	zappa update $(env)

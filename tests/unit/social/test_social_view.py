@@ -9,6 +9,7 @@ from apps.social.serializers import (
     CreateReactionSerializer,
     ListPostSerializer,
     ListReactTypesSerializer,
+    UnreactSerializer,
 )
 from apps.social.views import PostViewSet
 from utils.auth import BearerTokenAuthentication
@@ -27,9 +28,7 @@ class TestPostViewSet:
         assert issubclass(PostViewSet, GenericViewSet)
 
     def test_authentication_classes(self):
-        assert PostViewSet.authentication_classes == [
-            BearerTokenAuthentication
-        ]
+        assert PostViewSet.authentication_classes == [BearerTokenAuthentication]
 
     def test_permission_classes(self):
         assert PostViewSet.permission_classes == [PostPermissions]
@@ -40,6 +39,7 @@ class TestPostViewSet:
             "retrieve": ListPostSerializer,
             "comment": CreatePostCommentSerializer,
             "react": CreateReactionSerializer,
+            "unreact": UnreactSerializer,
             "react_types": ListReactTypesSerializer,
         }
 
@@ -89,9 +89,7 @@ class TestPostViewSet:
     @patch.object(PostViewSet, "get_serializer")
     @patch("apps.social.views.ListPostCommentSerializer")
     @patch("apps.social.views.Response")
-    def test_comment(
-        self, mock_response, mock_serializer, mock_get_serializer
-    ):
+    def test_comment(self, mock_response, mock_serializer, mock_get_serializer):
         view = self.view
         request = Mock()
         view.request = request
@@ -101,9 +99,7 @@ class TestPostViewSet:
         mock_serializer.assert_called_once_with(
             mock_get_serializer.return_value.save.return_value
         )
-        mock_response.assert_called_once_with(
-            mock_serializer.return_value.data
-        )
+        mock_response.assert_called_once_with(mock_serializer.return_value.data)
 
         assert result == mock_response.return_value
 
@@ -116,6 +112,20 @@ class TestPostViewSet:
         result = self.view.react(request)
 
         mock_get_serializer.assert_called_once_with(data=request.data)
+        mock_response.assert_called_once_with(status=204)
+
+        assert result == mock_response.return_value
+
+    @patch.object(PostViewSet, "get_serializer")
+    @patch("apps.social.views.Response")
+    def test_unreact(self, mock_response, mock_get_serializer):
+        view = self.view
+        request = Mock()
+        view.request = request
+        result = self.view.unreact(request)
+
+        mock_get_serializer.assert_called_once_with(data=request.data)
+        mock_get_serializer.return_value.save.assert_called_once()
         mock_response.assert_called_once_with(status=204)
 
         assert result == mock_response.return_value
@@ -134,8 +144,6 @@ class TestPostViewSet:
         mock_get_serializer.assert_called_once_with(
             mock_reaction_type_model.objects.filter.return_value, many=True
         )
-        mock_response.assert_called_once_with(
-            mock_get_serializer.return_value.data
-        )
+        mock_response.assert_called_once_with(mock_get_serializer.return_value.data)
 
         assert result == mock_response.return_value

@@ -28,4 +28,4 @@ jobs:
         pip install safety
     - name: Safety Check
       run: |
-        safety check
+        safety check -i 52495

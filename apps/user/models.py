@@ -23,15 +23,9 @@ class UserModel(AbstractUser):
     user_permissions = None
     objects = UserManager()
 
-    is_verified = models.BooleanField(
-        verbose_name=_("Is Verified"), default=False
-    )
-    is_premium = models.BooleanField(
-        verbose_name=_("Is Premium"), default=False
-    )
-    is_deleted = models.BooleanField(
-        verbose_name=_("Is Deleted"), default=False
-    )
+    is_verified = models.BooleanField(verbose_name=_("Is Verified"), default=False)
+    is_premium = models.BooleanField(verbose_name=_("Is Premium"), default=False)
+    is_deleted = models.BooleanField(verbose_name=_("Is Deleted"), default=False)
     document = models.CharField(
         verbose_name=_("Document"), max_length=255, null=True, blank=True
     )
@@ -49,9 +43,7 @@ class UserModel(AbstractUser):
         null=True,
         blank=True,
     )
-    birth_date = models.DateField(
-        verbose_name=_("Birth Date"), null=True, blank=True
-    )
+    birth_date = models.DateField(verbose_name=_("Birth Date"), null=True, blank=True)
     last_login = models.DateTimeField(
         verbose_name=_("Last Login"), null=True, blank=True
     )

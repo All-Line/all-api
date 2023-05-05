@@ -4,16 +4,36 @@ from decouple import config as env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = (
-    "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
-)
+SECRET_KEY = "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
 DEBUG = True
 
 AUTH_USER_MODEL = "user.UserModel"
 
 ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "access-control-allow-origin",
+]
 
 DJANGO_APPS = [
+    "corsheaders",
     "core_api.config.suit.SuitConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,6 +61,7 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

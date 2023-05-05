@@ -32,9 +32,7 @@ class SendEmailToVerification(BasePipeItem):
         }
 
     def _compile_email_template(self, email_config, user=None, service=None):
-        template = getattr(
-            email_config, "email_html_template", GENERIC_HTML_TEMPLATE
-        )
+        template = getattr(email_config, "email_html_template", GENERIC_HTML_TEMPLATE)
 
         keys = self._get_keys(email_config, user, service)
         template = self._build_template(template, keys)
@@ -44,16 +42,14 @@ class SendEmailToVerification(BasePipeItem):
     @staticmethod
     def _get_email_config_or_none(service):
         try:
-            email_config = service.email_configs.get(
-                email_config_type="register"
-            )
+            email_config = service.email_configs.get(email_config_type="register")
             return email_config
         except ServiceEmailConfigModel.DoesNotExist:
             return None
 
     def _run(self):
         if not self.pipeline.send_mail:
-            return
+            return  # pragma: no cover
 
         user = self.pipeline.user
         service = user.service

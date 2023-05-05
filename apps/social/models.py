@@ -6,27 +6,43 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.service.models import ServiceModel
+from apps.service.models import ServiceClientModel, ServiceModel
+from apps.social.chat_ai import TEXT_AI
 from apps.user.models import UserModel
 from pipelines.pipes import CreateUserPipeline
 from utils.abstract_models.base_model import BaseModel
 
 
-def post_attachment_directory_path(instance, filename):
+def get_formatted_datetime_now():
     date_now = datetime.now()
-    date = date_now.strftime("%d%m%Y_%H:%M:%S")
+    date = date_now.strftime("%d/%m/%Y %H:%M:%S")
+    return date
 
-    return (
-        f"media/posts/{instance.author.first_name}_"
-        f"{instance.id}_{date}_{filename}"
-    )
+
+def post_attachment_directory_path(instance, filename):
+    date = get_formatted_datetime_now()
+
+    return f"media/posts/{instance.author.first_name}_{instance.id}_{date}_{filename}"
 
 
 def event_directory_path(instance, filename):
-    date_now = datetime.now()
-    date = date_now.strftime("%d%m%Y_%H:%M:%S")
+    date = get_formatted_datetime_now()
 
-    return f"media/event/{instance.name}_" f"{instance.id}_{date}_{filename}"
+    return f"media/event/{instance.title}_{instance.id}_{date}_{filename}"
+
+
+def mission_interaction_directory_path(instance, filename):
+    date = get_formatted_datetime_now()
+
+    return (
+        f"media/mission_interaction/{instance.user.id}_{instance.id}_{date}_{filename}"
+    )
+
+
+def mission_directory_path(instance, filename):
+    date = get_formatted_datetime_now()
+
+    return f"media/mission/{instance.title}_{instance.id}_{date}_{filename}"
 
 
 class ReactionsMixin:
@@ -40,14 +56,7 @@ class ReactionsMixin:
             user_reaction.reaction_type_id = reaction_type_id
             user_reaction.save()
             return user_reaction
-        return self.reactions.create(
-            reaction_type_id=reaction_type_id, user=user
-        )
-
-    def unreact(self, user: UserModel):
-        user_reaction = self.reactions.filter(user=user)
-        if user_reaction:
-            user_reaction.delete()
+        return self.reactions.create(reaction_type_id=reaction_type_id, user=user)
 
 
 class ReactionTypeModel(BaseModel):
@@ -99,8 +108,12 @@ class ReactionModel(BaseModel):
 
 
 class PostCommentModel(BaseModel, ReactionsMixin):
-    content = models.TextField(
-        verbose_name=_("Content"), null=True, blank=True
+    content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
+    attachment = models.FileField(
+        verbose_name=_("Attachment"),
+        upload_to=post_attachment_directory_path,
+        null=True,
+        blank=True,
     )
     post = models.ForeignKey(
         "PostModel",
@@ -153,9 +166,7 @@ class EventModel(BaseModel):
         verbose_name=_("Title"),
         max_length=255,
     )
-    description = models.TextField(
-        verbose_name=_("Description"), null=True, blank=True
-    )
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     attachment = models.FileField(
         verbose_name=_("Attachment"),
         upload_to=event_directory_path,
@@ -173,6 +184,14 @@ class EventModel(BaseModel):
         verbose_name=_("Service"),
         related_name="events",
         on_delete=models.CASCADE,
+    )
+    service_client = models.ForeignKey(
+        ServiceClientModel,
+        verbose_name=_("Client"),
+        related_name="events",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     guests = models.TextField(
         verbose_name=_("Guests"),
@@ -198,6 +217,14 @@ class EventModel(BaseModel):
         null=True,
         blank=True,
     )
+    require_login_answers = models.BooleanField(
+        verbose_name=_("Require Login Answers"),
+        default=False,
+        help_text=_(
+            "Go to 'Login Questions' session to add questions that will be "
+            "asked to the guests before they can answer the event."
+        ),
+    )
 
     class Meta:
         verbose_name = _("Event")
@@ -215,10 +242,12 @@ class EventModel(BaseModel):
         return result
 
     @staticmethod
-    def _verify_errors(
-        errors: list, email: str, password: str, line_number: str
-    ):
-        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    def _verify_errors(errors: list, email: str, password: str, line_number: str):
+        # A wrong email regex:
+        email_regex = (
+            r"^([a-z0-9]+)[a-z0-9.-][^\.]*([a-z0-9!@#$%^&*()_+]+)"
+            r"@([a-z0-9]+)[a-z0-9.-]*\.[a-z0-9]*([a-z0-9]+){2,}$"
+        )
         password_regex = r"^[a-zA-Z0-9!@#$%^&*()_+]+$"
 
         if not re.match(email_regex, email):
@@ -269,10 +298,50 @@ class EventModel(BaseModel):
                     pipeline.run()
 
 
-class PostModel(BaseModel, ReactionsMixin):
-    description = models.TextField(
-        verbose_name=_("Description"), null=True, blank=True
+class AITextReportModel(BaseModel):
+    TEXT_AI_CHOICES = (
+        ("dummy", "Dummy"),
+        ("gpt-3", "GPT-3"),
     )
+
+    title = models.CharField(
+        verbose_name=_("Title"),
+        max_length=255,
+    )
+    pre_set = models.TextField(verbose_name=_("Pre Set"))
+    text_ai = models.CharField(
+        verbose_name=_("Text AI"),
+        max_length=255,
+        choices=TEXT_AI_CHOICES,
+        default="dummy",
+    )
+
+    @property
+    def text_ai_client(self):
+        return TEXT_AI[self.text_ai]
+
+    class Meta:
+        verbose_name = _("AI Text Report")
+        verbose_name_plural = _("AI Text Reports")
+
+    def __str__(self):
+        return self.title
+
+
+class PostModel(BaseModel, ReactionsMixin):
+    POST_TYPE = (
+        ("text", "Text"),
+        ("image", "Image"),
+        ("video", "Video"),
+    )
+
+    type = models.CharField(
+        verbose_name=_("Type"),
+        max_length=255,
+        choices=POST_TYPE,
+        default="text",
+    )
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     attachment = models.FileField(
         verbose_name=_("Attachment"),
         upload_to=post_attachment_directory_path,
@@ -306,6 +375,78 @@ class PostModel(BaseModel, ReactionsMixin):
         blank=True,
         on_delete=models.CASCADE,
     )
+    ai_text_report = models.ForeignKey(
+        AITextReportModel,
+        verbose_name=_("AI Text Report"),
+        related_name="posts",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    ai_report = models.TextField(
+        verbose_name=_("AI Report"),
+        null=True,
+        blank=True,
+    )
+
+    def count_reactions(self):
+        reactions = self.reactions.all()
+
+        reactions_count = {}
+
+        for reaction in reactions:
+            reactions_count[reaction.reaction_type.name] = (
+                reactions_count.get(reaction.reaction_type.name, 0) + 1
+            )
+
+        return reactions_count
+
+    def format_reactions_to_text(self):
+        reactions = self.count_reactions()
+
+        result = ""
+
+        for reaction_type, reaction_count in reactions.items():
+            result += f"{reaction_type}: {reaction_count}\n"
+
+        return result
+
+    def format_comments_to_text(self):
+        comments = self.comments.all()
+
+        result = ""
+
+        for comment in comments:
+            result += f"{comment.author.first_name}: {comment.content}\n"
+
+        return result
+
+    def get_message_to_send(self):
+        reactions = self.format_reactions_to_text()
+        comments = self.format_comments_to_text()
+
+        return f"""
+        Post:
+
+        {self.description}
+
+        Reactions:
+
+        {reactions}
+
+        Comments:
+
+        {comments}
+        """
+
+    def generate_ai_text_report(self):
+        if self.ai_text_report:
+            text_ai = self.ai_text_report.text_ai_client
+            message = self.get_message_to_send()
+            client = text_ai(self.ai_text_report.pre_set, message)
+
+            self.ai_report = client.get_response()
+            self.save()
 
     class Meta:
         verbose_name = _("Post")
@@ -313,3 +454,177 @@ class PostModel(BaseModel, ReactionsMixin):
 
     def __str__(self):
         return f"{self.author.first_name}'s post"
+
+
+class MissionModel(BaseModel):
+    MISSION_TYPE = (
+        ("text", "Text"),
+        ("image", "Image"),
+        ("video", "Video"),
+    )
+    type = models.CharField(
+        verbose_name=_("Type"),
+        max_length=255,
+        choices=MISSION_TYPE,
+        default="text",
+    )
+    title = models.CharField(
+        verbose_name=_("Title"),
+        max_length=255,
+    )
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    attachment = models.FileField(
+        verbose_name=_("Attachment"),
+        upload_to=mission_directory_path,
+        null=True,
+        blank=True,
+    )
+    service = models.ForeignKey(
+        ServiceModel,
+        verbose_name=_("Service"),
+        related_name="missions",
+        on_delete=models.CASCADE,
+    )
+    service_client = models.ForeignKey(
+        ServiceClientModel,
+        verbose_name=_("Client"),
+        related_name="missions",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    event = models.ForeignKey(
+        EventModel,
+        verbose_name=_("Event"),
+        related_name="missions",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    def is_completed(self, user: UserModel):
+        return self.interactions.filter(user=user).exists()
+
+    def complete(self, user: UserModel, attachment=None, content=None):
+        return MissionInteractionModel.objects.create(
+            user=user,
+            mission=self,
+            content=content,
+            attachment=attachment,
+        )
+
+    class Meta:
+        verbose_name = _("Mission")
+        verbose_name_plural = _("Missions")
+
+    def __str__(self):
+        return self.title
+
+
+class MissionInteractionModel(BaseModel):
+    mission = models.ForeignKey(
+        MissionModel,
+        verbose_name=_("Mission"),
+        related_name="interactions",
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        UserModel,
+        verbose_name=_("User"),
+        related_name="mission_interactions",
+        on_delete=models.CASCADE,
+    )
+    attachment = models.FileField(
+        verbose_name=_("Attachment"),
+        upload_to=mission_interaction_directory_path,
+        null=True,
+        blank=True,
+    )
+    content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Mission Interaction")
+        verbose_name_plural = _("Mission Interactions")
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.mission.title}"
+
+
+class LoginQuestions(BaseModel):
+    order = models.PositiveIntegerField(verbose_name=_("Order"), default=0)
+    event = models.ForeignKey(
+        EventModel,
+        verbose_name=_("Event"),
+        related_name="login_questions",
+        on_delete=models.CASCADE,
+    )
+    question = models.CharField(
+        verbose_name=_("Question"),
+        max_length=255,
+        help_text=_(
+            "Tip: use the 'Save and add another' option to keep adding questions."
+        ),
+    )
+
+    class Meta:
+        verbose_name = _("Login Question")
+        verbose_name_plural = _("Login Questions")
+
+    def answer(self, user: UserModel, option):
+        return LoginAnswer.objects.create(
+            user=user,
+            question=self,
+            option=option,
+        )
+
+    def is_answered(self, user: UserModel):
+        return self.answers.filter(user=user).exists()
+
+    def __str__(self):
+        return self.question
+
+
+class LoginQuestionOption(BaseModel):
+    order = models.PositiveIntegerField(verbose_name=_("Order"), default=0)
+    question = models.ForeignKey(
+        LoginQuestions,
+        related_name="options",
+        verbose_name=_("Question"),
+        on_delete=models.CASCADE,
+    )
+    option = models.CharField(verbose_name=_("Option"), max_length=255)
+
+    class Meta:
+        verbose_name = _("Login Question Option")
+        verbose_name_plural = _("Login Question Options")
+
+    def __str__(self):
+        return f"Option {self.order}"
+
+
+class LoginAnswer(BaseModel):
+    user = models.ForeignKey(
+        UserModel,
+        verbose_name=_("User"),
+        related_name="login_answers",
+        on_delete=models.CASCADE,
+    )
+    question = models.ForeignKey(
+        LoginQuestions,
+        related_name="answers",
+        verbose_name=_("Question"),
+        on_delete=models.CASCADE,
+    )
+    option = models.ForeignKey(
+        LoginQuestionOption,
+        related_name="answers",
+        verbose_name=_("Option"),
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = _("Login Answer")
+        verbose_name_plural = _("Login Answers")
+
+    def __str__(self):
+        return str(self.option.option)

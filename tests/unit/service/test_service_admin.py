@@ -153,9 +153,7 @@ class TestServiceCredentialLoginConfigInline:
         cls.inline = ServiceCredentialLoginConfigInline(Mock(), AdminSite())
 
     def test_parent_class(self):
-        assert issubclass(
-            ServiceCredentialLoginConfigInline, admin.TabularInline
-        )
+        assert issubclass(ServiceCredentialLoginConfigInline, admin.TabularInline)
 
     def test_model(self):
         assert self.inline.model == ServiceCredentialConfigModel
@@ -193,17 +191,13 @@ class TestServiceCredentialRegisterConfigInline:
         cls.inline = ServiceCredentialRegisterConfigInline(Mock(), AdminSite())
 
     def test_parent_class(self):
-        assert issubclass(
-            ServiceCredentialRegisterConfigInline, admin.TabularInline
-        )
+        assert issubclass(ServiceCredentialRegisterConfigInline, admin.TabularInline)
 
     def test_model(self):
         assert self.inline.model == ServiceCredentialConfigModel
 
     def test_verbose_name_plural(self):
-        assert (
-            self.inline.verbose_name_plural == "Service Register Fields Config"
-        )
+        assert self.inline.verbose_name_plural == "Service Register Fields Config"
 
     def test_extra(self):
         assert self.inline.extra == 0
@@ -225,9 +219,7 @@ class TestServiceCredentialRegisterConfigInline:
 
         mock_super.assert_called_once()
         mock_super.return_value.get_queryset.assert_called_once_with({})
-        queryset.filter.assert_called_once_with(
-            credential_config_type="register"
-        )
+        queryset.filter.assert_called_once_with(credential_config_type="register")
         assert result == queryset.filter.return_value
 
 
