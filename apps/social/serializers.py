@@ -5,6 +5,7 @@ from ..user.serializers import UserDataSerializer
 from .models import (
     LoginQuestionOption,
     LoginQuestions,
+    MissionInteractionModel,
     MissionModel,
     PostCommentModel,
     PostModel,
@@ -138,6 +139,7 @@ class UnreactSerializer(serializers.Serializer):
 
 class ListMissionSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()
+    completed_info = serializers.SerializerMethodField()
 
     class Meta:
         model = MissionModel
@@ -148,10 +150,23 @@ class ListMissionSerializer(serializers.ModelSerializer):
             "description",
             "attachment",
             "is_completed",
+            "completed_info",
         ]
         depth = 1
 
-    def get_is_completed(self, obj):
+    def get_completed_info(self, obj: MissionModel):
+        request = self.context["request"]
+        user = request.user
+        completed_info: MissionInteractionModel = obj.get_completed_info(user)
+
+        return {
+            "content": completed_info.content,
+            "attachment": completed_info.attachment.url
+            if completed_info.attachment
+            else None,
+        }
+
+    def get_is_completed(self, obj: MissionModel):
         request = self.context["request"]
         user = request.user
         return obj.is_completed(user)

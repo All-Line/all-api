@@ -502,6 +502,9 @@ class MissionModel(BaseModel):
         on_delete=models.CASCADE,
     )
 
+    def get_completed_info(self, user: UserModel):
+        return self.interactions.filter(user=user).first()
+
     def is_completed(self, user: UserModel):
         return self.interactions.filter(user=user).exists()
 
