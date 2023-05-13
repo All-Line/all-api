@@ -159,12 +159,16 @@ class ListMissionSerializer(serializers.ModelSerializer):
         user = request.user
         completed_info: MissionInteractionModel = obj.get_completed_info(user)
 
-        return {
-            "content": completed_info.content,
-            "attachment": completed_info.attachment.url
-            if completed_info.attachment
-            else None,
-        }
+        return (
+            {
+                "content": completed_info.content,
+                "attachment": completed_info.attachment.url
+                if completed_info.attachment
+                else None,
+            }
+            if completed_info
+            else None
+        )
 
     def get_is_completed(self, obj: MissionModel):
         request = self.context["request"]
