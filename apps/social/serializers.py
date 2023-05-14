@@ -5,6 +5,7 @@ from ..user.serializers import UserDataSerializer
 from .models import (
     LoginQuestionOption,
     LoginQuestions,
+    MissionInteractionModel,
     MissionModel,
     PostCommentModel,
     PostModel,
@@ -54,6 +55,18 @@ class CreatePostCommentSerializer(serializers.Serializer):
             author=request.user,
             **validated_data,
         )
+
+
+class UpdatePostCommentSerializer(serializers.Serializer):
+    content = serializers.CharField()
+    attachment = serializers.FileField(required=False)
+
+    def update(self, instance, validated_data):
+        instance.content = validated_data.get("content", instance.content)
+        instance.attachment = validated_data.get("attachment", instance.attachment)
+        instance.save()
+
+        return instance
 
 
 class ListPostCommentSerializer(serializers.ModelSerializer):
@@ -126,6 +139,7 @@ class UnreactSerializer(serializers.Serializer):
 
 class ListMissionSerializer(serializers.ModelSerializer):
     is_completed = serializers.SerializerMethodField()
+    completed_info = serializers.SerializerMethodField()
 
     class Meta:
         model = MissionModel
@@ -136,10 +150,27 @@ class ListMissionSerializer(serializers.ModelSerializer):
             "description",
             "attachment",
             "is_completed",
+            "completed_info",
         ]
         depth = 1
 
-    def get_is_completed(self, obj):
+    def get_completed_info(self, obj: MissionModel):
+        request = self.context["request"]
+        user = request.user
+        completed_info: MissionInteractionModel = obj.get_completed_info(user)
+
+        return (
+            {
+                "content": completed_info.content,
+                "attachment": completed_info.attachment.url
+                if completed_info.attachment
+                else None,
+            }
+            if completed_info
+            else None
+        )
+
+    def get_is_completed(self, obj: MissionModel):
         request = self.context["request"]
         user = request.user
         return obj.is_completed(user)

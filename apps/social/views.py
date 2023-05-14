@@ -3,6 +3,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -10,7 +11,13 @@ from rest_framework.viewsets import GenericViewSet
 from utils.auth import BearerTokenAuthentication
 from utils.mixins.multiserializer import MultiSerializerMixin
 
-from .models import LoginQuestions, MissionModel, PostModel, ReactionTypeModel
+from .models import (
+    LoginQuestions,
+    MissionModel,
+    PostCommentModel,
+    PostModel,
+    ReactionTypeModel,
+)
 from .serializers import (
     AnswerLoginQuestionSerializer,
     CompleteMissionSerializer,
@@ -22,6 +29,7 @@ from .serializers import (
     ListReactTypesSerializer,
     LoginQuestionSerializer,
     UnreactSerializer,
+    UpdatePostCommentSerializer,
 )
 
 
@@ -56,6 +64,7 @@ class PostViewSet(
         "list": ListPostSerializer,
         "retrieve": ListPostSerializer,
         "comment": CreatePostCommentSerializer,
+        "update_comment": UpdatePostCommentSerializer,
         "react": CreateReactionSerializer,
         "unreact": UnreactSerializer,
         "react_types": ListReactTypesSerializer,
@@ -74,6 +83,31 @@ class PostViewSet(
     def comment(self, request):
         data = request.data
         serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        comment = serializer.save()
+        response = ListPostCommentSerializer(comment).data
+
+        return Response(response)
+
+    @swagger_auto_schema(
+        operation_summary=_("Update comment"), methods=["patch", "delete"]
+    )
+    @action(
+        detail=False,
+        methods=["patch", "delete"],
+        url_path="comment/(?P<comment_id>[^/.]+)",
+    )
+    def update_comment(self, request, comment_id):
+        user = request.user
+        instance = get_object_or_404(PostCommentModel, id=comment_id, author=user)
+
+        if request.method == "DELETE":
+            instance.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        partial = True
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         comment = serializer.save()
         response = ListPostCommentSerializer(comment).data
