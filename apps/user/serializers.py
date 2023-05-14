@@ -225,12 +225,7 @@ class AuthenticatedUserSerializer(CreateUserSerializer):
         return Token.objects.get_or_create(user=user)[0].key
 
     def get_login_questions(self, user):
-        is_guest = user.is_guest
-
-        if is_guest:
-            return user.event.require_login_answers
-
-        return False
+        return user.event.require_login_answers if user.is_guest else False
 
     class Meta(CreateUserSerializer.Meta):
         fields = CreateUserSerializer.Meta.fields + ["login_questions"]

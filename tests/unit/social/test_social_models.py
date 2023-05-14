@@ -4,15 +4,23 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from apps.service.models import ServiceModel
+from apps.service.models import ServiceClientModel, ServiceModel
 from apps.social.models import (
+    AITextReportModel,
     EventModel,
+    LoginAnswer,
+    LoginQuestionOption,
+    LoginQuestions,
+    MissionInteractionModel,
+    MissionModel,
     PostCommentModel,
     PostModel,
     ReactionModel,
     ReactionsMixin,
     ReactionTypeModel,
     event_directory_path,
+    mission_directory_path,
+    mission_interaction_directory_path,
     post_attachment_directory_path,
 )
 from apps.user.models import UserModel
@@ -43,6 +51,36 @@ def test_event_directory_path(mock_datetime):
     result = event_directory_path(instance, filename)
 
     assert result == "media/event/Test_1_01012020_12:00:00_test.jpg"
+
+
+@patch("apps.social.models.get_formatted_datetime_now")
+def test_mission_interaction_directory_path(mock_get_formatted_datetime_now):
+    mock_instance = Mock()
+    mock_filename = "name"
+    result = mission_interaction_directory_path(mock_instance, mock_filename)
+
+    mock_get_formatted_datetime_now.assert_called_once()
+    assert result == (
+        f"media/mission_interaction/{mock_instance.user.id}"
+        f"_{mock_instance.id}"
+        f"_{mock_get_formatted_datetime_now.return_value}"
+        f"_{mock_filename}"
+    )
+
+
+@patch("apps.social.models.get_formatted_datetime_now")
+def test_mission_directory_path(mock_get_formatted_datetime_now):
+    mock_instance = Mock()
+    mock_filename = "name"
+    result = mission_directory_path(mock_instance, mock_filename)
+
+    mock_get_formatted_datetime_now.assert_called_once()
+    assert result == (
+        f"media/mission/{mock_instance.title}"
+        f"_{mock_instance.id}"
+        f"_{mock_get_formatted_datetime_now.return_value}"
+        f"_{mock_filename}"
+    )
 
 
 class TestReactionsMixin:
@@ -251,7 +289,7 @@ class TestPostCommentModel:
         assert post_comment.is_answer is False
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 8
+        assert len(self.model._meta.fields) == 9
 
 
 class TestEventModel:
@@ -352,7 +390,7 @@ class TestEventModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 12
+        assert len(self.model._meta.fields) == 14
 
     def test_get_guests(self):
         event = EventModel(guests="email1,password1\nemail2,password2")
@@ -556,6 +594,65 @@ class TestEventModel:
         mock_create_user_pipeline.return_value.run.assert_called_once()
 
 
+class TestAITextReportModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = AITextReportModel
+
+    def test_str(self):
+        report = AITextReportModel(title="some title")
+
+        assert str(report) == "some title"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "AI Text Report"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "AI Text Reports"
+
+    def test_text_ai_choices(self):
+        assert self.model.TEXT_AI_CHOICES == (
+            ("dummy", "Dummy"),
+            ("gpt-3", "GPT-3"),
+        )
+
+    def test_title_field(self):
+        field = self.model._meta.get_field("title")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Title"
+        assert field.max_length == 255
+
+    def test_pre_set_field(self):
+        field = self.model._meta.get_field("pre_set")
+
+        assert type(field) == models.TextField
+        assert field.verbose_name == "Pre Set"
+
+    def test_text_ai_field(self):
+        field = self.model._meta.get_field("text_ai")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Text AI"
+        assert field.max_length == 255
+        assert field.choices == AITextReportModel.TEXT_AI_CHOICES
+        assert field.default == "dummy"
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 7
+
+    @patch("apps.social.models.TEXT_AI")
+    def test_text_ai_client(self, mock_text_ai):
+        instance = self.model(text_ai="some_text_ai")
+        result = instance.text_ai_client
+
+        mock_text_ai.__getitem__.assert_called_once_with(instance.text_ai)
+        assert result == mock_text_ai.__getitem__.return_value
+
+
 class TestPostModel:
     @classmethod
     def setup_class(cls):
@@ -628,5 +725,466 @@ class TestPostModel:
         assert field.remote_field.related_name == "posts"
         assert field.remote_field.on_delete.__name__ == "CASCADE"
 
+    def test_ai_text_report_field(self):
+        field = self.model._meta.get_field("ai_text_report")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is AITextReportModel
+        assert field.verbose_name == "AI Text Report"
+        assert field.remote_field.related_name == "posts"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_ai_report_field(self):
+        field = self.model._meta.get_field("ai_report")
+
+        assert type(field) == models.TextField
+        assert field.verbose_name == "AI Report"
+        assert field.null is True
+        assert field.blank is True
+
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 9
+        assert len(self.model._meta.fields) == 12
+
+    def test_count_reactions(self):
+        reaction = Mock(reaction_type=Mock())
+        reaction.reaction_type.name = "Like"
+        mock_self = Mock(reactions=Mock(all=Mock(return_value=[reaction])))
+
+        result = PostModel.count_reactions(mock_self)
+
+        mock_self.reactions.all.assert_called_once()
+        assert result == {
+            "Like": 1,
+        }
+
+    @patch.object(PostModel, "count_reactions", return_value={"Like": 1})
+    def test_format_reactions_to_text(self, mock_count_reactions):
+        instance = PostModel()
+
+        result = instance.format_reactions_to_text()
+
+        mock_count_reactions.assert_called_once()
+        assert result == "Like: 1\n"
+
+    def test_format_comments_to_text(self):
+        mock_comment = Mock()
+        mock_self = Mock(comments=Mock(all=Mock(return_value=[mock_comment])))
+
+        result = PostModel.format_comments_to_text(mock_self)
+
+        mock_self.comments.all.assert_called_once()
+        assert result == (f"{mock_comment.author.first_name}: {mock_comment.content}\n")
+
+    @patch.object(PostModel, "format_reactions_to_text")
+    @patch.object(PostModel, "format_comments_to_text")
+    def test_get_message_to_send(
+        self, mock_format_comments_to_text, mock_format_reactions_to_text
+    ):
+        instance = PostModel()
+
+        result = instance.get_message_to_send()
+
+        mock_format_reactions_to_text.assert_called_once()
+        mock_format_comments_to_text.assert_called_once()
+
+        assert result == (
+            f"""
+        Post:
+
+        {instance.description}
+
+        Reactions:
+
+        {mock_format_reactions_to_text.return_value}
+
+        Comments:
+
+        {mock_format_comments_to_text.return_value}
+        """
+        )
+
+    def test_generate_ai_text_report(self):
+        mock_self = Mock()
+
+        PostModel.generate_ai_text_report(mock_self)
+
+        mock_self.get_message_to_send.assert_called_once()
+        mock_text_ai = mock_self.ai_text_report.text_ai_client
+        mock_text_ai.assert_called_once_with(
+            mock_self.ai_text_report.pre_set, mock_self.get_message_to_send.return_value
+        )
+
+        mock_client = mock_text_ai.return_value
+        mock_client.get_response.assert_called_once()
+
+        mock_self.save.assert_called_once()
+
+
+class TestMissionModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = MissionModel
+
+    def test_str(self):
+        mission = MissionModel(title="foo")
+
+        assert str(mission) == mission.title
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Mission"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Missions"
+
+    def test_mission_type_choices(self):
+        assert self.model.MISSION_TYPE == (
+            ("text", "Text"),
+            ("image", "Image"),
+            ("video", "Video"),
+        )
+
+    def test_type_field(self):
+        field = self.model._meta.get_field("type")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Type"
+        assert field.max_length == 255
+        assert field.choices == self.model.MISSION_TYPE
+        assert field.default == "text"
+
+    def test_title_field(self):
+        field = self.model._meta.get_field("title")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Title"
+        assert field.max_length == 255
+
+    def test_description_field(self):
+        field = self.model._meta.get_field("description")
+
+        assert type(field) == models.TextField
+        assert field.verbose_name == "Description"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_attachment_field(self):
+        field = self.model._meta.get_field("attachment")
+
+        assert type(field) == models.FileField
+        assert field.verbose_name == "Attachment"
+        assert field.upload_to.__name__ == "mission_directory_path"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_service_field(self):
+        field = self.model._meta.get_field("service")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is ServiceModel
+        assert field.verbose_name == "Service"
+        assert field.remote_field.related_name == "missions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_service_client_field(self):
+        field = self.model._meta.get_field("service_client")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is ServiceClientModel
+        assert field.verbose_name == "Client"
+        assert field.remote_field.related_name == "missions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_event_field(self):
+        field = self.model._meta.get_field("event")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is EventModel
+        assert field.verbose_name == "Event"
+        assert field.remote_field.related_name == "missions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 11
+
+    def test_get_completed_info(self):
+        mock_user = Mock()
+        mock_self = Mock()
+
+        result = self.model.get_completed_info(mock_self, mock_user)
+
+        mock_self.interactions.filter.assert_called_once_with(
+            user=mock_user,
+        )
+        mock_self.interactions.filter.return_value.first.assert_called_once()
+
+        assert result == (mock_self.interactions.filter.return_value.first.return_value)
+
+    def test_is_completed(self):
+        mock_user = Mock()
+        mock_self = Mock()
+
+        result = self.model.is_completed(mock_self, mock_user)
+
+        mock_self.interactions.filter.assert_called_once_with(user=mock_user)
+
+        mock_self.interactions.filter.return_value.exists.assert_called_once()
+
+        assert result == (
+            mock_self.interactions.filter.return_value.exists.return_value
+        )
+
+    @patch("apps.social.models.MissionInteractionModel")
+    def test_complete(self, mock_mission_interaction_model):
+        mock_self = Mock()
+        mock_user = Mock()
+        mock_attachment = Mock()
+        mock_content = Mock()
+
+        result = self.model.complete(
+            mock_self, mock_user, mock_attachment, mock_content
+        )
+
+        mock_mission_interaction_model.objects.create.assert_called_once_with(
+            user=mock_user,
+            mission=mock_self,
+            content=mock_content,
+            attachment=mock_attachment,
+        )
+
+        assert result == (mock_mission_interaction_model.objects.create.return_value)
+
+
+class TestMissionInteractionModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = MissionInteractionModel
+
+    def test_str(self):
+        mission_interaction = MissionInteractionModel(
+            mission=MissionModel(title="foo"), user=UserModel(first_name="bar")
+        )
+
+        assert str(mission_interaction) == "bar - foo"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Mission Interaction"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Mission Interactions"
+
+    def test_mission_field(self):
+        field = self.model._meta.get_field("mission")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is MissionModel
+        assert field.verbose_name == "Mission"
+        assert field.remote_field.related_name == "interactions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_user_field(self):
+        field = self.model._meta.get_field("user")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is UserModel
+        assert field.verbose_name == "User"
+        assert field.remote_field.related_name == "mission_interactions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_attachment_field(self):
+        field = self.model._meta.get_field("attachment")
+
+        assert type(field) == models.FileField
+        assert field.verbose_name == "Attachment"
+        assert field.upload_to.__name__ == "mission_interaction_directory_path"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_content_field(self):
+        field = self.model._meta.get_field("content")
+
+        assert type(field) == models.TextField
+        assert field.verbose_name == "Content"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 8
+
+
+class TestLoginQuestions:
+    @classmethod
+    def setup_class(cls):
+        cls.model = LoginQuestions
+
+    def test_str(self):
+        login_question = LoginQuestions(question="foo")
+
+        assert str(login_question) == "foo"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Login Question"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Login Questions"
+
+    def test_order_field(self):
+        field = self.model._meta.get_field("order")
+
+        assert type(field) == models.PositiveIntegerField
+        assert field.verbose_name == "Order"
+        assert field.default == 0
+
+    def test_event_field(self):
+        field = self.model._meta.get_field("event")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is EventModel
+        assert field.verbose_name == "Event"
+        assert field.remote_field.related_name == "login_questions"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_question_field(self):
+        field = self.model._meta.get_field("question")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Question"
+        assert field.max_length == 255
+        assert field.help_text == (
+            "Tip: use the 'Save and add another' option to keep adding questions."
+        )
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 7
+
+    @patch("apps.social.models.LoginAnswer")
+    def test_answer(self, mock_login_answer):
+        mock_self = Mock()
+        mock_user = Mock()
+        mock_option = Mock()
+
+        result = self.model.answer(mock_self, mock_user, mock_option)
+
+        mock_login_answer.objects.create.assert_called_once_with(
+            user=mock_user, question=mock_self, option=mock_option
+        )
+
+        assert result == (mock_login_answer.objects.create.return_value)
+
+    def test_is_answered(self):
+        mock_self = Mock()
+        mock_user = Mock()
+
+        result = self.model.is_answered(mock_self, mock_user)
+
+        mock_self.answers.filter.assert_called_once_with(user=mock_user)
+        mock_self.answers.filter.return_value.exists.assert_called_once_with()
+
+        assert result == (mock_self.answers.filter.return_value.exists.return_value)
+
+
+class TestLoginQuestionOption:
+    @classmethod
+    def setup_class(cls):
+        cls.model = LoginQuestionOption
+
+    def test_str(self):
+        login_option = LoginQuestionOption()
+
+        assert str(login_option) == "Option 0"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Login Question Option"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Login Question Options"
+
+    def test_order_field(self):
+        field = self.model._meta.get_field("order")
+
+        assert type(field) == models.PositiveIntegerField
+        assert field.verbose_name == "Order"
+        assert field.default == 0
+
+    def test_question_field(self):
+        field = self.model._meta.get_field("question")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model is LoginQuestions
+        assert field.verbose_name == "Question"
+        assert field.remote_field.related_name == "options"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_option_field(self):
+        field = self.model._meta.get_field("option")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Option"
+        assert field.max_length == 255
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 7
+
+
+class TestLoginAnswer:
+    @classmethod
+    def setup_class(cls):
+        cls.model = LoginAnswer
+
+    def test_str(self):
+        login = LoginAnswer(option=LoginQuestionOption(option="Mock Option"))
+
+        assert str(login) == "Mock Option"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Login Answer"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Login Answers"
+
+    def test_user_field(self):
+        field = self.model._meta.get_field("user")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "User"
+        assert field.remote_field.related_name == "login_answers"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_question_field(self):
+        field = self.model._meta.get_field("question")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "Question"
+        assert field.remote_field.related_name == "answers"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_option_field(self):
+        field = self.model._meta.get_field("option")
+
+        assert type(field) == models.ForeignKey
+        assert field.verbose_name == "Option"
+        assert field.remote_field.related_name == "answers"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 7
