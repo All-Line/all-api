@@ -343,6 +343,11 @@ class TestEventModel:
         assert field.max_length == 255
         assert field.choices == EventModel.EVENT_TYPE
         assert field.default == "closed"
+        assert field.help_text == (
+            'This property, when "Open", allows anyone to access the event. '
+            'When "Closed", a certain group will only be able to access the '
+            'event: fill in the "Guests" field in this case.'
+        )
 
     def test_service_field(self):
         field = self.model._meta.get_field("service")
