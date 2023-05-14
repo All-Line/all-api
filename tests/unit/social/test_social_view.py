@@ -10,6 +10,7 @@ from apps.social.serializers import (
     ListPostSerializer,
     ListReactTypesSerializer,
     UnreactSerializer,
+    UpdatePostCommentSerializer,
 )
 from apps.social.views import PostViewSet
 from utils.auth import BearerTokenAuthentication
@@ -41,6 +42,7 @@ class TestPostViewSet:
             "react": CreateReactionSerializer,
             "unreact": UnreactSerializer,
             "react_types": ListReactTypesSerializer,
+            "update_comment": UpdatePostCommentSerializer,
         }
 
     @patch("apps.social.views.super")
