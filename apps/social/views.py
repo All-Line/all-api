@@ -210,9 +210,9 @@ class LoginQuestionViewSet(
                 {"error": _("Only guests can answer login questions")}
             )
 
-        queryset = queryset.filter(**filter_by)
+        filtered_queryset = queryset.filter(**filter_by)
 
-        without_answered_questions = queryset.exclude(
+        without_answered_questions = filtered_queryset.exclude(
             answers__user_id=user.id,
         )
 

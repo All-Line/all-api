@@ -390,6 +390,20 @@ class TestAuthenticatedUserSerializer:
 
         assert response == mock_returned_token[0].key
 
+    def test_get_login_questions_with_user_guest(self):
+        mock_user = Mock(is_guest=True)
+
+        response = self.serializer.get_login_questions(mock_user)
+
+        assert response == mock_user.event.require_login_answers
+
+    def test_get_login_questions_with_user_not_guest(self):
+        mock_user = Mock(is_guest=False)
+
+        response = self.serializer.get_login_questions(mock_user)
+
+        assert response is False
+
 
 class TestUserForRetentionSerializer:
     def test_parent_class(self):
