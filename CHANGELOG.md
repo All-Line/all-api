@@ -34,6 +34,7 @@ example: * date_at - fixed some bug.
 
 ### Fixed
 
+* 2023-05-18 - Adicionado campo `attachment_type` na serialização do post.
 * 2023-05-13 - Corrigida cobertura de testes para 100%
 
 ### Removed
