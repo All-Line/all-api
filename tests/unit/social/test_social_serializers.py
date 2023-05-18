@@ -162,6 +162,7 @@ class TestListPostCommentSerializer:
             "answers",
             "reactions",
             "attachment",
+            "attachment_type",
         ]
 
     @patch("apps.social.serializers.ListPostCommentSerializer")
@@ -270,6 +271,7 @@ class TestListMissionSerializer:
             "title",
             "description",
             "attachment",
+            "attachment_type",
             "is_completed",
             "completed_info",
         ]
@@ -290,6 +292,7 @@ class TestListMissionSerializer:
         assert result == {
             "content": mock_completed_info.content,
             "attachment": mock_completed_info.attachment.url,
+            "attachment_type": mock_completed_info.attachment_type,
         }
 
     def test_get_is_completed(self):

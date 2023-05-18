@@ -89,6 +89,7 @@ class TestUserAdmin:
             "country",
             "is_verified",
             "is_premium",
+            "profile_image_preview",
         ]
 
     def test_list_filter(self):
@@ -112,7 +113,7 @@ class TestUserAdmin:
         assert self.admin.actions == ["make_premium", "make_superuser"]
 
     def test_readonly_fields(self):
-        assert self.admin.readonly_fields == ["id"]
+        assert self.admin.readonly_fields == ["id", "profile_image_preview"]
 
     def test_inlines(self):
         assert self.admin.inlines == [ContractInline]
@@ -141,6 +142,7 @@ class TestUserAdmin:
             {
                 "fields": (
                     "profile_image",
+                    "profile_image_preview",
                     "email",
                     "password",
                     "username",
@@ -248,3 +250,19 @@ class TestUserForRetentionAdmin:
         self.admin.delete_users(None, mock_queryset)
 
         mock_queryset.update.assert_called_once_with(is_active=False)
+
+    @patch("apps.user.admin.mark_safe")
+    def test_profile_image_preview_without_profile_image(self, mock_mark_safe):
+        mock_user = Mock(profile_image=None)
+        assert self.admin.profile_image_preview(mock_user) == "No image"
+
+        mock_mark_safe.assert_not_called()
+
+    @patch("apps.user.admin.mark_safe")
+    def test_profile_image_preview_with_profile_image(self, mock_mark_safe):
+        mock_user = Mock()
+        self.admin.profile_image_preview(mock_user)
+
+        mock_mark_safe.assert_called_once_with(
+            f'<img src="{mock_user.profile_image.url}" width="100px" />'
+        )

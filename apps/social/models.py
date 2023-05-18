@@ -10,7 +10,7 @@ from apps.service.models import ServiceClientModel, ServiceModel
 from apps.social.chat_ai import TEXT_AI
 from apps.user.models import UserModel
 from pipelines.pipes import CreateUserPipeline
-from utils.abstract_models.base_model import BaseModel
+from utils.abstract_models.base_model import AttachmentModel, BaseModel
 
 
 def get_formatted_datetime_now():
@@ -59,16 +59,21 @@ class ReactionsMixin:
         return self.reactions.create(reaction_type_id=reaction_type_id, user=user)
 
 
-class ReactionTypeModel(BaseModel):
+class ReactionTypeModel(
+    BaseModel, AttachmentModel(upload_to=post_attachment_directory_path).mixin
+):
+    REACTION_TYPE_CHOICES = (
+        ("like", _("Like")),
+        ("dislike", _("Dislike")),
+        ("love", _("Love")),
+        ("haha", _("Haha")),
+        ("wow", _("Wow")),
+        ("sad", _("Sad")),
+    )
     name = models.CharField(
         verbose_name=_("Name"),
         max_length=255,
-    )
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=post_attachment_directory_path,
-        null=True,
-        blank=True,
+        choices=REACTION_TYPE_CHOICES,
     )
     service = models.ForeignKey(
         ServiceModel,
@@ -107,14 +112,12 @@ class ReactionModel(BaseModel):
         return self.reaction_type.name
 
 
-class PostCommentModel(BaseModel, ReactionsMixin):
+class PostCommentModel(
+    BaseModel,
+    ReactionsMixin,
+    AttachmentModel(upload_to=post_attachment_directory_path).mixin,
+):
     content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=post_attachment_directory_path,
-        null=True,
-        blank=True,
-    )
     post = models.ForeignKey(
         "PostModel",
         verbose_name=_("Post"),
@@ -156,7 +159,7 @@ class PostCommentModel(BaseModel, ReactionsMixin):
         return f"{self.author.first_name}'s comment"
 
 
-class EventModel(BaseModel):
+class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixin):
     EVENT_TYPE = (
         ("open", "Open"),
         ("closed", "Closed"),
@@ -167,12 +170,6 @@ class EventModel(BaseModel):
         max_length=255,
     )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=event_directory_path,
-        null=True,
-        blank=True,
-    )
     event_type = models.CharField(
         verbose_name=_("Event Type"),
         max_length=255,
@@ -333,7 +330,11 @@ class AITextReportModel(BaseModel):
         return self.title
 
 
-class PostModel(BaseModel, ReactionsMixin):
+class PostModel(
+    BaseModel,
+    AttachmentModel(upload_to=post_attachment_directory_path).mixin,
+    ReactionsMixin,
+):
     POST_TYPE = (
         ("text", "Text"),
         ("image", "Image"),
@@ -347,12 +348,6 @@ class PostModel(BaseModel, ReactionsMixin):
         default="text",
     )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=post_attachment_directory_path,
-        null=True,
-        blank=True,
-    )
 
     reactions = models.ManyToManyField(
         ReactionModel,
@@ -461,7 +456,7 @@ class PostModel(BaseModel, ReactionsMixin):
         return f"{self.author.first_name}'s post"
 
 
-class MissionModel(BaseModel):
+class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).mixin):
     MISSION_TYPE = (
         ("text", "Text"),
         ("image", "Image"),
@@ -478,12 +473,6 @@ class MissionModel(BaseModel):
         max_length=255,
     )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=mission_directory_path,
-        null=True,
-        blank=True,
-    )
     service = models.ForeignKey(
         ServiceModel,
         verbose_name=_("Service"),
@@ -529,7 +518,9 @@ class MissionModel(BaseModel):
         return self.title
 
 
-class MissionInteractionModel(BaseModel):
+class MissionInteractionModel(
+    BaseModel, AttachmentModel(upload_to=mission_interaction_directory_path).mixin
+):
     mission = models.ForeignKey(
         MissionModel,
         verbose_name=_("Mission"),
@@ -541,12 +532,6 @@ class MissionInteractionModel(BaseModel):
         verbose_name=_("User"),
         related_name="mission_interactions",
         on_delete=models.CASCADE,
-    )
-    attachment = models.FileField(
-        verbose_name=_("Attachment"),
-        upload_to=mission_interaction_directory_path,
-        null=True,
-        blank=True,
     )
     content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
 

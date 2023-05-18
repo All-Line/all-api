@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from utils.mixins.attachment_type import GetAttachmentTypeSerializerMixin
+
 from ..user.serializers import UserDataSerializer
 from .models import (
     LoginQuestionOption,
@@ -69,7 +71,9 @@ class UpdatePostCommentSerializer(serializers.Serializer):
         return instance
 
 
-class ListPostCommentSerializer(serializers.ModelSerializer):
+class ListPostCommentSerializer(
+    serializers.ModelSerializer, GetAttachmentTypeSerializerMixin
+):
     author = UserDataSerializer(read_only=True)
     reactions = ListReactionSerializer(many=True)
     answers = serializers.SerializerMethodField()
@@ -83,6 +87,7 @@ class ListPostCommentSerializer(serializers.ModelSerializer):
             "answers",
             "reactions",
             "attachment",
+            "attachment_type",
         ]
         depth = 9
 
@@ -137,7 +142,9 @@ class UnreactSerializer(serializers.Serializer):
         return reaction.delete()
 
 
-class ListMissionSerializer(serializers.ModelSerializer):
+class ListMissionSerializer(
+    serializers.ModelSerializer, GetAttachmentTypeSerializerMixin
+):
     is_completed = serializers.SerializerMethodField()
     completed_info = serializers.SerializerMethodField()
 
@@ -149,6 +156,7 @@ class ListMissionSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "attachment",
+            "attachment_type",
             "is_completed",
             "completed_info",
         ]
@@ -165,6 +173,7 @@ class ListMissionSerializer(serializers.ModelSerializer):
                 "attachment": completed_info.attachment.url
                 if completed_info.attachment
                 else None,
+                "attachment_type": completed_info.attachment_type,
             }
             if completed_info
             else None

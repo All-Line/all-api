@@ -57,6 +57,11 @@ style-check: ## To check code-styling
 	docker-compose run start-api black -S -t py38 -l 88 --check . --exclude '/(\.git|venv|env|build|dist)/'
 	docker-compose down
 
+style-code: ## To check code-styling
+	@echo "--> \033[0;32mFixing your code with black pattern...\033[0m"
+	docker-compose run start-api black -S -t py38 -l 88 . --exclude '/(\.git|venv|env|build|dist)/'
+	docker-compose down
+
 safe: ## To check code dependencies
 	@echo "--> \033[0;32mChecking the code dependencies...\033[0m"
 	docker-compose run start-api safety check -i 52495

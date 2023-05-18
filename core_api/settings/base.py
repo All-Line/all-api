@@ -6,6 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-bfjks3u61xj62=&ef!5dkwcum$7f(lpf+56r$td0andc%2%o+p"
 DEBUG = True
+handler404 = "core_api.settings.handle_views.handle404.error_404_view"
 
 AUTH_USER_MODEL = "user.UserModel"
 
@@ -76,7 +77,9 @@ ROOT_URLCONF = "core_api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            "core_api/templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
