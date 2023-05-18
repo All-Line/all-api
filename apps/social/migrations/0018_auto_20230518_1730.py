@@ -6,7 +6,6 @@ import apps.social.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("social", "0017_alter_reactiontypemodel_name"),
     ]
