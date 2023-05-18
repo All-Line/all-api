@@ -175,6 +175,11 @@ class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixi
         max_length=255,
         choices=EVENT_TYPE,
         default="closed",
+        help_text=_(
+            'This property, when "Open", allows anyone to access the event. '
+            'When "Closed", a certain group will only be able to access the '
+            'event: fill in the "Guests" field in this case.'
+        ),
     )
     service = models.ForeignKey(
         ServiceModel,
