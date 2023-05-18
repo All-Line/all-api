@@ -334,7 +334,7 @@ class TestLoginAnswerInline:
         assert issubclass(LoginAnswerInline, admin.TabularInline)
 
     def test_verbose_name_plural(self):
-        assert self.inline.verbose_name_plural == "Answers"
+        assert self.inline.verbose_name_plural == "User answers"
 
     def test_fields(self):
         assert self.inline.fields == (
