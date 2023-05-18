@@ -27,6 +27,8 @@ example: * date_at - fixed some bug.
 
 ### Added
 
+* 2023-05-18 - Adicionado campo `thumbnail` na model MissionModel,
+no serializer e no admin.
 * 2023-05-18 - Adicionado campo `attachment_type` nas models que possuem attachment.
 * 2023-05-13 - Adicionado texto de ajuda no campo `event_type` da model `EventModel`
 * 2023-04-24 - Adicionado upgrade do pip no comando `make install-requirements`

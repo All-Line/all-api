@@ -178,7 +178,10 @@ class MissionAdmin(admin.ModelAdmin):
     inlines = [MissionInteractionInline]
 
     fieldsets = (
-        (_("Mission"), {"fields": ("id", "title", "description", "attachment")}),
+        (
+            _("Mission"),
+            {"fields": ("id", "title", "description", "attachment", "thumbnail")},
+        ),
         (
             _("Config"),
             {

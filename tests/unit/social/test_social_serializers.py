@@ -277,6 +277,7 @@ class TestListMissionSerializer:
             "description",
             "attachment",
             "attachment_type",
+            "thumbnail",
             "is_completed",
             "completed_info",
         ]

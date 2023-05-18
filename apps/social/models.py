@@ -472,6 +472,12 @@ class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).
         verbose_name=_("Title"),
         max_length=255,
     )
+    thumbnail = models.FileField(
+        verbose_name=_("Thumbnail"),
+        upload_to=mission_directory_path,
+        null=True,
+        blank=True,
+    )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     service = models.ForeignKey(
         ServiceModel,

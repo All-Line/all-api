@@ -869,6 +869,15 @@ class TestMissionModel:
         assert field.verbose_name == "Title"
         assert field.max_length == 255
 
+    def test_thumbnail_field(self):
+        field = self.model._meta.get_field("thumbnail")
+
+        assert type(field) == models.FileField
+        assert field.verbose_name == "Thumbnail"
+        assert field.upload_to.__name__ == "mission_directory_path"
+        assert field.null is True
+        assert field.blank is True
+
     def test_description_field(self):
         field = self.model._meta.get_field("description")
 
@@ -918,7 +927,7 @@ class TestMissionModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 11
+        assert len(self.model._meta.fields) == 12
 
     def test_get_completed_info(self):
         mock_user = Mock()
