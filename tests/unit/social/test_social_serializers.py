@@ -78,6 +78,11 @@ class TestListPostSerializer:
 
         assert result == mock_list_post_comment_serializer.return_value.data
 
+    def test_get_attachment_type(self):
+        obj = Mock()
+        result = self.serializer().get_attachment_type(obj)
+        assert result == obj.attachment_type
+
 
 class TestCreatePostCommentSerializer:
     @classmethod

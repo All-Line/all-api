@@ -29,6 +29,7 @@ class ListPostSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
     comments = serializers.SerializerMethodField()
     reactions = ListReactionSerializer(many=True)
+    attachment_type = serializers.SerializerMethodField()
 
     class Meta:
         model = PostModel
@@ -37,6 +38,10 @@ class ListPostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         return ListPostCommentSerializer(obj.comments.all(), many=True).data
+
+    @staticmethod
+    def get_attachment_type(obj):
+        return obj.attachment_type
 
 
 class CreatePostCommentSerializer(serializers.Serializer):
