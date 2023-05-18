@@ -213,7 +213,7 @@ class LoginQuestionOptionInline(admin.TabularInline):
 
 class LoginAnswerInline(admin.TabularInline):
     model = LoginAnswer
-    verbose_name_plural = "Answers"
+    verbose_name_plural = "User answers"
     extra = 0
     fields = (
         "option",
