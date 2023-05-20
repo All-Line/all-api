@@ -85,9 +85,7 @@ class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
 class PostCommentAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
     list_display = ["id", "author", "post", "reactions_amount"]
     readonly_fields = ["id", "author"]
-    list_filter = [
-        "post__service__name",
-    ]
+    list_filter = ["post__service__name", "author__first_name", "post"]
     search_fields = ["content", "author__first_name", "post__service__name"]
 
     fieldsets = (

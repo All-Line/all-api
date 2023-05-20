@@ -148,6 +148,8 @@ class TestPostCommentAdmin:
     def test_list_filter(self):
         assert self.admin.list_filter == [
             "post__service__name",
+            "author__first_name",
+            "post",
         ]
 
     def test_search_fields(self):
