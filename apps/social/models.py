@@ -335,18 +335,6 @@ class PostModel(
     AttachmentModel(upload_to=post_attachment_directory_path).mixin,
     ReactionsMixin,
 ):
-    POST_TYPE = (
-        ("text", "Text"),
-        ("image", "Image"),
-        ("video", "Video"),
-    )
-
-    type = models.CharField(
-        verbose_name=_("Type"),
-        max_length=255,
-        choices=POST_TYPE,
-        default="text",
-    )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
 
     reactions = models.ManyToManyField(

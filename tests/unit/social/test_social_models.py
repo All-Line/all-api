@@ -750,7 +750,7 @@ class TestPostModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 12
+        assert len(self.model._meta.fields) == 11
 
     def test_count_reactions(self):
         reaction = Mock(reaction_type=Mock())

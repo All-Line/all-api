@@ -41,3 +41,5 @@ no serializer e no admin.
 * 2023-05-13 - Corrigida cobertura de testes para 100%
 
 ### Removed
+
+* 2023-05-19 - Removido o campo `type` de `PostModel`
