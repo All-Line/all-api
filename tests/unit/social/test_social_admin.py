@@ -10,7 +10,6 @@ from apps.social.admin import (
     PostCommentAdmin,
     PostCommentInline,
     PostInline,
-    ReactionTypeAdmin,
 )
 from apps.social.models import (
     EventModel,
@@ -18,7 +17,6 @@ from apps.social.models import (
     MissionInteractionModel,
     PostCommentModel,
     PostModel,
-    ReactionTypeModel,
 )
 from utils.admin.mixins import (
     UpdateDateModifiedMixin,
@@ -256,30 +254,6 @@ class TestEventAdmin:
 
     def test_inlines(self):
         assert self.admin.inlines == [PostInline]
-
-
-class TestReactionTypeAdmin:
-    @classmethod
-    def setup_class(cls):
-        cls.admin = ReactionTypeAdmin(ReactionTypeModel, admin.AdminSite())
-
-    def test_meta_model(self):
-        assert self.admin.model == ReactionTypeModel
-
-    def test_admin_subclass(self):
-        assert issubclass(ReactionTypeAdmin, admin.ModelAdmin)
-
-    def test_list_display(self):
-        assert self.admin.list_display == ["id", "name", "service"]
-
-    def test_list_filter(self):
-        assert self.admin.list_filter == ["service__name"]
-
-    def test_fieldsets_config(self):
-        assert self.admin.fieldsets[0] == (
-            "Config",
-            {"fields": ("name", "attachment", "service")},
-        )
 
 
 class TestMissionInteractionInline:
