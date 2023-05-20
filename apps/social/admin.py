@@ -11,7 +11,6 @@ from apps.social.models import (
     MissionModel,
     PostCommentModel,
     PostModel,
-    ReactionTypeModel,
 )
 from utils.admin.mixins import (
     UpdateDateModifiedMixin,
@@ -137,16 +136,6 @@ class EventAdmin(UpdateDateModifiedMixin, admin.ModelAdmin):
             },
         ),
     )
-
-
-@admin.register(ReactionTypeModel)
-class ReactionTypeAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "service"]
-    list_filter = [
-        "service__name",
-    ]
-
-    fieldsets = ((_("Config"), {"fields": ("name", "attachment", "service")}),)
 
 
 class MissionInteractionInline(admin.TabularInline):

@@ -43,3 +43,4 @@ no serializer e no admin.
 ### Removed
 
 * 2023-05-19 - Removido o campo `type` de `PostModel`
+* 2023-05-19 - Removido `reactions types` do `admin`
