@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from apps.social.models import (
@@ -12,7 +13,9 @@ from apps.social.models import (
     PostCommentModel,
     PostModel,
 )
+from utils.admin import admin_method_attributes
 from utils.admin.mixins import (
+    AttachmentPreviewMixin,
     UpdateDateModifiedMixin,
     UpdateDateModifiedOrSetAuthorMixin,
 )
@@ -51,9 +54,11 @@ class PostCommentInline(admin.TabularInline):
 
 
 @admin.register(PostModel)
-class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
-    list_display = ["id", "author", "service", "reactions_amount"]
-    readonly_fields = ["id", "author", "ai_report"]
+class PostAdmin(
+    UpdateDateModifiedOrSetAuthorMixin, AttachmentPreviewMixin, admin.ModelAdmin
+):
+    list_display = ["id", "author", "service", "reactions_amount", "attachment_preview"]
+    readonly_fields = ["id", "author", "ai_report", "attachment_preview"]
     list_filter = [
         "service__name",
     ]
@@ -61,7 +66,7 @@ class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
     inlines = [PostCommentInline]
 
     fieldsets = (
-        (_("Post"), {"fields": ("description", "attachment")}),
+        (_("Post"), {"fields": ("description", "attachment", "attachment_preview")}),
         (
             _("AI Report"),
             {
@@ -94,18 +99,31 @@ class PostCommentAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
     )
 
 
-class PostInline(admin.TabularInline):
+class PostInline(admin.TabularInline, AttachmentPreviewMixin):
     model = PostModel
     verbose_name_plural = "Posts"
     extra = 0
-    fields = ("id", "description", "attachment", "reactions_amount")
+    fields = (
+        "id",
+        "description",
+        "attachment",
+        "attachment_preview",
+        "reactions_amount",
+    )
     readonly_fields = fields
 
 
 @admin.register(EventModel)
-class EventAdmin(UpdateDateModifiedMixin, admin.ModelAdmin):
-    list_display = ["id", "title", "service", "event_type", "is_active"]
-    readonly_fields = ["id", "date_joined", "date_modified"]
+class EventAdmin(UpdateDateModifiedMixin, AttachmentPreviewMixin, admin.ModelAdmin):
+    list_display = [
+        "id",
+        "title",
+        "service",
+        "event_type",
+        "is_active",
+        "attachment_preview",
+    ]
+    readonly_fields = ["id", "date_joined", "date_modified", "attachment_preview"]
     list_filter = [
         "service__name",
     ]
@@ -115,7 +133,15 @@ class EventAdmin(UpdateDateModifiedMixin, admin.ModelAdmin):
     fieldsets = (
         (
             _("Event"),
-            {"fields": ("title", "description", "event_type", "attachment")},
+            {
+                "fields": (
+                    "title",
+                    "description",
+                    "event_type",
+                    "attachment",
+                    "attachment_preview",
+                )
+            },
         ),
         (
             _("Config"),
@@ -136,7 +162,7 @@ class EventAdmin(UpdateDateModifiedMixin, admin.ModelAdmin):
     )
 
 
-class MissionInteractionInline(admin.TabularInline):
+class MissionInteractionInline(AttachmentPreviewMixin, admin.TabularInline):
     model = MissionInteractionModel
     verbose_name_plural = "Interactions"
     extra = 0
@@ -145,6 +171,7 @@ class MissionInteractionInline(admin.TabularInline):
         "mission",
         "user",
         "attachment",
+        "attachment_preview",
         "content",
         "date_joined",
     )
@@ -155,9 +182,23 @@ class MissionInteractionInline(admin.TabularInline):
 
 
 @admin.register(MissionModel)
-class MissionAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "service", "event", "is_active"]
-    readonly_fields = ["id", "date_joined", "date_modified"]
+class MissionAdmin(AttachmentPreviewMixin, admin.ModelAdmin):
+    list_display = [
+        "id",
+        "title",
+        "service",
+        "event",
+        "is_active",
+        "thumbnail_preview",
+        "attachment_preview",
+    ]
+    readonly_fields = [
+        "id",
+        "date_joined",
+        "date_modified",
+        "attachment_preview",
+        "thumbnail_preview",
+    ]
     list_filter = [
         "service__name",
     ]
@@ -167,7 +208,17 @@ class MissionAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             _("Mission"),
-            {"fields": ("id", "title", "description", "attachment", "thumbnail")},
+            {
+                "fields": (
+                    "id",
+                    "title",
+                    "description",
+                    "attachment",
+                    "thumbnail",
+                    "attachment_preview",
+                    "thumbnail_preview",
+                )
+            },
         ),
         (
             _("Config"),
@@ -184,6 +235,14 @@ class MissionAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Thumbnail preview"))
+    def thumbnail_preview(obj):
+        if not obj.thumbnail:
+            return _("No thumbnail")
+
+        return mark_safe(f'<img src="{obj.thumbnail.url}" width="300px" />')
 
 
 class LoginQuestionOptionInline(admin.TabularInline):

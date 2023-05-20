@@ -56,3 +56,4 @@ log/*
 
 # Initial migration control
 .initial-migrations-done
+media/
