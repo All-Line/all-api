@@ -78,7 +78,6 @@ class TestPostAdmin:
             "author",
             "service",
             "reactions_amount",
-            "type",
         ]
 
     def test_list_filter(self):
@@ -112,7 +111,7 @@ class TestPostAdmin:
     def test_fieldsets_config(self):
         assert self.admin.fieldsets[2] == (
             "Config",
-            {"fields": ("author", "service", "event", "type")},
+            {"fields": ("author", "service", "event")},
         )
 
     def test_actions(self):
@@ -190,7 +189,6 @@ class TestPostInline:
     def test_fields(self):
         assert self.inline.fields == (
             "id",
-            "type",
             "description",
             "attachment",
             "reactions_amount",

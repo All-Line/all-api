@@ -53,7 +53,7 @@ class PostCommentInline(admin.TabularInline):
 
 @admin.register(PostModel)
 class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
-    list_display = ["id", "author", "service", "reactions_amount", "type"]
+    list_display = ["id", "author", "service", "reactions_amount"]
     readonly_fields = ["id", "author", "ai_report"]
     list_filter = [
         "service__name",
@@ -72,7 +72,7 @@ class PostAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
                 )
             },
         ),
-        (_("Config"), {"fields": ("author", "service", "event", "type")}),
+        (_("Config"), {"fields": ("author", "service", "event")}),
     )
 
     actions = ["generate_ai_report"]
@@ -101,7 +101,7 @@ class PostInline(admin.TabularInline):
     model = PostModel
     verbose_name_plural = "Posts"
     extra = 0
-    fields = ("id", "type", "description", "attachment", "reactions_amount")
+    fields = ("id", "description", "attachment", "reactions_amount")
     readonly_fields = fields
 
 
