@@ -28,6 +28,7 @@ example: * date_at - fixed some bug.
 
 ### Added
 
+* 2023-05-19 - Adicionado novos filtros no `PostComment`
 * 2023-05-18 - Adicionado campo `thumbnail` na model MissionModel,
 no serializer e no admin.
 * 2023-05-18 - Adicionado campo `attachment_type` nas models que possuem attachment.
