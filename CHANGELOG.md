@@ -20,6 +20,7 @@ example: * date_at - fixed some bug.
 
 ### Changed
 
+* 2023-05-20 - Modificado o campo `type` do `MissionModel` para N-N.
 * 2023-05-18 - Alterado o nome do Answers para User answers
 * 2023-05-13 - Alterado o nome da app `material` no painel admin para `EAD`.
 * 2023-04-24 - Limpado o arquivo `CHANGELOG.md` para iniciar o versionamento do projeto.

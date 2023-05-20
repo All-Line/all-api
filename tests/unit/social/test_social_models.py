@@ -13,6 +13,7 @@ from apps.social.models import (
     LoginQuestions,
     MissionInteractionModel,
     MissionModel,
+    MissionTypeModel,
     PostCommentModel,
     PostModel,
     ReactionModel,
@@ -827,6 +828,37 @@ class TestPostModel:
         mock_self.save.assert_called_once()
 
 
+class TestMissionTypeModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = MissionTypeModel
+
+    def test_str(self):
+        mission_type = MissionTypeModel(name="foo")
+
+        assert str(mission_type) == mission_type.name
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Mission Type"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Mission Types"
+
+    def test_name_field(self):
+        field = self.model._meta.get_field("name")
+
+        assert type(field) == models.CharField
+        assert field.verbose_name == "Name"
+        assert field.max_length == 255
+        assert field.unique is True
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 5
+
+
 class TestMissionModel:
     @classmethod
     def setup_class(cls):
@@ -846,21 +878,13 @@ class TestMissionModel:
     def test_meta_verbose_name_plural(self):
         assert self.model._meta.verbose_name_plural == "Missions"
 
-    def test_mission_type_choices(self):
-        assert self.model.MISSION_TYPE == (
-            ("text", "Text"),
-            ("image", "Image"),
-            ("video", "Video"),
-        )
-
     def test_type_field(self):
         field = self.model._meta.get_field("type")
 
-        assert type(field) == models.CharField
+        assert type(field) == models.ManyToManyField
         assert field.verbose_name == "Type"
-        assert field.max_length == 255
-        assert field.choices == self.model.MISSION_TYPE
-        assert field.default == "text"
+        assert field.remote_field.related_name == "missions"
+        assert field.related_model is MissionTypeModel
 
     def test_title_field(self):
         field = self.model._meta.get_field("title")
@@ -927,7 +951,7 @@ class TestMissionModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 12
+        assert len(self.model._meta.fields) == 11
 
     def test_get_completed_info(self):
         mock_user = Mock()

@@ -10,6 +10,7 @@ from apps.social.models import (
     LoginQuestions,
     MissionInteractionModel,
     MissionModel,
+    MissionTypeModel,
     PostCommentModel,
     PostModel,
 )
@@ -203,6 +204,22 @@ class MissionInteractionAdmin(admin.ModelAdmin, AttachmentPreviewMixin):
         return False
 
 
+@admin.register(MissionTypeModel)
+class MissionTypeAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "is_active"]
+    readonly_fields = ["id"]
+    list_filter = [
+        "is_active",
+    ]
+    search_fields = ["name"]
+    fieldsets = (
+        (
+            _("Mission Type"),
+            {"fields": ("id", "name", "is_active")},
+        ),
+    )
+
+
 @admin.register(MissionModel)
 class MissionAdmin(AttachmentPreviewMixin, admin.ModelAdmin):
     list_display = [
@@ -226,6 +243,7 @@ class MissionAdmin(AttachmentPreviewMixin, admin.ModelAdmin):
     ]
     search_fields = ["title", "service__name"]
     inlines = [MissionInteractionInline]
+    filter_horizontal = ["type"]
 
     fieldsets = (
         (

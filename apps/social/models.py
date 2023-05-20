@@ -444,17 +444,26 @@ class PostModel(
         return f"{self.author.first_name}'s post"
 
 
-class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).mixin):
-    MISSION_TYPE = (
-        ("text", "Text"),
-        ("image", "Image"),
-        ("video", "Video"),
-    )
-    type = models.CharField(
-        verbose_name=_("Type"),
+class MissionTypeModel(BaseModel):
+    name = models.CharField(
+        verbose_name=_("Name"),
         max_length=255,
-        choices=MISSION_TYPE,
-        default="text",
+        unique=True,
+    )
+
+    class Meta:
+        verbose_name = _("Mission Type")
+        verbose_name_plural = _("Mission Types")
+
+    def __str__(self):
+        return self.name
+
+
+class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).mixin):
+    type = models.ManyToManyField(
+        MissionTypeModel,
+        verbose_name=_("Type"),
+        related_name="missions",
     )
     title = models.CharField(
         verbose_name=_("Title"),
