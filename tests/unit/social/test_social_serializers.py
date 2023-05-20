@@ -8,6 +8,7 @@ from apps.social.models import (
     LoginQuestionOption,
     LoginQuestions,
     MissionModel,
+    MissionTypeModel,
     PostCommentModel,
     PostModel,
     ReactionModel,
@@ -25,6 +26,7 @@ from apps.social.serializers import (
     ListReactTypesSerializer,
     LoginQuestionOptionSerializer,
     LoginQuestionSerializer,
+    MissionTypeSerializer,
     UnreactSerializer,
     UpdatePostCommentSerializer,
 )
@@ -256,6 +258,21 @@ class TestUnreactSerializer:
             serializer.create(validated_data)
 
         validated_data["reaction"].delete.assert_not_called()
+
+
+class TestMissionTypeSerializer:
+    @classmethod
+    def setup_class(cls):
+        cls.serializer = MissionTypeSerializer
+
+    def test_parent_class(self):
+        assert issubclass(self.serializer, serializers.ModelSerializer)
+
+    def test_meta_model(self):
+        assert self.serializer.Meta.model == MissionTypeModel
+
+    def test_meta_fields(self):
+        assert self.serializer.Meta.fields == ["name"]
 
 
 class TestListMissionSerializer:

@@ -405,6 +405,9 @@ class TestMissionAdmin:
     def test_inlines(self):
         assert self.admin.inlines == [MissionInteractionInline]
 
+    def test_filter_horizontal(self):
+        assert self.admin.filter_horizontal == ["type"]
+
     def test_fieldsets_mission(self):
         assert self.admin.fieldsets[0] == (
             "Mission",

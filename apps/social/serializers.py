@@ -9,6 +9,7 @@ from .models import (
     LoginQuestions,
     MissionInteractionModel,
     MissionModel,
+    MissionTypeModel,
     PostCommentModel,
     PostModel,
     ReactionModel,
@@ -147,11 +148,18 @@ class UnreactSerializer(serializers.Serializer):
         return reaction.delete()
 
 
+class MissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MissionTypeModel
+        fields = ["name"]
+
+
 class ListMissionSerializer(
     serializers.ModelSerializer, GetAttachmentTypeSerializerMixin
 ):
     is_completed = serializers.SerializerMethodField()
     completed_info = serializers.SerializerMethodField()
+    type = MissionTypeSerializer(many=True)
 
     class Meta:
         model = MissionModel
