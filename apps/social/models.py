@@ -152,8 +152,8 @@ class PostCommentModel(
         return self.answer is not None
 
     class Meta:
-        verbose_name = _("Post Comment")
-        verbose_name_plural = _("Post Comments")
+        verbose_name = _("User Comment")
+        verbose_name_plural = _("User Comments")
 
     def __str__(self):
         return f"{self.author.first_name}'s comment"
@@ -530,8 +530,8 @@ class MissionInteractionModel(
     content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
 
     class Meta:
-        verbose_name = _("Mission Interaction")
-        verbose_name_plural = _("Mission Interactions")
+        verbose_name = _("User Mission")
+        verbose_name_plural = _("User Missions")
 
     def __str__(self):
         return f"{self.user.first_name} - {self.mission.title}"

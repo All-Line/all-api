@@ -6,6 +6,7 @@ from apps.social.admin import (
     EventAdmin,
     LoginAnswerInline,
     MissionAdmin,
+    MissionInteractionAdmin,
     MissionInteractionInline,
     PostAdmin,
     PostCommentAdmin,
@@ -312,6 +313,51 @@ class TestMissionInteractionInline:
 
     def test_has_add_permission(self):
         result = self.inline.has_add_permission(None, None)
+
+        assert result is False
+
+
+class TestMissionInteractionAdmin:
+    @classmethod
+    def setup_class(cls):
+        cls.admin = MissionInteractionAdmin(MissionInteractionModel, admin.AdminSite())
+
+    def test_meta_model(self):
+        assert self.admin.model == MissionInteractionModel
+
+    def test_admin_subclass(self):
+        assert issubclass(MissionInteractionAdmin, admin.ModelAdmin)
+        assert issubclass(MissionInteractionAdmin, AttachmentPreviewMixin)
+
+    def test_list_display(self):
+        assert self.admin.list_display == [
+            "id",
+            "mission",
+            "user",
+            "date_joined",
+            "attachment_preview",
+            "is_active",
+        ]
+
+    def test_readonly_fields(self):
+        assert self.admin.readonly_fields == [
+            "id",
+            "mission",
+            "user",
+            "date_joined",
+            "attachment_preview",
+        ]
+
+    def test_list_filter(self):
+        assert self.admin.list_filter == [
+            "mission__service__name",
+            "mission__event__title",
+            "mission__is_active",
+            "mission",
+        ]
+
+    def test_has_add_permission(self):
+        result = self.admin.has_add_permission(None, None)
 
         assert result is False
 
