@@ -181,6 +181,28 @@ class MissionInteractionInline(AttachmentPreviewMixin, admin.TabularInline):
         return False
 
 
+@admin.register(MissionInteractionModel)
+class MissionInteractionAdmin(admin.ModelAdmin, AttachmentPreviewMixin):
+    list_display = [
+        "id",
+        "mission",
+        "user",
+        "date_joined",
+        "attachment_preview",
+        "is_active",
+    ]
+    readonly_fields = ["id", "mission", "user", "date_joined", "attachment_preview"]
+    list_filter = [
+        "mission__service__name",
+        "mission__event__title",
+        "mission__is_active",
+        "mission",
+    ]
+
+    def has_add_permission(self, *_args, **_kwargs):
+        return False
+
+
 @admin.register(MissionModel)
 class MissionAdmin(AttachmentPreviewMixin, admin.ModelAdmin):
     list_display = [

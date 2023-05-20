@@ -230,10 +230,10 @@ class TestPostCommentModel:
         assert issubclass(self.model, BaseModel)
 
     def test_meta_verbose_name(self):
-        assert self.model._meta.verbose_name == "Post Comment"
+        assert self.model._meta.verbose_name == "User Comment"
 
     def test_meta_verbose_name_plural(self):
-        assert self.model._meta.verbose_name_plural == "Post Comments"
+        assert self.model._meta.verbose_name_plural == "User Comments"
 
     def test_content_field(self):
         field = self.model._meta.get_field("content")
@@ -993,10 +993,10 @@ class TestMissionInteractionModel:
         assert issubclass(self.model, BaseModel)
 
     def test_meta_verbose_name(self):
-        assert self.model._meta.verbose_name == "Mission Interaction"
+        assert self.model._meta.verbose_name == "User Mission"
 
     def test_meta_verbose_name_plural(self):
-        assert self.model._meta.verbose_name_plural == "Mission Interactions"
+        assert self.model._meta.verbose_name_plural == "User Missions"
 
     def test_mission_field(self):
         field = self.model._meta.get_field("mission")
