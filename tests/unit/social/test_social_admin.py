@@ -1,10 +1,11 @@
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from django.contrib import admin
 
 from apps.social.admin import (
     EventAdmin,
     LoginAnswerInline,
+    MissionAdmin,
     MissionInteractionInline,
     PostAdmin,
     PostCommentAdmin,
@@ -15,10 +16,12 @@ from apps.social.models import (
     EventModel,
     LoginAnswer,
     MissionInteractionModel,
+    MissionModel,
     PostCommentModel,
     PostModel,
 )
 from utils.admin.mixins import (
+    AttachmentPreviewMixin,
     UpdateDateModifiedMixin,
     UpdateDateModifiedOrSetAuthorMixin,
 )
@@ -76,6 +79,7 @@ class TestPostAdmin:
             "author",
             "service",
             "reactions_amount",
+            "attachment_preview",
         ]
 
     def test_list_filter(self):
@@ -89,7 +93,12 @@ class TestPostAdmin:
         ]
 
     def test_readonly_fields(self):
-        assert self.admin.readonly_fields == ["id", "author", "ai_report"]
+        assert self.admin.readonly_fields == [
+            "id",
+            "author",
+            "ai_report",
+            "attachment_preview",
+        ]
 
     def test_inlines(self):
         assert self.admin.inlines == [PostCommentInline]
@@ -97,7 +106,7 @@ class TestPostAdmin:
     def test_fieldsets_post(self):
         assert self.admin.fieldsets[0] == (
             "Post",
-            {"fields": ("description", "attachment")},
+            {"fields": ("description", "attachment", "attachment_preview")},
         )
 
     def test_fieldsets_ai_report(self):
@@ -191,6 +200,7 @@ class TestPostInline:
             "id",
             "description",
             "attachment",
+            "attachment_preview",
             "reactions_amount",
         )
 
@@ -220,6 +230,7 @@ class TestEventAdmin:
             "service",
             "event_type",
             "is_active",
+            "attachment_preview",
         ]
 
     def test_list_filter(self):
@@ -233,7 +244,15 @@ class TestEventAdmin:
     def test_fieldsets_event(self):
         assert self.admin.fieldsets[0] == (
             "Event",
-            {"fields": ("title", "description", "event_type", "attachment")},
+            {
+                "fields": (
+                    "title",
+                    "description",
+                    "event_type",
+                    "attachment",
+                    "attachment_preview",
+                )
+            },
         )
 
     def test_fieldsets_config(self):
@@ -280,6 +299,7 @@ class TestMissionInteractionInline:
             "mission",
             "user",
             "attachment",
+            "attachment_preview",
             "content",
             "date_joined",
         )
@@ -294,6 +314,99 @@ class TestMissionInteractionInline:
         result = self.inline.has_add_permission(None, None)
 
         assert result is False
+
+
+class TestMissionAdmin:
+    @classmethod
+    def setup_class(cls):
+        cls.admin = MissionAdmin(MissionModel, admin.AdminSite())
+
+    def test_meta_model(self):
+        assert self.admin.model == MissionModel
+
+    def test_admin_subclass(self):
+        assert issubclass(MissionAdmin, admin.ModelAdmin)
+        assert issubclass(MissionAdmin, AttachmentPreviewMixin)
+
+    def test_list_display(self):
+        assert self.admin.list_display == [
+            "id",
+            "title",
+            "service",
+            "event",
+            "is_active",
+            "thumbnail_preview",
+            "attachment_preview",
+        ]
+
+    def test_readonly_fields(self):
+        assert self.admin.readonly_fields == [
+            "id",
+            "date_joined",
+            "date_modified",
+            "attachment_preview",
+            "thumbnail_preview",
+        ]
+
+    def test_list_filter(self):
+        assert self.admin.list_filter == [
+            "service__name",
+        ]
+
+    def test_search_fields(self):
+        assert self.admin.search_fields == ["title", "service__name"]
+
+    def test_inlines(self):
+        assert self.admin.inlines == [MissionInteractionInline]
+
+    def test_fieldsets_mission(self):
+        assert self.admin.fieldsets[0] == (
+            "Mission",
+            {
+                "fields": (
+                    "id",
+                    "title",
+                    "description",
+                    "attachment",
+                    "thumbnail",
+                    "attachment_preview",
+                    "thumbnail_preview",
+                )
+            },
+        )
+
+    def test_fieldsets_config(self):
+        assert self.admin.fieldsets[1] == (
+            "Config",
+            {
+                "fields": (
+                    "type",
+                    "service",
+                    "service_client",
+                    "event",
+                    "is_active",
+                    "date_joined",
+                    "date_modified",
+                )
+            },
+        )
+
+    @patch("apps.social.admin.mark_safe")
+    def test_thumbnail_preview_without_thumbnail(self, mock_mark_safe):
+        mock_obj = Mock(thumbnail=None)
+        result = self.admin.thumbnail_preview(mock_obj)
+
+        assert result == "No thumbnail"
+        mock_mark_safe.assert_not_called()
+
+    @patch("apps.social.admin.mark_safe")
+    def test_thumbnail_preview_with_thumbnail(self, mock_mark_safe):
+        mock_obj = Mock()
+        self.admin.thumbnail_preview(mock_obj)
+
+        mock_mark_safe.assert_called_once_with(
+            f'<img src="{mock_obj.thumbnail.url}" width="300px" />'
+        )
 
 
 class TestLoginAnswerInline:
