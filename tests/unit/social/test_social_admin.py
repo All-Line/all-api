@@ -429,6 +429,7 @@ class TestMissionAdmin:
             "Config",
             {
                 "fields": (
+                    "order",
                     "type",
                     "service",
                     "service_client",

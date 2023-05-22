@@ -498,6 +498,7 @@ class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).
         blank=True,
         on_delete=models.CASCADE,
     )
+    order = models.IntegerField(verbose_name=_("Order"), default=0)
 
     def get_completed_info(self, user: UserModel):
         return self.interactions.filter(user=user).first()
