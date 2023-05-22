@@ -950,8 +950,15 @@ class TestMissionModel:
         assert field.null is True
         assert field.blank is True
 
+    def test_order_field(self):
+        field = self.model._meta.get_field("order")
+
+        assert type(field) == models.IntegerField
+        assert field.verbose_name == "Order"
+        assert field.default == 0
+
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 11
+        assert len(self.model._meta.fields) == 12
 
     def test_get_completed_info(self):
         mock_user = Mock()

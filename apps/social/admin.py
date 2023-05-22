@@ -264,6 +264,7 @@ class MissionAdmin(AttachmentPreviewMixin, admin.ModelAdmin):
             _("Config"),
             {
                 "fields": (
+                    "order",
                     "type",
                     "service",
                     "service_client",

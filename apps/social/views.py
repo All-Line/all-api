@@ -154,7 +154,9 @@ class MissionViewSet(
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
 ):
-    queryset = MissionModel.objects.prefetch_related("interactions").all()
+    queryset = (
+        MissionModel.objects.prefetch_related("interactions").all().order_by("order")
+    )
     serializers = {
         "list": ListMissionSerializer,
         "retrieve": ListMissionSerializer,

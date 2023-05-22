@@ -73,12 +73,12 @@ jobs:
         source venv/bin/activate
         python ./scripts/slack_message.py "[All Line] 🧪 Deploy iniciado para o ambiente: Production"
 
-    - name: Migrating the database
-      run: |
-        source venv/bin/activate
-        zappa manage prd migrate
-
     - name: Deploying
       run: |
         source venv/bin/activate
         zappa update prd && python ./scripts/slack_message.py "[All Line] ✅ Deploy feito com sucesso" || python ./scripts/slack_message.py "[All Line] ❌ Deploy falhou"
+
+    - name: Migrating the database
+      run: |
+        source venv/bin/activate
+        zappa manage prd migrate
