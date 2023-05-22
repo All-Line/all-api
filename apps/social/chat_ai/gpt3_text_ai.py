@@ -5,9 +5,6 @@ from .base.text_ai import TextAI
 
 
 class GPT3TextAI(TextAI):
-    def __int__(self, pre_set: str, message: str):
-        super().__init__(pre_set, message)
-
     def get_client(self):
         return ChatGPT(env("OPEN_AI_KEY"))
 

@@ -1,8 +1,6 @@
 import pytest
 
-from tests.factories.service_credential_config import (
-    ServiceCredentialConfigFactory,
-)
+from tests.factories.service_credential_config import ServiceCredentialConfigFactory
 
 
 @pytest.mark.django_db
@@ -132,6 +130,7 @@ class TestUserLogin:
             "is_premium": False,
             "is_verified": True,
             "last_name": dummy_user.last_name,
+            "login_questions": False,
             "service": dummy_service.slug,
             "token": dummy_user.auth_token.key,
         }
@@ -160,6 +159,7 @@ class TestUserLogin:
             "is_premium": False,
             "is_verified": True,
             "last_name": dummy_user.last_name,
+            "login_questions": False,
             "service": dummy_service.slug,
             "token": dummy_user.auth_token.key,
         }

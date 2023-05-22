@@ -1,12 +1,15 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from utils.mixins.attachment_type import GetAttachmentTypeSerializerMixin
+
 from ..user.serializers import UserDataSerializer
 from .models import (
     LoginQuestionOption,
     LoginQuestions,
     MissionInteractionModel,
     MissionModel,
+    MissionTypeModel,
     PostCommentModel,
     PostModel,
     ReactionModel,
@@ -27,6 +30,7 @@ class ListPostSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
     comments = serializers.SerializerMethodField()
     reactions = ListReactionSerializer(many=True)
+    attachment_type = serializers.SerializerMethodField()
 
     class Meta:
         model = PostModel
@@ -35,6 +39,10 @@ class ListPostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         return ListPostCommentSerializer(obj.comments.all(), many=True).data
+
+    @staticmethod
+    def get_attachment_type(obj):
+        return obj.attachment_type
 
 
 class CreatePostCommentSerializer(serializers.Serializer):
@@ -69,7 +77,9 @@ class UpdatePostCommentSerializer(serializers.Serializer):
         return instance
 
 
-class ListPostCommentSerializer(serializers.ModelSerializer):
+class ListPostCommentSerializer(
+    serializers.ModelSerializer, GetAttachmentTypeSerializerMixin
+):
     author = UserDataSerializer(read_only=True)
     reactions = ListReactionSerializer(many=True)
     answers = serializers.SerializerMethodField()
@@ -83,6 +93,7 @@ class ListPostCommentSerializer(serializers.ModelSerializer):
             "answers",
             "reactions",
             "attachment",
+            "attachment_type",
         ]
         depth = 9
 
@@ -137,9 +148,18 @@ class UnreactSerializer(serializers.Serializer):
         return reaction.delete()
 
 
-class ListMissionSerializer(serializers.ModelSerializer):
+class MissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MissionTypeModel
+        fields = ["name"]
+
+
+class ListMissionSerializer(
+    serializers.ModelSerializer, GetAttachmentTypeSerializerMixin
+):
     is_completed = serializers.SerializerMethodField()
     completed_info = serializers.SerializerMethodField()
+    type = MissionTypeSerializer(many=True)
 
     class Meta:
         model = MissionModel
@@ -149,6 +169,8 @@ class ListMissionSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "attachment",
+            "attachment_type",
+            "thumbnail",
             "is_completed",
             "completed_info",
         ]
@@ -165,6 +187,7 @@ class ListMissionSerializer(serializers.ModelSerializer):
                 "attachment": completed_info.attachment.url
                 if completed_info.attachment
                 else None,
+                "attachment_type": completed_info.attachment_type,
             }
             if completed_info
             else None

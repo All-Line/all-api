@@ -5,6 +5,7 @@ from django.db import models
 from rest_framework.exceptions import ValidationError
 
 from apps.service.models import (
+    ServiceClientModel,
     ServiceCredentialConfigModel,
     ServiceEmailConfigModel,
     ServiceModel,
@@ -379,3 +380,65 @@ class TestServiceCredentialConfigModel:
         )
         assert field.null is True
         assert field.blank is True
+
+
+class TestServiceClientModel:
+    @classmethod
+    def setup_class(cls):
+        cls.model = ServiceClientModel
+
+    def test_str(self):
+        client = ServiceClientModel(name="foo", service=ServiceModel(name="bar"))
+
+        assert str(client) == "foo (bar's client)"
+
+    def test_parent_class(self):
+        assert issubclass(self.model, BaseModel)
+
+    def test_meta_verbose_name(self):
+        assert self.model._meta.verbose_name == "Client"
+
+    def test_meta_verbose_name_plural(self):
+        assert self.model._meta.verbose_name_plural == "Clients"
+
+    def test_service_field(self):
+        field = self.model._meta.get_field("service")
+
+        assert type(field) == models.ForeignKey
+        assert field.related_model == ServiceModel
+        assert field.remote_field.related_name == "clients"
+        assert field.verbose_name == "Service"
+        assert field.remote_field.on_delete.__name__ == "CASCADE"
+
+    def test_name_field(self):
+        field = self.model._meta.get_field("name")
+
+        assert type(field) == models.CharField
+        assert field.max_length == 255
+        assert field.verbose_name == "Name"
+
+    def test_slug_field(self):
+        field = self.model._meta.get_field("slug")
+
+        assert type(field) == models.SlugField
+        assert field.verbose_name == "Slug Field"
+
+    def test_url_field(self):
+        field = self.model._meta.get_field("url")
+
+        assert type(field) == models.URLField
+        assert field.verbose_name == "URL"
+        assert field.null is True
+        assert field.blank is True
+
+    def test_colors_palettes_field(self):
+        field = self.model._meta.get_field("colors_palettes")
+
+        assert type(field) == models.ManyToManyField
+        assert field.related_model == ColorPaletteModel
+        assert field.verbose_name == "Colors Palettes"
+        assert field.remote_field.related_name == "service_clients"
+        assert field.blank is True
+
+    def test_length_fields(self):
+        assert len(self.model._meta.fields) == 8

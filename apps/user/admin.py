@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from utils.admin import admin_method_attributes
 from utils.admin.mixins import NoPhysicalDeletionActionMixin
 
 from ..buying.models import ContractModel
@@ -43,8 +44,9 @@ class UserAdmin(NoPhysicalDeletionActionMixin, admin.ModelAdmin):
         "country",
         "is_verified",
         "is_premium",
+        "profile_image_preview",
     ]
-    readonly_fields = ["id"]
+    readonly_fields = ["id", "profile_image_preview"]
     list_filter = [
         "service__name",
         "is_premium",
@@ -77,6 +79,7 @@ class UserAdmin(NoPhysicalDeletionActionMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "profile_image",
+                    "profile_image_preview",
                     "email",
                     "password",
                     "username",
@@ -107,6 +110,13 @@ class UserAdmin(NoPhysicalDeletionActionMixin, admin.ModelAdmin):
     @admin.action(description=_("Mark selected users as SUPERUSER ⚠"))
     def make_superuser(self, _, queryset):
         queryset.update(is_staff=True, is_superuser=True)
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Profile image preview"))
+    def profile_image_preview(obj):
+        if not obj.profile_image:
+            return _("No image")
+        return mark_safe(f'<img src="{obj.profile_image.url}" width="100px" />')
 
 
 @admin.register(UserForRetentionProxy)

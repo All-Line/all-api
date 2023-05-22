@@ -20,15 +20,32 @@ example: * date_at - fixed some bug.
 
 ### Changed
 
+* 2023-05-20 - Modificado o campo `type` do `MissionModel` para N-N.
+* 2023-05-18 - Alterado o nome do Answers para User answers
+* 2023-05-13 - Alterado o nome da app `material` no painel admin para `EAD`.
 * 2023-04-24 - Limpado o arquivo `CHANGELOG.md` para iniciar o versionamento do projeto.
 * 2023-04-24 - Modificado nome dos arquivos de workflow e título dos mesmos
 * 2023-04-25 - Modificado nome do sistema para All Line System
 
 ### Added
 
+* 2023-05-20 - Adicionado `User Missions` e `User Comments` na sessão de
+`Social` do admin
+* 2023-05-20 - Adicionado preview de `attachment` nos paineis do admin
+* 2023-05-19 - Adicionado novos filtros no `PostComment`
+* 2023-05-18 - Adicionado campo `thumbnail` na model MissionModel,
+no serializer e no admin.
+* 2023-05-18 - Adicionado campo `attachment_type` nas models que possuem attachment.
+* 2023-05-13 - Adicionado texto de ajuda no campo `event_type` da model `EventModel`
 * 2023-04-24 - Adicionado upgrade do pip no comando `make install-requirements`
 * 2023-04-25 - Adicionada integração com a mensagem do slack para o deploy
 
 ### Fixed
 
+* 2023-05-18 - Adicionado campo `attachment_type` na serialização do post.
+* 2023-05-13 - Corrigida cobertura de testes para 100%
+
 ### Removed
+
+* 2023-05-19 - Removido o campo `type` de `PostModel`
+* 2023-05-19 - Removido `reactions types` do `admin`
