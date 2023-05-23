@@ -13,16 +13,25 @@ from .models import (
 )
 
 
-class ServiceEmailConfigInline(admin.TabularInline):
+class ServiceEmailConfigInline(admin.StackedInline):
     model = ServiceEmailConfigModel
     verbose_name_plural = "Service Email Configs"
     extra = 0
-    fields = (
-        "email_config_type",
-        "email_html_template",
-        "email_subject",
-        "email_link",
-        "email_link_expiration",
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "email_sender",
+                    "email_config_type",
+                    "email_html_template",
+                    "email_subject",
+                    "email_link",
+                    "email_link_expiration",
+                )
+            },
+        ),
     )
 
 
@@ -87,7 +96,7 @@ class EventInline(admin.TabularInline):
 
 @admin.register(ServiceModel)
 class ServiceAdmin(admin.ModelAdmin):
-    inlines = [ReactionTypeInline, EventInline]
+    inlines = [ServiceEmailConfigInline, ReactionTypeInline, EventInline]
     list_display = [
         "name",
         "slug",

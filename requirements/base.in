@@ -19,3 +19,4 @@ git+https://github.com/uzi0espil/django-suit.git@v2
 django-colorfield
 safety
 zappa==0.55.0
+sendgrid

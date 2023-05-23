@@ -1,70 +1,46 @@
-from django.conf import settings
-from django.core.mail import send_mail
-
-from apps.service.email_templates.generic import GENERIC_HTML_TEMPLATE
-from apps.service.models import ServiceEmailConfigModel
 from pipelines.base import BasePipeItem
 
 
 class SendEmailToVerification(BasePipeItem):
+    def _get_email_config(self, user):
+        email_config_context = user.service
+
+        if user.is_guest:
+            email_config_context = user.event
+
+        return email_config_context.email_configs.filter(
+            email_config_type=self.pipeline.email_type
+        ).first()
+
     @staticmethod
-    def _build_template(template, keys):
-        for key, value in keys.items():
-            template = template.replace(key, value)
+    def _get_email_from(user):
+        email_from = user.service.smtp_email
 
-        return template
+        if user.is_guest:
+            email_from = user.event.smtp_email
 
-    @staticmethod
-    def _get_keys(email_config, user, service):
-        if email_config:
-            return {
-                "ACTIVATE_LINK_CONFIG": f"{email_config.email_link}{user.auth_token}/",
-                "USER_NAME": f"{user.first_name} {user.last_name}",
-                "SERVICE_NAME": service.name,
-            }
+        return email_from
 
+    def _get_user_html_keys(self, user):
         return {
-            "TITLE": service.name,
-            "USER_NAME": f"{user.first_name} {user.last_name}",
-            "LINK": f"{service.url}{user.auth_token}/",
-            "SERVICE_NAME": service.name,
-            "ACTION": "register",
+            "FIRST_NAME": user.first_name,
+            "LAST_NAME": user.last_name,
+            "USERNAME": user.username,
+            "EMAIL": user.email,
+            "TOKEN": self.pipeline.token,
+            "SERVICE_NAME": user.service.name,
+            "EVENT_NAME": user.event.title if user.event else None,
+            "GUEST_PASSWORD": self.pipeline.password,
         }
 
-    def _compile_email_template(self, email_config, user=None, service=None):
-        template = getattr(email_config, "email_html_template", GENERIC_HTML_TEMPLATE)
-
-        keys = self._get_keys(email_config, user, service)
-        template = self._build_template(template, keys)
-
-        return template
-
-    @staticmethod
-    def _get_email_config_or_none(service):
-        try:
-            email_config = service.email_configs.get(email_config_type="register")
-            return email_config
-        except ServiceEmailConfigModel.DoesNotExist:
-            return None
-
     def _run(self):
-        if not self.pipeline.send_mail:
-            return  # pragma: no cover
+        if self.pipeline.send_mail:
+            user = self.pipeline.user
+            email_config = self._get_email_config(user)
+            email_from = self._get_email_from(user)
 
-        user = self.pipeline.user
-        service = user.service
-
-        email_config = self._get_email_config_or_none(service)
-        email_to = getattr(settings, "DEV_EMAIL", user.email)
-
-        template = self._compile_email_template(email_config, user, service)
-        email_subject = getattr(email_config, "email_subject", "Start System")
-
-        send_mail(
-            email_subject,
-            "",
-            service.smtp_email,
-            [email_to],
-            fail_silently=True,
-            html_message=template,
-        )
+            email_config.send_email(
+                from_email=email_from,
+                to_emails=[user.email],
+                html_keys=self._get_user_html_keys(user),
+            )

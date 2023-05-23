@@ -1,12 +1,8 @@
-from unittest.mock import patch
-
 import pytest
 from rest_framework.authtoken.models import Token
 
 from tests.factories.service import ServiceFactory
-from tests.factories.service_credential_config import (
-    ServiceCredentialConfigFactory,
-)
+from tests.factories.service_credential_config import ServiceCredentialConfigFactory
 from tests.factories.user import UserFactory
 
 
@@ -165,10 +161,8 @@ class TestUserRegistration:
         assert response.status_code == 400
         assert response.json() == {"foo": ["Some no match message"]}
 
-    @patch("pipelines.items.send_email_to_verification.send_mail")
     def test_registration_successfully_with_extra_field(
         self,
-        mock_send_mail,
         api_client,
         dummy_service,
         service_email_config_registration,
@@ -195,7 +189,6 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "test",
@@ -207,10 +200,8 @@ class TestUserRegistration:
             "country": None,
         }
 
-    @patch("pipelines.items.send_email_to_verification.send_mail")
     def test_registration_successfully_with_birth_date(
         self,
-        mock_send_mail,
         api_client,
         dummy_service,
         service_email_config_registration,
@@ -229,7 +220,6 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",
@@ -241,10 +231,8 @@ class TestUserRegistration:
             "country": None,
         }
 
-    @patch("pipelines.items.send_email_to_verification.send_mail")
     def test_registration_successfully_with_registration_in_another_service(
         self,
-        mock_send_mail,
         api_client,
         dummy_service,
         service_email_config_registration,
@@ -267,7 +255,6 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",
@@ -279,10 +266,8 @@ class TestUserRegistration:
             "country": None,
         }
 
-    @patch("pipelines.items.send_email_to_verification.send_mail")
     def test_registration_successfully(
         self,
-        mock_send_mail,
         api_client,
         dummy_service,
         service_email_config_registration,
@@ -300,7 +285,6 @@ class TestUserRegistration:
 
         token = Token.objects.first()
 
-        mock_send_mail.assert_not_called()
         assert response.status_code == 201
         assert response.json() == {
             "first_name": "foo",

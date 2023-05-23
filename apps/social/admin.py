@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from apps.service.admin import ServiceEmailConfigInline
 from apps.social.models import (
     AITextReportModel,
     EventModel,
@@ -129,7 +130,7 @@ class EventAdmin(UpdateDateModifiedMixin, AttachmentPreviewMixin, admin.ModelAdm
         "service__name",
     ]
     search_fields = ["title", "service__name"]
-    inlines = [PostInline]
+    inlines = [ServiceEmailConfigInline, PostInline]
 
     fieldsets = (
         (
@@ -148,6 +149,7 @@ class EventAdmin(UpdateDateModifiedMixin, AttachmentPreviewMixin, admin.ModelAdm
             _("Config"),
             {
                 "fields": (
+                    "smtp_email",
                     "guests",
                     "send_email_to_guests",
                     "require_login_answers",
@@ -161,6 +163,11 @@ class EventAdmin(UpdateDateModifiedMixin, AttachmentPreviewMixin, admin.ModelAdm
             },
         ),
     )
+    actions = ["send_invite_to_guests"]
+
+    def send_invite_to_guests(self, _, events):
+        for event in events:
+            event.create_guests()
 
 
 class MissionInteractionInline(AttachmentPreviewMixin, admin.TabularInline):

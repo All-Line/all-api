@@ -29,6 +29,7 @@ class TestServiceAdmin:
 
     def test_inlines(self):
         assert self.admin.inlines == [
+            ServiceEmailConfigInline,
             ReactionTypeInline,
             EventInline,
         ]
@@ -126,7 +127,7 @@ class TestServiceEmailConfigInline:
         cls.inline = ServiceEmailConfigInline(Mock(), AdminSite())
 
     def test_parent_class(self):
-        assert issubclass(ServiceEmailConfigInline, admin.TabularInline)
+        assert issubclass(ServiceEmailConfigInline, admin.StackedInline)
 
     def test_model(self):
         assert self.inline.model == ServiceEmailConfigModel
@@ -137,13 +138,21 @@ class TestServiceEmailConfigInline:
     def test_extra(self):
         assert self.inline.extra == 0
 
-    def test_fields(self):
-        assert self.inline.fields == (
-            "email_config_type",
-            "email_html_template",
-            "email_subject",
-            "email_link",
-            "email_link_expiration",
+    def test_fieldsets(self):
+        assert self.inline.fieldsets == (
+            (
+                None,
+                {
+                    "fields": (
+                        "email_sender",
+                        "email_config_type",
+                        "email_html_template",
+                        "email_subject",
+                        "email_link",
+                        "email_link_expiration",
+                    )
+                },
+            ),
         )
 
 
