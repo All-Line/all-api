@@ -474,6 +474,7 @@ class MissionModel(BaseModel, AttachmentModel(upload_to=mission_directory_path).
         upload_to=mission_directory_path,
         null=True,
         blank=True,
+        help_text=_("Thumbnail for the mission video, if the attachment is a video"),
     )
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     service = models.ForeignKey(

@@ -901,6 +901,9 @@ class TestMissionModel:
         assert field.upload_to.__name__ == "mission_directory_path"
         assert field.null is True
         assert field.blank is True
+        assert field.help_text == (
+            "Thumbnail for the mission video, if the attachment is a video"
+        )
 
     def test_description_field(self):
         field = self.model._meta.get_field("description")

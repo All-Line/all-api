@@ -59,6 +59,7 @@ class PostViewSet(
         PostModel.objects.prefetch_related("reactions")
         .select_related("service", "event", "author")
         .filter(is_active=True)
+        .order_by("-date_joined")
     )
     serializers = {
         "list": ListPostSerializer,
