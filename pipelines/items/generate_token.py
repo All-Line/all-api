@@ -6,4 +6,4 @@ from pipelines.base import BasePipeItem
 class GenerateToken(BasePipeItem):
     def _run(self):
         user = self.pipeline.user
-        Token.objects.get_or_create(user=user)
+        self.pipeline.token = Token.objects.get_or_create(user=user)[0].key

@@ -24,7 +24,7 @@ executing==1.2.0
     # via stack-data
 ipdb==0.13.13
     # via -r requirements/dev.in
-ipython==8.12.1
+ipython==8.12.2
     # via ipdb
 jedi==0.18.2
     # via ipython
@@ -46,7 +46,7 @@ pickleshare==0.7.5
     # via ipython
 pip-tools==6.13.0
     # via -r requirements/dev.in
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via black
 prompt-toolkit==3.0.38
     # via ipython
@@ -72,7 +72,7 @@ traitlets==5.9.0
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.5.0
+typing-extensions==4.6.0
     # via
     #   black
     #   ipython

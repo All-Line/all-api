@@ -1,3 +1,5 @@
+from django.contrib.auth.hashers import make_password
+
 from apps.user.models import UserModel
 from pipelines.base import BasePipeItem
 
@@ -10,7 +12,7 @@ class CreateUser(BasePipeItem):
             first_name=pipeline.first_name,
             last_name=pipeline.last_name,
             email=pipeline.email,
-            password=pipeline.password,
+            password=make_password(pipeline.password),
             service=pipeline.service,
             **pipeline.kwargs,
         )

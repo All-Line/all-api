@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from apps.service.email_sender_backend import SENDER_BACKENDS
 from apps.visual_structure.models import ColorPaletteModel
 from utils.abstract_models.base_model import BaseModel
 from utils.choices.language_choices import LANGUAGE_CHOICES
@@ -114,6 +115,11 @@ class ServiceEmailConfigModel(BaseModel):
     EMAIL_CONFIG_TYPE_CHOICES = (
         ("register", _("Register")),
         ("reset_password", _("Reset Password")),
+        ("guest_invitation", _("Guest Invitation")),
+    )
+    EMAIL_SENDERS = (
+        ("sendgrid", _("Sendgrid")),
+        ("dummy", _("Dummy")),
     )
 
     service = models.ForeignKey(
@@ -121,25 +127,67 @@ class ServiceEmailConfigModel(BaseModel):
         verbose_name=_("Service"),
         related_name="email_configs",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    event = models.ForeignKey(
+        "social.EventModel",
+        verbose_name=_("Event"),
+        related_name="email_configs",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     email_config_type = models.CharField(
         max_length=255, choices=EMAIL_CONFIG_TYPE_CHOICES
     )
-    email_html_template = models.TextField(verbose_name=_("HTML Template"))
+    email_html_template = models.TextField(
+        verbose_name=_("HTML Template"),
+        help_text=(
+            _("You can use the following variables: ") + "<br>"
+            "[FIRST_NAME] <br>"
+            "[LAST_NAME] <br>"
+            "[USERNAME] <br>"
+            "[EMAIL] <br>"
+            "[TOKEN] <br>"
+            "[SERVICE_NAME] <br>"
+            "[EVENT_NAME] <br>"
+            "[GUEST_PASSWORD] <br>"
+        ),
+    )
     email_subject = models.CharField(max_length=255, verbose_name=_("Subject"))
-    email_link = models.URLField(verbose_name=_("Link"))
+    email_link = models.URLField(verbose_name=_("Link"), null=True, blank=True)
     email_link_expiration = models.PositiveSmallIntegerField(
         verbose_name=_("Link Time Expiration"), default=1
     )
-
-    def __str__(self):
-        return f"{self.service.name}'s Email Config"
+    email_sender = models.CharField(
+        max_length=255, choices=EMAIL_SENDERS, default="dummy"
+    )
 
     class Meta:
         verbose_name = _("Service Email Config")
         verbose_name_plural = _("Service Email Configs")
         unique_together = ["email_config_type", "service"]
+
+    def __str__(self):
+        return (
+            f"{self.service.name if self.service else self.event.title}'s Email Config"
+        )
+
+    @property
+    def email_sender_client(self):
+        return SENDER_BACKENDS[self.email_sender]
+
+    def send_email(self, from_email, to_emails, html_keys=None):
+        client = self.email_sender_client(
+            from_email=from_email,
+            to_emails=to_emails,
+            subject=self.email_subject,
+            html_body=self.email_html_template,
+            html_keys=html_keys or {},
+        )
+        client.send()
 
 
 class ServiceCredentialConfigModel(BaseModel):

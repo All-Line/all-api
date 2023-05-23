@@ -1,4 +1,3 @@
-import random
 import re
 from datetime import datetime
 
@@ -202,17 +201,19 @@ class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixi
         help_text="""
             Enter guests in the following format:
             <br>
-            email,password<br>
-            email,password<br>
-            email,password<br>
-            ...
-        """,
+            name;email,name;email,name;email,name;email,...
+            <br>
+            Like:
+            <br>
+            John Doe;john@mail.com,Elisa Jax;elisa@mail.com,Edward,edward.us@mail.com,...
+        """,  # noqa: E501
     )
     send_email_to_guests = models.BooleanField(
         verbose_name=_("Send email to guests"),
         help_text=_("Send email to guests with their credentials"),
         default=False,
     )
+    smtp_email = models.EmailField(verbose_name=_("SMTP Email"), null=True, blank=True)
     event_link = models.URLField(
         verbose_name=_("Event Link"),
         help_text=_("Link for guests to access the event"),
@@ -237,65 +238,80 @@ class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixi
 
     def get_guests(self):
         guests = self.guests
-        guests = guests.replace("\r", "")
         result = []
         if guests:
-            result = guests.split("\n")
+            result = guests.split(",")
         return result
 
     @staticmethod
-    def _verify_errors(errors: list, email: str, password: str, line_number: str):
-        # A wrong email regex:
+    def _verify_errors(errors: list, email: str):
         email_regex = (
             r"^([a-z0-9]+)[a-z0-9.-][^\.]*([a-z0-9!@#$%^&*()_+]+)"
             r"@([a-z0-9]+)[a-z0-9.-]*\.[a-z0-9]*([a-z0-9]+){2,}$"
         )
-        password_regex = r"^[a-zA-Z0-9!@#$%^&*()_+]+$"
 
         if not re.match(email_regex, email):
-            errors.append(f"{line_number} Wrong email format: {email}")
-        if not re.match(password_regex, password):
-            errors.append(f"{line_number} Wrong password format: {password}")
+            errors.append(f"Wrong email format: {email}")
+
+    @staticmethod
+    def _get_guest_name_and_email(guest):
+        try:
+            name, email = guest.split(";")
+        except ValueError:
+            email = guest
+            name = f"Guest {email}"
+
+        return name, email
 
     def validate_guests_format(self):
         guests = self.get_guests()
         if guests:
             errors = []
 
-            for index, guest in enumerate(guests):
-                line_number = f"Line: {index + 1}:: "
-                try:
-                    email, password = guest.split(",")
-                except ValueError:
-                    errors.append(f"{line_number} Wrong line format: {guest}")
-                    continue
-
-                self._verify_errors(errors, email, password, line_number)
+            for guest in guests:
+                name, email = self._get_guest_name_and_email(guest)
+                self._verify_errors(errors, email)
 
             if errors:
-                raise ValidationError("; ".join(errors))
+                raise ValidationError("; ".join(errors))  # pragma: no cover
 
-    def clean(self):
+    def _get_guest_full_name(self, name):
+        full_name = name.split(" ")
+
+        if len(full_name) == 1:
+            return name, ""
+
+        first_name = full_name[0]
+        last_name = " ".join(full_name[1:])
+
+        return first_name, last_name
+
+    def create_guests(self):
         self.validate_guests_format()
 
         guests = self.get_guests()
 
         if guests:
             for guest in guests:
-                email, password = guest.split(",")
+                name, email = self._get_guest_name_and_email(guest)
+                first_name, last_name = self._get_guest_full_name(name)
                 user_exists_in_this_event = UserModel.objects.filter(
                     email=email, event=self
                 ).exists()
+
                 if not user_exists_in_this_event:
+                    password = UserModel.objects.make_random_password()
+
                     pipeline = CreateUserPipeline(
                         email=email,
                         password=password,
                         service=self.service,
-                        first_name=f"Guest {random.randint(10000, 99999)}",
-                        last_name=self.title,
+                        first_name=first_name,
+                        last_name=last_name,
                         event=self,
                         is_verified=True,
                         send_mail=self.send_email_to_guests,
+                        email_type="guest_invitation",
                     )
                     pipeline.run()
 

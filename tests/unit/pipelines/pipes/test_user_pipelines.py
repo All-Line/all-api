@@ -1,7 +1,10 @@
-from unittest.mock import patch
-
 from pipelines.base import BasePipeline
-from pipelines.items import CreateUser, GenerateRandomUsername, GenerateToken
+from pipelines.items import (
+    CreateUser,
+    GenerateRandomUsername,
+    GenerateToken,
+    SendEmailToVerification,
+)
 from pipelines.pipes import CreateUserPipeline
 
 
@@ -21,15 +24,13 @@ class TestCreateUserPipeline:
     def test_parent_class(self):
         assert issubclass(self.pipeline, BasePipeline)
 
-    @patch("pipelines.pipes.user.make_password")
-    def test_init(self, mock_make_password):
+    def test_init(self):
         user_create_pipeline = self.pipeline(**self.base_pipeline_data)
 
-        mock_make_password.assert_called_once_with("some_password")
         assert user_create_pipeline.first_name == "some_first_name"
         assert user_create_pipeline.last_name == "some_last_name"
         assert user_create_pipeline.email == "some_email"
-        assert user_create_pipeline.password == mock_make_password.return_value
+        assert user_create_pipeline.password == "some_password"
         assert user_create_pipeline.service == "some_service"
         assert user_create_pipeline.kwargs == {
             "birth_date": "some_birth_date",
@@ -39,6 +40,9 @@ class TestCreateUserPipeline:
         user_create_pipeline = self.pipeline(**self.base_pipeline_data)
 
         steps = user_create_pipeline.steps
-        assert steps[0] == GenerateRandomUsername
-        assert steps[1] == CreateUser
-        assert steps[2] == GenerateToken
+        assert steps == [
+            GenerateRandomUsername,
+            CreateUser,
+            GenerateToken,
+            SendEmailToVerification,
+        ]

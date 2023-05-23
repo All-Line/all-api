@@ -293,7 +293,34 @@ class TestServiceEmailConfigModel:
         assert field.default == 1
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 10
+        assert len(self.model._meta.fields) == 12
+
+    @patch("apps.service.models.SENDER_BACKENDS")
+    def test_email_sender_client(self, mock_sender_backends):
+        email_config = ServiceEmailConfigModel()
+
+        client = email_config.email_sender_client
+
+        mock_sender_backends.__getitem__.assert_called_once_with(
+            email_config.email_sender
+        )
+
+        assert client == mock_sender_backends.__getitem__.return_value
+
+    @patch.object(ServiceEmailConfigModel, "email_sender_client")
+    def test_send_email(self, mock_email_sender_client):
+        email_config = ServiceEmailConfigModel()
+
+        email_config.send_email("some_from_email", ["some_to_email"], {})
+
+        mock_email_sender_client.assert_called_once_with(
+            from_email="some_from_email",
+            to_emails=["some_to_email"],
+            subject=email_config.email_subject,
+            html_body=email_config.email_html_template,
+            html_keys={},
+        )
+        mock_email_sender_client.return_value.send.assert_called_once()
 
 
 class TestServiceCredentialConfigModel:

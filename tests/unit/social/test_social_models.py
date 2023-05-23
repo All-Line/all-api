@@ -1,7 +1,6 @@
 from unittest.mock import Mock, call, patch
 
 import pytest
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from apps.service.models import ServiceClientModel, ServiceModel
@@ -371,11 +370,12 @@ class TestEventModel:
             == """
             Enter guests in the following format:
             <br>
-            email,password<br>
-            email,password<br>
-            email,password<br>
-            ...
-        """
+            name;email,name;email,name;email,name;email,...
+            <br>
+            Like:
+            <br>
+            John Doe;john@mail.com,Elisa Jax;elisa@mail.com,Edward,edward.us@mail.com,...
+        """  # noqa: E501
         )
 
     def test_send_email_to_guests_field(self):
@@ -396,176 +396,159 @@ class TestEventModel:
         assert field.blank is True
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 14
+        assert len(self.model._meta.fields) == 15
 
     def test_get_guests(self):
-        event = EventModel(guests="email1,password1\nemail2,password2")
+        event = EventModel(guests="Some Name1;email1,Some Name2;email2")
 
         assert event.get_guests() == [
-            "email1,password1",
-            "email2,password2",
+            "Some Name1;email1",
+            "Some Name2;email2",
         ]
 
     def test_verify_errors(self):
         errors = []
-        line_number = "0"
         email = "wrong_email.com"
-        password = "//"
 
-        self.model._verify_errors(errors, email, password, line_number)
+        self.model._verify_errors(errors, email)
 
         assert errors == [
-            "0 Wrong email format: wrong_email.com",
-            "0 Wrong password format: //",
+            "Wrong email format: wrong_email.com",
         ]
 
     @pytest.mark.parametrize(
-        "email, password, line_number, expected",
+        "email, expected",
         [
             # Email fail cases
             (
                 "andrew.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew.com"],
+                ["Wrong email format: andrew.com"],
             ),
             (
                 "andrew@.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@.com"],
+                ["Wrong email format: andrew@.com"],
             ),
             (
                 "andrew@gmail.c",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@gmail.c"],
+                ["Wrong email format: andrew@gmail.c"],
             ),
             (
                 "andrew@com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@com"],
+                ["Wrong email format: andrew@com"],
             ),
             (
                 "andrew@com.",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@com."],
+                ["Wrong email format: andrew@com."],
             ),
             (
                 "andrew@gmail",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@gmail"],
+                ["Wrong email format: andrew@gmail"],
             ),
             (
                 "andrew@gmail.",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@gmail."],
+                ["Wrong email format: andrew@gmail."],
             ),
             (
                 "andrew@gmail!",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@gmail!"],
+                ["Wrong email format: andrew@gmail!"],
             ),
             (
                 "andrew@$gmail.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew@$gmail.com"],
+                ["Wrong email format: andrew@$gmail.com"],
             ),
             (
                 ".andrew@gmail.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: .andrew@gmail.com"],
+                ["Wrong email format: .andrew@gmail.com"],
             ),
             (
                 "andrew..marques@gmail.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew..marques@gmail.com"],
+                ["Wrong email format: andrew..marques@gmail.com"],
             ),
             (
                 "andrew...marques@gmail.com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew...marques@gmail.com"],
+                ["Wrong email format: andrew...marques@gmail.com"],
             ),
             (
                 "andrew.@gmail..com",
-                "change1234",
-                "0",
-                ["0 Wrong email format: andrew.@gmail..com"],
+                ["Wrong email format: andrew.@gmail..com"],
             ),
             # Email success cases
-            ("andrew@gmail.com", "change1234", "0", []),
-            ("andrew@gmail.com.br", "change1234", "0", []),
-            ("andrew.marques@gmail.com", "change1234", "0", []),
-            ("andrew!$%^&*@gmail.com", "change1234", "0", []),
+            ("andrew@gmail.com", []),
+            ("andrew@gmail.com.br", []),
+            ("andrew.marques@gmail.com", []),
+            ("andrew!$%^&*@gmail.com", []),
         ],
     )
     def test_verify_errors_functional(
         self,
         email,
-        password,
-        line_number,
         expected,
     ):
         errors = []
-        self.model._verify_errors(errors, email, password, line_number)
+        self.model._verify_errors(errors, email)
 
         assert errors == expected
 
+    def test_get_guest_name_and_email_with_name_and_email(self):
+        event = EventModel()
+        name, email = event._get_guest_name_and_email("Some Name;email")
+
+        assert name == "Some Name"
+        assert email == "email"
+
+    def test_get_guest_name_and_email_with_email_only(self):
+        event = EventModel()
+        name, email = event._get_guest_name_and_email("email")
+
+        assert name == "Guest email"
+        assert email == "email"
+
     @patch.object(EventModel, "_verify_errors")
-    @patch.object(EventModel, "get_guests", return_value=["email,password"])
+    @patch.object(EventModel, "get_guests", return_value=["Some Name;email"])
+    @patch.object(
+        EventModel, "_get_guest_name_and_email", return_value=["Some Name", "email"]
+    )
     def test_validate_guests_format_successfully(
-        self, mock_get_guests, mock_verify_errors
+        self, mock_get_guest_name_and_email, mock_get_guests, mock_verify_errors
     ):
         event = EventModel()
 
         event.validate_guests_format()
 
         mock_get_guests.assert_called_once()
-        mock_verify_errors.assert_called_once_with(
-            [], "email", "password", "Line: 1:: "
-        )
+        mock_get_guest_name_and_email.assert_called_once_with("Some Name;email")
+        mock_verify_errors.assert_called_once_with([], "email")
 
-    @patch.object(EventModel, "_verify_errors")
-    @patch.object(EventModel, "get_guests", return_value=["email", "email,password"])
-    def test_validate_guests_format_with_errors(
-        self, mock_get_guests, mock_verify_errors
-    ):
+    def test_get_guest_full_name_with_first_and_last_name(self):
         event = EventModel()
+        name = "Some Name"
 
-        with pytest.raises(ValidationError):
-            event.validate_guests_format()
+        assert event._get_guest_full_name(name) == ("Some", "Name")
 
-        mock_get_guests.assert_called_once()
-        mock_verify_errors.assert_called_once_with(
-            ["Line: 1::  Wrong line format: email"],
-            "email",
-            "password",
-            "Line: 2:: ",
-        )
+    def test_get_guest_full_name_with_first_name_only(self):
+        event = EventModel()
+        name = "Some"
+
+        assert event._get_guest_full_name(name) == ("Some", "")
 
     @patch.object(EventModel, "validate_guests_format")
     @patch.object(
         EventModel,
         "get_guests",
-        return_value=["email,password", "email,password"],
+        return_value=["Some Name;email", "Some Name;email"],
     )
+    @patch.object(
+        EventModel, "_get_guest_name_and_email", return_value=["Some Name", "email"]
+    )
+    @patch.object(EventModel, "_get_guest_full_name", return_value=("Some", "Name"))
     @patch("apps.social.models.UserModel")
     @patch("apps.social.models.CreateUserPipeline")
-    @patch("apps.social.models.random")
-    def test_clean(
+    def test_create_guests(
         self,
-        mock_random,
         mock_create_user_pipeline,
         mock_user_model,
+        mock_get_guest_full_name,
+        mock_get_guest_name_and_email,
         mock_get_guests,
         mock_validate_guests_format,
     ):
@@ -575,19 +558,27 @@ class TestEventModel:
             False,
         ]
 
-        event.clean()
+        event.create_guests()
 
-        mock_get_guests.assert_called_once()
         mock_validate_guests_format.assert_called_once()
+        mock_get_guests.assert_called_once()
+        mock_get_guest_name_and_email.assert_has_calls(
+            [call("Some Name;email"), call("Some Name;email")]
+        )
+        mock_get_guest_full_name.assert_has_calls(
+            [call("Some Name"), call("Some Name")]
+        )
+        mock_user_model.objects.make_random_password.assert_called_once()
         mock_create_user_pipeline.assert_called_once_with(
             email="email",
-            password="password",
+            password=mock_user_model.objects.make_random_password.return_value,
             service=event.service,
-            first_name=f"Guest {mock_random.randint.return_value}",
-            last_name=event.title,
+            first_name="Some",
+            last_name="Name",
             event=event,
             is_verified=True,
             send_mail=event.send_email_to_guests,
+            email_type="guest_invitation",
         )
         mock_user_model.objects.filter.assert_has_calls(
             [

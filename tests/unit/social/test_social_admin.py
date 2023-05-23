@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 
 from django.contrib import admin
 
+from apps.service.admin import ServiceEmailConfigInline
 from apps.social.admin import (
     EventAdmin,
     LoginAnswerInline,
@@ -261,6 +262,7 @@ class TestEventAdmin:
             "Config",
             {
                 "fields": (
+                    "smtp_email",
                     "guests",
                     "send_email_to_guests",
                     "require_login_answers",
@@ -275,7 +277,14 @@ class TestEventAdmin:
         )
 
     def test_inlines(self):
-        assert self.admin.inlines == [PostInline]
+        assert self.admin.inlines == [ServiceEmailConfigInline, PostInline]
+
+    def test_send_invite_to_guests(self):
+        events = [Mock(), Mock()]
+        self.admin.send_invite_to_guests(None, events)
+
+        events[0].create_guests.assert_called_once()
+        events[1].create_guests.assert_called_once()
 
 
 class TestMissionInteractionInline:

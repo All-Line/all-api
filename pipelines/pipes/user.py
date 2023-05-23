@@ -1,5 +1,3 @@
-from django.contrib.auth.hashers import make_password
-
 from pipelines.base import BasePipeline
 from pipelines.items import (
     CreateUser,
@@ -19,15 +17,17 @@ class CreateUserPipeline(BasePipeline):
         service,
         username=None,
         send_mail=False,
+        email_type=None,
         **kwargs,
     ):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password = make_password(password)
+        self.password = password
         self.service = service
         self.username = username
         self.send_mail = send_mail
+        self.email_type = email_type
         self.kwargs = kwargs
 
         super().__init__(
