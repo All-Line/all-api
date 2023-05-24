@@ -568,7 +568,9 @@ class TestEventModel:
         mock_get_guest_full_name.assert_has_calls(
             [call("Some Name"), call("Some Name")]
         )
-        mock_user_model.objects.make_random_password.assert_called_once()
+        mock_user_model.objects.make_random_password.assert_called_once_with(
+            6, "0123456789"
+        )
         mock_create_user_pipeline.assert_called_once_with(
             email="email",
             password=mock_user_model.objects.make_random_password.return_value,

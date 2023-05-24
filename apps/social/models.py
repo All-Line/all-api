@@ -300,7 +300,11 @@ class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixi
                 ).exists()
 
                 if not user_exists_in_this_event:
-                    password = UserModel.objects.make_random_password()
+                    password_length = 6
+                    only_digits = "0123456789"
+                    password = UserModel.objects.make_random_password(
+                        password_length, only_digits
+                    )
 
                     pipeline = CreateUserPipeline(
                         email=email,
