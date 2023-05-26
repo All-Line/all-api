@@ -38,7 +38,9 @@ class ListPostSerializer(serializers.ModelSerializer):
         depth = 1
 
     def get_comments(self, obj):
-        return ListPostCommentSerializer(obj.comments.all(), many=True).data
+        return ListPostCommentSerializer(
+            obj.comments.filter(is_deleted=False), many=True
+        ).data
 
     @staticmethod
     def get_attachment_type(obj):

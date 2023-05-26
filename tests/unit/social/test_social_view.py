@@ -137,6 +137,7 @@ class TestPostViewSet:
             PostCommentModel,
             id="some_comment_id",
             author=request.user,
+            is_deleted=False,
         )
         mock_instance = mock_get_object_or_404.return_value
         mock_get_serializers.assert_called_once_with(
@@ -177,6 +178,7 @@ class TestPostViewSet:
             PostCommentModel,
             id="some_comment_id",
             author=request.user,
+            is_deleted=False,
         )
         mock_instance = mock_get_object_or_404.return_value
         mock_instance.delete.assert_called_once()

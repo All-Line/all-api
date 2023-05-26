@@ -73,9 +73,9 @@ class TestListPostSerializer:
 
         result = self.serializer().get_comments(obj)
 
-        obj.comments.all.assert_called_once_with()
+        obj.comments.filter.assert_called_once_with(is_deleted=False)
         mock_list_post_comment_serializer.assert_called_once_with(
-            obj.comments.all.return_value, many=True
+            obj.comments.filter.return_value, many=True
         )
 
         assert result == mock_list_post_comment_serializer.return_value.data
