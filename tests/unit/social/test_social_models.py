@@ -171,8 +171,17 @@ class TestReactionTypeModel:
         assert field.remote_field.related_name == "reaction_types"
         assert field.remote_field.on_delete.__name__ == "CASCADE"
 
+    def test_clicked_image_field(self):
+        field = self.model._meta.get_field("clicked_image")
+
+        assert type(field) == models.ImageField
+        assert field.verbose_name == "Clicked Image"
+        assert field.upload_to.__name__ == "post_attachment_directory_path"
+        assert field.null is True
+        assert field.blank is True
+
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 7
+        assert len(self.model._meta.fields) == 8
 
 
 class TestReactionModel:
@@ -243,6 +252,13 @@ class TestPostCommentModel:
         assert field.null is True
         assert field.blank is True
 
+    def test_is_deleted_field(self):
+        field = self.model._meta.get_field("is_deleted")
+
+        assert type(field) == models.BooleanField
+        assert field.verbose_name == "Is Deleted"
+        assert field.default is False
+
     def test_post_field(self):
         field = self.model._meta.get_field("post")
 
@@ -289,7 +305,16 @@ class TestPostCommentModel:
         assert post_comment.is_answer is False
 
     def test_length_fields(self):
-        assert len(self.model._meta.fields) == 9
+        assert len(self.model._meta.fields) == 10
+
+    @patch.object(PostCommentModel, "save")
+    def test_delete(self, mock_save):
+        post_comment = PostCommentModel()
+        post_comment.delete()
+
+        mock_save.assert_called_once()
+
+        assert post_comment.is_deleted is True
 
 
 class TestEventModel:

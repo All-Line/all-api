@@ -80,6 +80,12 @@ class ReactionTypeModel(
         related_name="reaction_types",
         on_delete=models.CASCADE,
     )
+    clicked_image = models.ImageField(
+        verbose_name=_("Clicked Image"),
+        upload_to=post_attachment_directory_path,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("Reaction Type")
@@ -117,6 +123,7 @@ class PostCommentModel(
     AttachmentModel(upload_to=post_attachment_directory_path).mixin,
 ):
     content = models.TextField(verbose_name=_("Content"), null=True, blank=True)
+    is_deleted = models.BooleanField(verbose_name=_("Is Deleted"), default=False)
     post = models.ForeignKey(
         "PostModel",
         verbose_name=_("Post"),
@@ -156,6 +163,10 @@ class PostCommentModel(
 
     def __str__(self):
         return f"{self.author.first_name}'s comment"
+
+    def delete(self, *args, **kwargs):
+        self.is_deleted = True
+        self.save()
 
 
 class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixin):

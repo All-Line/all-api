@@ -90,13 +90,13 @@ class PostAdmin(
 
 @admin.register(PostCommentModel)
 class PostCommentAdmin(UpdateDateModifiedOrSetAuthorMixin, admin.ModelAdmin):
-    list_display = ["id", "author", "post", "reactions_amount"]
+    list_display = ["id", "author", "post", "reactions_amount", "is_deleted"]
     readonly_fields = ["id", "author"]
     list_filter = ["post__service__name", "author__first_name", "post"]
     search_fields = ["content", "author__first_name", "post__service__name"]
 
     fieldsets = (
-        (_("Comment"), {"fields": ("content",)}),
+        (_("Comment"), {"fields": ("content", "is_deleted")}),
         (_("Config"), {"fields": ("author", "post")}),
     )
 

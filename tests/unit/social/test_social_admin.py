@@ -154,6 +154,7 @@ class TestPostCommentAdmin:
             "author",
             "post",
             "reactions_amount",
+            "is_deleted",
         ]
 
     def test_list_filter(self):
@@ -173,7 +174,7 @@ class TestPostCommentAdmin:
     def test_fieldsets_post(self):
         assert self.admin.fieldsets[0] == (
             "Comment",
-            {"fields": ("content",)},
+            {"fields": ("content", "is_deleted")},
         )
 
     def test_fieldsets_config(self):
