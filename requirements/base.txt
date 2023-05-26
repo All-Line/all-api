@@ -10,7 +10,7 @@ aiosignal==1.3.1
     # via aiohttp
 argcomplete==3.0.8
     # via zappa
-asgiref==3.6.0
+asgiref==3.7.1
     # via django
 async-timeout==4.0.2
     # via
@@ -18,14 +18,14 @@ async-timeout==4.0.2
     #   redis
 attrs==23.1.0
     # via aiohttp
-awscli==1.27.138
+awscli==1.27.141
     # via -r requirements/base.in
-boto3==1.26.138
+boto3==1.26.141
     # via
     #   django-s3-storage
     #   kappa
     #   zappa
-botocore==1.29.138
+botocore==1.29.141
     # via
     #   awscli
     #   boto3
@@ -43,7 +43,7 @@ charset-normalizer==3.1.0
     #   aiohttp
     #   chatgptonic
     #   requests
-chatgptonic==1.1.0
+chatgptonic==1.1.2
     # via -r requirements/base.in
 click==8.1.3
     # via
@@ -64,7 +64,7 @@ defusedxml==0.7.1
     # via odfpy
 diff-match-patch==20230430
     # via django-import-export
-django==3.2.18
+django==3.2.19
     # via
     #   -r requirements/base.in
     #   django-cors-headers
@@ -197,8 +197,9 @@ redis==4.5.5
     # via
     #   -r requirements/base.in
     #   django-redis
-requests==2.28.2
+requests==2.31.0
     # via
+    #   -r requirements/base.in
     #   chatgptonic
     #   coreapi
     #   geoip2
@@ -208,7 +209,7 @@ rsa==4.7.2
     # via
     #   awscli
     #   python-jose
-ruamel-yaml==0.17.26
+ruamel-yaml==0.17.28
     # via
     #   drf-yasg
     #   safety
@@ -244,6 +245,8 @@ tqdm==4.65.0
     # via zappa
 troposphere==4.3.2
     # via zappa
+typing-extensions==4.6.2
+    # via asgiref
 uritemplate==4.1.1
     # via
     #   coreapi

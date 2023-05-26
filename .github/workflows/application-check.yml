@@ -34,7 +34,7 @@ jobs:
         echo SLACK_MESSAGE_URL=${{ secrets.SLACK_MESSAGE_URL }} >> .env
         echo OPEN_AI_KEY=${{ secrets.OPEN_AI_KEY }} >> .env
         echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env
-        echo ENVIRONMENT=hml >> .env
+        echo ENVIRONMENT=local >> .env
     - name: Install dependencies
       run:
         python -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -r requirements/base.txt
