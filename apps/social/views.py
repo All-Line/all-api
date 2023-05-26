@@ -100,7 +100,9 @@ class PostViewSet(
     )
     def update_comment(self, request, comment_id):
         user = request.user
-        instance = get_object_or_404(PostCommentModel, id=comment_id, author=user)
+        instance = get_object_or_404(
+            PostCommentModel, id=comment_id, author=user, is_deleted=False
+        )
 
         if request.method == "DELETE":
             instance.delete()

@@ -431,7 +431,7 @@ class PostModel(
         return result
 
     def format_comments_to_text(self):
-        comments = self.comments.all()
+        comments = self.comments.filter(is_deleted=False)
 
         result = ""
 

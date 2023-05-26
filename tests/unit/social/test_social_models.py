@@ -794,12 +794,12 @@ class TestPostModel:
 
     def test_format_comments_to_text(self):
         mock_comment = Mock()
-        mock_self = Mock(comments=Mock(all=Mock(return_value=[mock_comment])))
+        mock_self = Mock(comments=Mock(filter=Mock(return_value=[mock_comment])))
 
         result = PostModel.format_comments_to_text(mock_self)
 
-        mock_self.comments.all.assert_called_once()
-        assert result == (f"{mock_comment.author.first_name}: {mock_comment.content}\n")
+        mock_self.comments.filter.assert_called_once_with(is_deleted=False)
+        assert result == f"{mock_comment.author.first_name}: {mock_comment.content}\n"
 
     @patch.object(PostModel, "format_reactions_to_text")
     @patch.object(PostModel, "format_comments_to_text")
