@@ -20,6 +20,21 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.8"
+    - name: Building Environment
+      run: |
+        echo POSTGRES_USER=${{ secrets.POSTGRES_HML_USER }} >> .env
+        echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_HML_PASSWORD }} >> .env
+        echo POSTGRES_DB=${{ secrets.POSTGRES_HML_DB }} >> .env
+        echo DB_HOST=${{ secrets.POSTGRES_HML_HOST }} >> .env
+        echo DB_PORT=${{ secrets.POSTGRES_HML_PORT }} >> .env
+        echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD_HML }} >> .env
+        echo APPLE_SECRET_KEY=${{ secrets.APPLE_SHARED_SECRET }} >> .env
+        echo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} >> .env
+        echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> .env
+        echo SLACK_MESSAGE_URL=${{ secrets.SLACK_MESSAGE_URL }} >> .env
+        echo OPEN_AI_KEY=${{ secrets.OPEN_AI_KEY }} >> .env
+        echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env
+        echo ENVIRONMENT=hml >> .env
     - name: Install dependencies
       run:
         python -m venv venv && source venv/bin/activate && pip install --upgrade pip && pip install -r requirements/base.txt
