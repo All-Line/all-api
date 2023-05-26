@@ -249,7 +249,32 @@ class TestReactionTypeInline:
         assert ReactionTypeInline.fields == (
             "name",
             "attachment",
+            "clicked_image",
+            "attachment_preview",
+            "clicked_image_preview",
         )
+
+    def test_readonly_fields(self):
+        assert ReactionTypeInline.readonly_fields == (
+            "attachment_preview",
+            "clicked_image_preview",
+        )
+
+    def test_clicked_image_preview_with_clicked_image(self):
+        reaction_type = Mock()
+        reaction_type.clicked_image = Mock()
+        result = ReactionTypeInline.clicked_image_preview(reaction_type)
+
+        assert result == (
+            f'<img src="{reaction_type.clicked_image.url}" ' 'width="300px" />'
+        )
+
+    def test_clicked_image_preview_without_clicked_image(self):
+        reaction_type = Mock()
+        reaction_type.clicked_image = None
+        result = ReactionTypeInline.clicked_image_preview(reaction_type)
+
+        assert result == "No attachment"
 
 
 class TestEventInline:

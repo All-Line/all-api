@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from utils.admin import admin_method_attributes
+from utils.admin.mixins import AttachmentPreviewMixin
 
 from ..social.models import EventModel, ReactionTypeModel
 from .models import (
@@ -71,14 +73,26 @@ class ServiceCredentialRegisterConfigInline(admin.TabularInline):
         return queryset.filter(credential_config_type="register")
 
 
-class ReactionTypeInline(admin.TabularInline):
+class ReactionTypeInline(AttachmentPreviewMixin, admin.TabularInline):
     model = ReactionTypeModel
     verbose_name_plural = "Reaction Types"
     extra = 0
     fields = (
         "name",
         "attachment",
+        "clicked_image",
+        "attachment_preview",
+        "clicked_image_preview",
     )
+    readonly_fields = ("attachment_preview", "clicked_image_preview")
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Clicked Image preview"))
+    def clicked_image_preview(obj):
+        if not obj.clicked_image:
+            return _("No attachment")
+
+        return mark_safe(f'<img src="{obj.clicked_image.url}" width="300px" />')
 
 
 class EventInline(admin.TabularInline):
