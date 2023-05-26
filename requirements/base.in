@@ -1,6 +1,6 @@
 awscli
-chatgptonic
-django==3.2.18
+chatgptonic==1.1.2
+django==3.2.19
 django-redis
 djangorestframework
 django-s3-storage
@@ -11,6 +11,7 @@ django-import-export
 redis
 psycopg2
 psycopg2-binary
+requests==2.31.0
 setuptools==65.5.1
 geoip2
 python-decouple
