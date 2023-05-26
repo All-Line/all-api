@@ -476,10 +476,17 @@ class PostModel(
 
 
 class MissionTypeModel(BaseModel):
+    MISSION_TYPE_CHOICES = (
+        ("Video", "Video"),
+        ("Image", "Image"),
+        ("Audio", "Audio"),
+        ("Text", "Text"),
+    )
     name = models.CharField(
         verbose_name=_("Name"),
         max_length=255,
         unique=True,
+        choices=MISSION_TYPE_CHOICES,
     )
 
     class Meta:

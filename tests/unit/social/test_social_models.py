@@ -865,6 +865,14 @@ class TestMissionTypeModel:
     def test_meta_verbose_name_plural(self):
         assert self.model._meta.verbose_name_plural == "Mission Types"
 
+    def test_mission_type_choices(self):
+        assert self.model.MISSION_TYPE_CHOICES == (
+            ("Video", "Video"),
+            ("Image", "Image"),
+            ("Audio", "Audio"),
+            ("Text", "Text"),
+        )
+
     def test_name_field(self):
         field = self.model._meta.get_field("name")
 
@@ -872,6 +880,7 @@ class TestMissionTypeModel:
         assert field.verbose_name == "Name"
         assert field.max_length == 255
         assert field.unique is True
+        assert field.choices == self.model.MISSION_TYPE_CHOICES
 
     def test_length_fields(self):
         assert len(self.model._meta.fields) == 5
