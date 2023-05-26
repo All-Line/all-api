@@ -41,9 +41,20 @@ pip-compile:
 	pip-compile requirements/tests.in && \
 	pip-compile requirements/base.in"
 
+ci: check-application style-check unit-test safe ## To run CI
+
+check-application:
+	@echo "--> \033[0;32mChecking application...\033[0m"
+	docker-compose run start-api $(DJANGO_COMMAND) check
+
 test: ## To test application and coverage
 	@echo "--> \033[0;32mUping the services to run tests\033[0m"
 	docker-compose run start-api pytest $(path) $(PYTEST_CONFIG)
+	docker-compose down
+
+unit-test: ## To test application and coverage
+	@echo "--> \033[0;32mUping the services to run ONLY UNIT tests\033[0m"
+	docker-compose run start-api pytest tests/unit $(PYTEST_CONFIG)
 	docker-compose down
 
 test-no-cache: ## To test application and coverage no cache tests
