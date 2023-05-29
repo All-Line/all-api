@@ -86,7 +86,7 @@ class PostViewSet(
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         comment = serializer.save()
-        response = ListPostCommentSerializer(comment).data
+        response = ListPostCommentSerializer(comment, context={"request": request}).data
 
         return Response(response)
 

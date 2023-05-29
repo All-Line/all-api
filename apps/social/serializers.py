@@ -31,6 +31,7 @@ class ListPostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     reactions = ListReactionSerializer(many=True)
     attachment_type = serializers.SerializerMethodField()
+    my_reaction = serializers.SerializerMethodField()
 
     class Meta:
         model = PostModel
@@ -39,8 +40,15 @@ class ListPostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         return ListPostCommentSerializer(
-            obj.comments.filter(is_deleted=False), many=True
+            obj.comments.filter(is_deleted=False), many=True, context=self.context
         ).data
+
+    def get_my_reaction(self, obj):
+        request = self.context["request"]
+        reaction = obj.get_reaction_by_user(request.user)
+
+        if reaction:
+            return ListReactionSerializer(reaction).data
 
     @staticmethod
     def get_attachment_type(obj):
@@ -85,6 +93,7 @@ class ListPostCommentSerializer(
     author = UserDataSerializer(read_only=True)
     reactions = ListReactionSerializer(many=True)
     answers = serializers.SerializerMethodField()
+    my_reaction = serializers.SerializerMethodField()
 
     class Meta:
         model = PostCommentModel
@@ -94,13 +103,23 @@ class ListPostCommentSerializer(
             "author",
             "answers",
             "reactions",
+            "my_reaction",
             "attachment",
             "attachment_type",
         ]
         depth = 9
 
     def get_answers(self, obj):
-        return ListPostCommentSerializer(obj.answers.all(), many=True).data
+        return ListPostCommentSerializer(
+            obj.answers.all(), many=True, context=self.context
+        ).data
+
+    def get_my_reaction(self, obj):
+        request = self.context["request"]
+        reaction = obj.get_reaction_by_user(request.user)
+
+        if reaction:
+            return ListReactionSerializer(reaction).data
 
 
 class CreateReactionSerializer(serializers.Serializer):

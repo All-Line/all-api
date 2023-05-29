@@ -126,6 +126,19 @@ class TestReactionsMixin:
 
         assert result == user_reaction
 
+    def test_get_reaction_by_user(self):
+        mock_user = Mock()
+
+        mixin = ReactionsMixin()
+        mixin.reactions = Mock()
+
+        result = mixin.get_reaction_by_user(mock_user)
+
+        mixin.reactions.filter.assert_called_once_with(user=mock_user)
+        mixin.reactions.filter.return_value.first.assert_called_once()
+
+        assert result == mixin.reactions.filter.return_value.first.return_value
+
 
 class TestReactionTypeModel:
     @classmethod

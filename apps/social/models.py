@@ -57,6 +57,9 @@ class ReactionsMixin:
             return user_reaction
         return self.reactions.create(reaction_type_id=reaction_type_id, user=user)
 
+    def get_reaction_by_user(self, user: UserModel):
+        return self.reactions.filter(user=user).first()
+
 
 class ReactionTypeModel(
     BaseModel, AttachmentModel(upload_to=post_attachment_directory_path).mixin
