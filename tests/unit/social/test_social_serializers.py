@@ -75,7 +75,7 @@ class TestListPostSerializer:
 
         obj.comments.filter.assert_called_once_with(is_deleted=False)
         mock_list_post_comment_serializer.assert_called_once_with(
-            obj.comments.filter.return_value, many=True
+            obj.comments.filter.return_value, many=True, context={}
         )
 
         assert result == mock_list_post_comment_serializer.return_value.data
@@ -84,6 +84,20 @@ class TestListPostSerializer:
         obj = Mock()
         result = self.serializer().get_attachment_type(obj)
         assert result == obj.attachment_type
+
+    @patch("apps.social.serializers.ListReactionSerializer")
+    def test_get_my_reaction(self, mock_list_reaction_serializer):
+        mock_obj = Mock()
+        mock_request = Mock()
+        serializer = self.serializer(context={"request": mock_request})
+
+        result = serializer.get_my_reaction(mock_obj)
+
+        mock_obj.get_reaction_by_user.assert_called_once_with(mock_request.user)
+        mock_list_reaction_serializer.assert_called_once_with(
+            mock_obj.get_reaction_by_user.return_value
+        )
+        assert result == mock_list_reaction_serializer.return_value.data
 
 
 class TestCreatePostCommentSerializer:
@@ -168,6 +182,7 @@ class TestListPostCommentSerializer:
             "author",
             "answers",
             "reactions",
+            "my_reaction",
             "attachment",
             "attachment_type",
         ]
@@ -181,10 +196,24 @@ class TestListPostCommentSerializer:
 
         mock_obj.answers.all.assert_called_once()
         mock_list_post_comment_serializer.assert_called_once_with(
-            mock_obj.answers.all.return_value, many=True
+            mock_obj.answers.all.return_value, many=True, context={}
         )
 
         assert result == mock_list_post_comment_serializer.return_value.data
+
+    @patch("apps.social.serializers.ListReactionSerializer")
+    def test_get_my_reaction(self, mock_list_reaction_serializer):
+        mock_obj = Mock()
+        mock_request = Mock()
+        serializer = self.serializer(context={"request": mock_request})
+
+        result = serializer.get_my_reaction(mock_obj)
+
+        mock_obj.get_reaction_by_user.assert_called_once_with(mock_request.user)
+        mock_list_reaction_serializer.assert_called_once_with(
+            mock_obj.get_reaction_by_user.return_value
+        )
+        assert result == mock_list_reaction_serializer.return_value.data
 
 
 class TestCreateReactionSerializer:

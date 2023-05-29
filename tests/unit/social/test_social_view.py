@@ -111,7 +111,8 @@ class TestPostViewSet:
 
         mock_get_serializer.assert_called_once_with(data=request.data)
         mock_serializer.assert_called_once_with(
-            mock_get_serializer.return_value.save.return_value
+            mock_get_serializer.return_value.save.return_value,
+            context={"request": request},
         )
         mock_response.assert_called_once_with(mock_serializer.return_value.data)
 
