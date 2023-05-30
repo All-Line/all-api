@@ -26,6 +26,7 @@ from .serializers import (
     ListMissionSerializer,
     ListPostCommentSerializer,
     ListPostSerializer,
+    ListReactionSerializer,
     ListReactTypesSerializer,
     LoginQuestionSerializer,
     UnreactSerializer,
@@ -123,9 +124,9 @@ class PostViewSet(
         data = request.data
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        reaction = serializer.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(ListReactionSerializer(reaction).data)
 
     @swagger_auto_schema(operation_summary=_("Remove reaction"))
     @action(detail=False, methods=["post"])

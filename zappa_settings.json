@@ -19,7 +19,7 @@
     "project_name": "all-api",
     "runtime": "python3.9",
     "s3_bucket": "zappa-uyy57zk02",
-    "memory_size": 256,
+    "memory_size": 512,
     "timeout_seconds": 600,
     "slim_handler": true,
     "cors_enabled": true,
