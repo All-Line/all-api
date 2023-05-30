@@ -197,14 +197,23 @@ class TestPostViewSet:
 
     @patch.object(PostViewSet, "get_serializer")
     @patch("apps.social.views.Response")
-    def test_react(self, mock_response, mock_get_serializer):
+    @patch("apps.social.views.ListReactionSerializer")
+    def test_react(
+        self, mock_list_reaction_serializer, mock_response, mock_get_serializer
+    ):
         view = self.view
         request = Mock()
         view.request = request
         result = self.view.react(request)
 
         mock_get_serializer.assert_called_once_with(data=request.data)
-        mock_response.assert_called_once_with(status=204)
+        mock_get_serializer.return_value.save.assert_called_once()
+        mock_list_reaction_serializer.assert_called_once_with(
+            mock_get_serializer.return_value.save.return_value
+        )
+        mock_response.assert_called_once_with(
+            mock_list_reaction_serializer.return_value.data
+        )
 
         assert result == mock_response.return_value
 
