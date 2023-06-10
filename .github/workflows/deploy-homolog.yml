@@ -69,6 +69,22 @@ jobs:
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+    - name: Cleaning files
+      run: |
+        rm -rf tests
+        rm -rf Dockerfile
+        rm -rf .dockerignore
+        rm -rf .github
+        rm -rf .gitignore
+        rm -rf Makefile
+        rm -rf README.md
+        rm -rf CHANGELOG.md
+        rm -rf pytest.ini
+        rm -rf .coveragerc
+        rm -rf .isort.cfg
+        rm -rf .pre-commit-config.yaml
+        rm -rf .black
+
     - name: Send slack message
       run: |
         source venv/bin/activate
