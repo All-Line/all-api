@@ -14,6 +14,7 @@ from apps.social.models import (
     MissionTypeModel,
     PostCommentModel,
     PostModel,
+    ReactionModel,
 )
 from utils.admin import admin_method_attributes
 from utils.admin.mixins import (
@@ -55,6 +56,21 @@ class PostCommentInline(admin.TabularInline):
         return False
 
 
+class ReactionInline(admin.TabularInline):
+    model = ReactionModel
+    verbose_name_plural = "Reactions"
+    extra = 0
+    fields = (
+        "id",
+        "user",
+        "reaction_type",
+    )
+    readonly_fields = fields
+
+    def has_add_permission(self, request, obj):
+        return False
+
+
 @admin.register(PostModel)
 class PostAdmin(
     UpdateDateModifiedOrSetAuthorMixin, AttachmentPreviewMixin, admin.ModelAdmin
@@ -65,7 +81,7 @@ class PostAdmin(
         "service__name",
     ]
     search_fields = ["description", "author__first_name", "service__name"]
-    inlines = [PostCommentInline]
+    inlines = [PostCommentInline, ReactionInline]
 
     fieldsets = (
         (_("Post"), {"fields": ("description", "attachment", "attachment_preview")}),
