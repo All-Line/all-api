@@ -81,7 +81,7 @@ class PostAdmin(
         "service__name",
     ]
     search_fields = ["description", "author__first_name", "service__name"]
-    inlines = [PostCommentInline, ReactionInline]
+    inlines = [PostCommentInline]
 
     fieldsets = (
         (_("Post"), {"fields": ("description", "attachment", "attachment_preview")}),

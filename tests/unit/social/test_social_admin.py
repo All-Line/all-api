@@ -138,7 +138,7 @@ class TestPostAdmin:
         ]
 
     def test_inlines(self):
-        assert self.admin.inlines == [PostCommentInline, ReactionInline]
+        assert self.admin.inlines == [PostCommentInline]
 
     def test_fieldsets_post(self):
         assert self.admin.fieldsets[0] == (
