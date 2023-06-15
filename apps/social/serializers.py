@@ -40,7 +40,9 @@ class ListPostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         return ListPostCommentSerializer(
-            obj.comments.filter(is_deleted=False), many=True, context=self.context
+            obj.comments.filter(is_deleted=False).order_by("-date_joined"),
+            many=True,
+            context=self.context,
         ).data
 
     def get_my_reaction(self, obj):

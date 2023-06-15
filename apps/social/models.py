@@ -308,7 +308,7 @@ class EventModel(BaseModel, AttachmentModel(upload_to=event_directory_path).mixi
         if guests:
             for guest in guests:
                 name, email = self._get_guest_name_and_email(guest)
-                first_name, last_name = self._get_guest_full_name(name)
+                first_name, last_name = self._get_guest_full_name(name.strip())
                 user_exists_in_this_event = UserModel.objects.filter(
                     email=email, event=self
                 ).exists()
