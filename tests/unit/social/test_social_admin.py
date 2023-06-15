@@ -135,6 +135,7 @@ class TestPostAdmin:
             "author",
             "ai_report",
             "attachment_preview",
+            "user_reactions",
         ]
 
     def test_inlines(self):
@@ -155,7 +156,7 @@ class TestPostAdmin:
     def test_fieldsets_config(self):
         assert self.admin.fieldsets[2] == (
             "Config",
-            {"fields": ("author", "service", "event")},
+            {"fields": ("author", "service", "event", "user_reactions")},
         )
 
     def test_actions(self):
@@ -169,6 +170,12 @@ class TestPostAdmin:
 
         post_1.generate_ai_text_report.assert_called_once()
         post_2.generate_ai_text_report.assert_called_once()
+
+    def test_user_reactions(self):
+        post = Mock()
+        post.reactions.all.return_value = [Mock()]
+        self.admin.user_reactions(post)
+        post.reactions.all.assert_called_once()
 
 
 class TestPostCommentAdmin:

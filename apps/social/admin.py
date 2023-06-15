@@ -76,7 +76,13 @@ class PostAdmin(
     UpdateDateModifiedOrSetAuthorMixin, AttachmentPreviewMixin, admin.ModelAdmin
 ):
     list_display = ["id", "author", "service", "reactions_amount", "attachment_preview"]
-    readonly_fields = ["id", "author", "ai_report", "attachment_preview"]
+    readonly_fields = [
+        "id",
+        "author",
+        "ai_report",
+        "attachment_preview",
+        "user_reactions",
+    ]
     list_filter = [
         "service__name",
     ]
@@ -94,7 +100,7 @@ class PostAdmin(
                 )
             },
         ),
-        (_("Config"), {"fields": ("author", "service", "event")}),
+        (_("Config"), {"fields": ("author", "service", "event", "user_reactions")}),
     )
 
     actions = ["generate_ai_report"]
@@ -102,6 +108,18 @@ class PostAdmin(
     def generate_ai_report(self, _, queryset):
         for post in queryset:
             post.generate_ai_text_report()
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Reactions"))
+    def user_reactions(obj):
+        reactions = obj.reactions.all()
+
+        html = ""
+
+        for reaction in reactions:
+            html += f"<p>{reaction.user.first_name} - {reaction.reaction_type}</p>"
+
+        return mark_safe(html)
 
 
 @admin.register(PostCommentModel)
