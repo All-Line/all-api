@@ -13,6 +13,7 @@ from apps.social.admin import (
     PostCommentAdmin,
     PostCommentInline,
     PostInline,
+    ReactionInline,
 )
 from apps.social.models import (
     EventModel,
@@ -21,6 +22,7 @@ from apps.social.models import (
     MissionModel,
     PostCommentModel,
     PostModel,
+    ReactionModel,
 )
 from utils.admin.mixins import (
     AttachmentPreviewMixin,
@@ -49,6 +51,39 @@ class TestPostCommentInline:
             "content",
             "author",
             "reactions_amount",
+        )
+
+    def test_readonly_fields(self):
+        assert self.inline.readonly_fields == self.inline.fields
+
+    def test_extra(self):
+        assert self.inline.extra == 0
+
+    def test_has_add_permission(self):
+        result = self.inline.has_add_permission(None, None)
+
+        assert result is False
+
+
+class TestReactionInline:
+    @classmethod
+    def setup_class(cls):
+        cls.inline = ReactionInline(ReactionModel, admin.AdminSite())
+
+    def test_model(self):
+        assert self.inline.model == ReactionModel
+
+    def test_inline_subclass(self):
+        assert issubclass(ReactionInline, admin.TabularInline)
+
+    def test_verbose_name_plural(self):
+        assert self.inline.verbose_name_plural == "Reactions"
+
+    def test_fields(self):
+        assert self.inline.fields == (
+            "id",
+            "user",
+            "reaction_type",
         )
 
     def test_readonly_fields(self):
@@ -103,7 +138,7 @@ class TestPostAdmin:
         ]
 
     def test_inlines(self):
-        assert self.admin.inlines == [PostCommentInline]
+        assert self.admin.inlines == [PostCommentInline, ReactionInline]
 
     def test_fieldsets_post(self):
         assert self.admin.fieldsets[0] == (
