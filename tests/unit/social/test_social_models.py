@@ -858,6 +858,20 @@ class TestPostModel:
 
         mock_self.save.assert_called_once()
 
+    @patch("apps.social.models.NotifyGuestNewPostPipeline")
+    def test_notify_new_post(self, mock_notify_guest_new_post_pipeline):
+        mock_guests = [Mock()]
+        mock_self = Mock()
+        mock_self.event.users.filter.return_value = mock_guests
+
+        PostModel.notify_new_post(mock_self)
+
+        mock_self.event.users.filter.assert_called_once_with(is_active=True)
+        mock_notify_guest_new_post_pipeline.assert_called_once_with(user=mock_guests[0])
+
+        mock_pipeline = mock_notify_guest_new_post_pipeline.return_value
+        mock_pipeline.run.assert_called_once()
+
 
 class TestMissionTypeModel:
     @classmethod

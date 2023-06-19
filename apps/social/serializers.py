@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from pipelines.pipes.user import MentionGuestPipeline
 from utils.mixins.attachment_type import GetAttachmentTypeSerializerMixin
 
+from ..user.models import UserModel
 from ..user.serializers import UserDataSerializer
 from .models import (
     LoginQuestionOption,
@@ -67,14 +69,28 @@ class CreatePostCommentSerializer(serializers.Serializer):
         required=False,
     )
     attachment = serializers.FileField(required=False)
+    mentions = serializers.PrimaryKeyRelatedField(
+        queryset=UserModel.objects.all(), many=True, required=False
+    )
 
     def create(self, validated_data):
         request = self.context["request"]
-
-        return PostCommentModel.objects.create(
+        mentions = validated_data.pop("mentions", None)
+        comment = PostCommentModel.objects.create(
             author=request.user,
             **validated_data,
         )
+
+        if mentions:
+            for mention in mentions:
+                pipeline = MentionGuestPipeline(
+                    mention,
+                    comment,
+                )
+
+                pipeline.run()
+
+        return comment
 
 
 class UpdatePostCommentSerializer(serializers.Serializer):
@@ -96,6 +112,7 @@ class ListPostCommentSerializer(
     reactions = ListReactionSerializer(many=True)
     answers = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
+    mentions = UserDataSerializer(many=True, read_only=True)
 
     class Meta:
         model = PostCommentModel
@@ -108,6 +125,7 @@ class ListPostCommentSerializer(
             "my_reaction",
             "attachment",
             "attachment_type",
+            "mentions",
         ]
         depth = 9
 
@@ -274,3 +292,9 @@ class AnswerLoginQuestionSerializer(serializers.Serializer):
             raise ValidationError({"error": "Question already answered"})
 
         return question.answer(user, option)
+
+
+class GuestEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ["id", "first_name"]

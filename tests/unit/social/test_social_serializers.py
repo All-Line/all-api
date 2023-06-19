@@ -120,12 +120,23 @@ class TestCreatePostCommentSerializer:
         assert "answer" in self.serializer().fields
 
     @patch("apps.social.serializers.PostCommentModel.objects.create")
-    def test_create(self, mock_post_comment_model_objects_create):
+    @patch("apps.social.serializers.MentionGuestPipeline")
+    def test_create(
+        self, mock_mention_guest_pipeline, mock_post_comment_model_objects_create
+    ):
         request = Mock()
         request.user = Mock()
-        validated_data = {}
+        mock_mentions = [Mock()]
+        validated_data = {"mentions": mock_mentions}
 
         result = self.serializer(context={"request": request}).create(validated_data)
+
+        mock_mention_guest_pipeline.assert_called_once_with(
+            mock_mentions[0],
+            mock_post_comment_model_objects_create.return_value,
+        )
+
+        mock_mention_guest_pipeline.return_value.run.assert_called_once()
 
         mock_post_comment_model_objects_create.assert_called_once_with(
             author=request.user,
@@ -187,6 +198,7 @@ class TestListPostCommentSerializer:
             "my_reaction",
             "attachment",
             "attachment_type",
+            "mentions",
         ]
 
     @patch("apps.social.serializers.ListPostCommentSerializer")

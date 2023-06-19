@@ -116,6 +116,8 @@ class ServiceEmailConfigModel(BaseModel):
         ("register", _("Register")),
         ("reset_password", _("Reset Password")),
         ("guest_invitation", _("Guest Invitation")),
+        ("mention_notification", _("Mention Notification")),
+        ("new_post_notification", _("New Post Notification")),
     )
     EMAIL_SENDERS = (
         ("sendgrid", _("Sendgrid")),

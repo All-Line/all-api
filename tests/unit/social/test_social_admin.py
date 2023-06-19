@@ -160,7 +160,7 @@ class TestPostAdmin:
         )
 
     def test_actions(self):
-        assert self.admin.actions == ["generate_ai_report"]
+        assert self.admin.actions == ["generate_ai_report", "notify_new_post"]
 
     def test_generate_ai_report(self):
         post_1 = Mock()
@@ -170,6 +170,15 @@ class TestPostAdmin:
 
         post_1.generate_ai_text_report.assert_called_once()
         post_2.generate_ai_text_report.assert_called_once()
+
+    def test_notify_new_post(self):
+        post_1 = Mock()
+        post_2 = Mock()
+        queryset = [post_1, post_2]
+        self.admin.notify_new_post(None, queryset)
+
+        post_1.notify_new_post.assert_called_once()
+        post_2.notify_new_post.assert_called_once()
 
     def test_user_reactions(self):
         post = Mock()

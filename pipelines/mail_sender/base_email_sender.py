@@ -20,7 +20,7 @@ class BaseEmailSender:
         html_keys = self.html_keys
 
         for key, value in html_keys.items():
-            self.html_body = self.html_body.replace(f"[{key}]", value)
+            self.html_body = self.html_body.replace(f"[{key}]", value or "")
 
         return self.html_body
 

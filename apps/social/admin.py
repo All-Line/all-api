@@ -103,11 +103,15 @@ class PostAdmin(
         (_("Config"), {"fields": ("author", "service", "event", "user_reactions")}),
     )
 
-    actions = ["generate_ai_report"]
+    actions = ["generate_ai_report", "notify_new_post"]
 
     def generate_ai_report(self, _, queryset):
         for post in queryset:
             post.generate_ai_text_report()
+
+    def notify_new_post(self, _, queryset):
+        for post in queryset:
+            post.notify_new_post()
 
     @staticmethod
     @admin_method_attributes(short_description=_("Reactions"))

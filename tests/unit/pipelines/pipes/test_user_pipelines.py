@@ -1,11 +1,10 @@
+from unittest.mock import Mock
+
 from pipelines.base import BasePipeline
-from pipelines.items import (
-    CreateUser,
-    GenerateRandomUsername,
-    GenerateToken,
-    SendEmailToVerification,
-)
+from pipelines.items import CreateUser, GenerateRandomUsername, GenerateToken, SendEmail
+from pipelines.items.add_mention_on_comment import AddMentionOnComment
 from pipelines.pipes import CreateUserPipeline
+from pipelines.pipes.user import MentionGuestPipeline, NotifyGuestNewPostPipeline
 
 
 class TestCreateUserPipeline:
@@ -44,5 +43,71 @@ class TestCreateUserPipeline:
             GenerateRandomUsername,
             CreateUser,
             GenerateToken,
-            SendEmailToVerification,
+            SendEmail,
+        ]
+
+
+class TestMentionGuestPipeline:
+    @classmethod
+    def setup_class(cls):
+        cls.pipeline = MentionGuestPipeline
+
+    def test_parent_class(self):
+        assert issubclass(self.pipeline, BasePipeline)
+
+    def test_init(self):
+        mock_user = Mock()
+        mock_comment = Mock()
+        mention_guest_pipeline = self.pipeline(
+            user=mock_user,
+            comment=mock_comment,
+        )
+
+        assert mention_guest_pipeline.user == mock_user
+        assert mention_guest_pipeline.comment == mock_comment
+        assert mention_guest_pipeline.email_type == "mention_notification"
+        assert mention_guest_pipeline.send_mail is True
+
+    def test_pipelines_items(self):
+        mock_user = Mock()
+        mock_comment = Mock()
+        mention_guest_pipeline = self.pipeline(
+            user=mock_user,
+            comment=mock_comment,
+        )
+
+        steps = mention_guest_pipeline.steps
+        assert steps == [
+            AddMentionOnComment,
+            SendEmail,
+        ]
+
+
+class TestNotifyGuestNewPostPipeline:
+    @classmethod
+    def setup_class(cls):
+        cls.pipeline = NotifyGuestNewPostPipeline
+
+    def test_parent_class(self):
+        assert issubclass(self.pipeline, BasePipeline)
+
+    def test_init(self):
+        mock_user = Mock()
+        mention_guest_pipeline = self.pipeline(
+            user=mock_user,
+        )
+
+        assert mention_guest_pipeline.user == mock_user
+        assert mention_guest_pipeline.email_type == "new_post_notification"
+        assert mention_guest_pipeline.send_mail is True
+
+    def test_pipelines_items(self):
+        mock_user = Mock()
+        mention_guest_pipeline = self.pipeline(
+            user=mock_user,
+        )
+
+        steps = mention_guest_pipeline.steps
+        assert steps == [
+            SendEmail,
         ]

@@ -1,10 +1,6 @@
 from pipelines.base import BasePipeline
-from pipelines.items import (
-    CreateUser,
-    GenerateRandomUsername,
-    GenerateToken,
-    SendEmailToVerification,
-)
+from pipelines.items import CreateUser, GenerateRandomUsername, GenerateToken, SendEmail
+from pipelines.items.add_mention_on_comment import AddMentionOnComment
 
 
 class CreateUserPipeline(BasePipeline):
@@ -35,6 +31,34 @@ class CreateUserPipeline(BasePipeline):
                 GenerateRandomUsername,
                 CreateUser,
                 GenerateToken,
-                SendEmailToVerification,
+                SendEmail,
+            ]
+        )
+
+
+class MentionGuestPipeline(BasePipeline):
+    def __init__(self, user, comment):
+        self.user = user
+        self.comment = comment
+        self.email_type = "mention_notification"
+        self.send_mail = True
+
+        super().__init__(
+            steps=[
+                AddMentionOnComment,
+                SendEmail,
+            ]
+        )
+
+
+class NotifyGuestNewPostPipeline(BasePipeline):
+    def __init__(self, user):
+        self.user = user
+        self.email_type = "new_post_notification"
+        self.send_mail = True
+
+        super().__init__(
+            steps=[
+                SendEmail,
             ]
         )

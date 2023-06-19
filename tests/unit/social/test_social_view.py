@@ -12,6 +12,7 @@ from apps.social.serializers import (
     CompleteMissionSerializer,
     CreatePostCommentSerializer,
     CreateReactionSerializer,
+    GuestEventSerializer,
     ListMissionSerializer,
     ListPostSerializer,
     ListReactTypesSerializer,
@@ -20,11 +21,13 @@ from apps.social.serializers import (
     UpdatePostCommentSerializer,
 )
 from apps.social.views import (
+    GuestViewSet,
     LoginQuestionViewSet,
     MissionViewSet,
     PostViewSet,
     ServiceAndEventContextMixin,
 )
+from apps.user.models import UserModel
 from utils.auth import BearerTokenAuthentication
 from utils.mixins.multiserializer import MultiSerializerMixin
 
@@ -415,3 +418,77 @@ class TestLoginQuestionViewSet:
         mock_response.assert_called_once_with(status=204)
 
         assert result == mock_response.return_value
+
+
+class TestGuestViewSet:
+    @classmethod
+    def setup_class(cls):
+        cls.view = GuestViewSet()
+
+    def test_parent_class(self):
+        assert issubclass(GuestViewSet, MultiSerializerMixin)
+        assert issubclass(GuestViewSet, GenericViewSet)
+
+    def test_authentication_classes(self):
+        assert GuestViewSet.authentication_classes == [BearerTokenAuthentication]
+
+    def test_permission_classes(self):
+        assert GuestViewSet.permission_classes == [IsAuthenticated]
+
+    def test_serializers(self):
+        assert GuestViewSet.serializers == {
+            "guests": GuestEventSerializer,
+        }
+
+    @patch.object(UserModel, "objects")
+    @patch.object(GuestViewSet, "get_serializer")
+    @patch("apps.social.views.Response")
+    def test_guests_with_user_guest(
+        self, mock_response, mock_get_serializer, mock_user
+    ):
+        view = self.view
+        request = Mock()
+        request.user.is_guest = True
+        view.request = request
+        result = view.guests(request)
+
+        request.query_params.get.assert_called_once_with("query", "")
+
+        mock_user.only.assert_called_once_with("id", "first_name")
+        mock_filter = mock_user.only.return_value.filter
+        mock_filter.assert_called_once_with(
+            event_id=request.user.event_id,
+            first_name__icontains=request.query_params.get.return_value,
+        )
+        mock_filter.return_value.order_by.assert_called_once_with("first_name")
+
+        mock_get_serializer.assert_called_once_with(
+            mock_filter.return_value.order_by.return_value,
+            many=True,
+        )
+
+        mock_serializer = mock_get_serializer.return_value
+
+        mock_response.assert_called_once_with(mock_serializer.data)
+
+        assert result == mock_response.return_value
+
+    @patch.object(UserModel, "objects")
+    @patch.object(GuestViewSet, "get_serializer")
+    @patch("apps.social.views.Response")
+    def test_guests_with_user_not_guest(
+        self, mock_response, mock_get_serializer, mock_user
+    ):
+        view = self.view
+        request = Mock()
+        request.user.is_guest = False
+        view.request = request
+
+        with pytest.raises(ValidationError):
+            view.guests(request)
+
+        request.query_params.get.assert_called_once_with("query", "")
+
+        mock_user.assert_not_called()
+        mock_get_serializer.assert_not_called()
+        mock_response.assert_not_called()

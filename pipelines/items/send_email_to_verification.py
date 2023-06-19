@@ -1,7 +1,7 @@
 from pipelines.base import BasePipeItem
 
 
-class SendEmailToVerification(BasePipeItem):
+class SendEmail(BasePipeItem):
     def _get_email_config(self, user):
         email_config_context = user.service
 
@@ -27,10 +27,10 @@ class SendEmailToVerification(BasePipeItem):
             "LAST_NAME": user.last_name,
             "USERNAME": user.username,
             "EMAIL": user.email,
-            "TOKEN": self.pipeline.token,
+            "TOKEN": getattr(self.pipeline, "token", ""),
             "SERVICE_NAME": user.service.name,
             "EVENT_NAME": user.event.title if user.event else None,
-            "GUEST_PASSWORD": self.pipeline.password,
+            "GUEST_PASSWORD": getattr(self.pipeline, "password", ""),
         }
 
     def _run(self):

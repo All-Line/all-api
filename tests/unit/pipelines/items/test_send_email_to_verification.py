@@ -1,13 +1,13 @@
 from unittest.mock import Mock, patch
 
 from pipelines.base import BasePipeItem
-from pipelines.items import SendEmailToVerification
+from pipelines.items import SendEmail
 
 
-class TestSendEmailToVerification:
+class TestSendEmail:
     @classmethod
     def setup_class(cls):
-        cls.item = SendEmailToVerification
+        cls.item = SendEmail
 
     def test_parent_class(self):
         assert issubclass(self.item, BasePipeItem)
@@ -73,9 +73,9 @@ class TestSendEmailToVerification:
             "GUEST_PASSWORD": pipe_item.pipeline.password,
         }
 
-    @patch.object(SendEmailToVerification, "_get_email_config")
-    @patch.object(SendEmailToVerification, "_get_email_from")
-    @patch.object(SendEmailToVerification, "_get_user_html_keys")
+    @patch.object(SendEmail, "_get_email_config")
+    @patch.object(SendEmail, "_get_email_from")
+    @patch.object(SendEmail, "_get_user_html_keys")
     def test_run(
         self, mock_get_user_html_keys, mock_get_email_from, mock_get_email_config
     ):

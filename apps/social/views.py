@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from utils.auth import BearerTokenAuthentication
 from utils.mixins.multiserializer import MultiSerializerMixin
 
+from ..user.models import UserModel
 from .models import (
     LoginQuestions,
     MissionModel,
@@ -23,6 +24,7 @@ from .serializers import (
     CompleteMissionSerializer,
     CreatePostCommentSerializer,
     CreateReactionSerializer,
+    GuestEventSerializer,
     ListMissionSerializer,
     ListPostCommentSerializer,
     ListPostSerializer,
@@ -241,3 +243,34 @@ class LoginQuestionViewSet(
         serializer.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GuestViewSet(
+    MultiSerializerMixin,
+    GenericViewSet,
+):
+    queryset = UserModel.objects.only("id", "first_name")
+    serializers = {
+        "guests": GuestEventSerializer,
+    }
+    authentication_classes = [BearerTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(operation_summary=_("Event List"))
+    @action(detail=False, methods=["get"])
+    def guests(self, request, *args, **kwargs):
+        query = request.query_params.get("query", "")
+        user = request.user
+
+        if not user.is_guest:
+            raise ValidationError({"error": _("Only guests can get event guests")})
+
+        users = (
+            UserModel.objects.only("id", "first_name")
+            .filter(event_id=user.event_id, first_name__icontains=query)
+            .order_by("first_name")
+        )
+
+        serializer = self.get_serializer(users, many=True)
+
+        return Response(serializer.data)

@@ -9,6 +9,7 @@ from apps.service.models import ServiceClientModel, ServiceModel
 from apps.social.chat_ai import TEXT_AI
 from apps.user.models import UserModel
 from pipelines.pipes import CreateUserPipeline
+from pipelines.pipes.user import NotifyGuestNewPostPipeline
 from utils.abstract_models.base_model import AttachmentModel, BaseModel
 
 
@@ -154,6 +155,12 @@ class PostCommentModel(
         verbose_name=_("Author"),
         related_name="post_comments",
         on_delete=models.CASCADE,
+    )
+    mentions = models.ManyToManyField(
+        UserModel,
+        verbose_name=_("Mentions"),
+        related_name="post_comments_mentions",
+        blank=True,
     )
 
     @property
@@ -469,6 +476,14 @@ class PostModel(
 
             self.ai_report = client.get_response()
             self.save()
+
+    def notify_new_post(self):
+        if self.event:
+            guests = self.event.users.filter(is_active=True)
+
+            for guest in guests:
+                pipeline = NotifyGuestNewPostPipeline(user=guest)
+                pipeline.run()
 
     class Meta:
         verbose_name = _("Post")
