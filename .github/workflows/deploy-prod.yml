@@ -88,7 +88,7 @@ jobs:
     - name: Send slack message with current commit message
       run: |
         source venv/bin/activate
-        python ./scripts/slack_message.py "[All Line] 🧪 Deploy iniciado para o ambiente: Production. Commit: ${{ github.event.head_commit.message }}"
+        python ./scripts/slack_message.py "[All Line] 🧪 Deploy iniciado para o ambiente: Production. Commit: ```${{ github.event.head_commit.message }}```"
 
     - name: Deploying
       run: |
