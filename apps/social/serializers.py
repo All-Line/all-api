@@ -126,6 +126,7 @@ class ListPostCommentSerializer(
             "attachment",
             "attachment_type",
             "mentions",
+            "date_joined",
         ]
         depth = 9
 

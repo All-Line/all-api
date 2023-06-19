@@ -199,6 +199,7 @@ class TestListPostCommentSerializer:
             "attachment",
             "attachment_type",
             "mentions",
+            "date_joined",
         ]
 
     @patch("apps.social.serializers.ListPostCommentSerializer")
