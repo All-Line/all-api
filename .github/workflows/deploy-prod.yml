@@ -88,12 +88,12 @@ jobs:
     - name: Send slack message with current commit message
       run: |
         source venv/bin/activate
-        python ./scripts/slack_message.py "[All Line] 🧪 Deploy iniciado para o ambiente: Production. Commit: ```${{ github.event.head_commit.message }}```"
+        python ./scripts/slack_message.py "[All Line] 🧪 Deploy iniciado para o ambiente: Production. Commit: ${{ github.event.head_commit.message }}"
 
     - name: Deploying
       run: |
         source venv/bin/activate
-        zappa update prd && python ./scripts/slack_message.py "[All Line] ✅ Deploy feito com sucesso" || python ./scripts/slack_message.py "[All Line] ❌ Deploy falhou"
+        zappa update prd && python ./scripts/slack_message.py "[All Line] ✅ Deploy feito com sucesso: https://api.allline.life" || python ./scripts/slack_message.py "[All Line] ❌ Deploy falhou"
 
     - name: Migrating the database
       run: |
