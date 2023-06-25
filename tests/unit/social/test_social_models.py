@@ -811,7 +811,9 @@ class TestPostModel:
 
         result = PostModel.format_comments_to_text(mock_self)
 
-        mock_self.comments.filter.assert_called_once_with(is_deleted=False)
+        mock_self.comments.filter.assert_called_once_with(
+            is_deleted=False, author__is_staff=False
+        )
         assert result == f"{mock_comment.author.first_name}: {mock_comment.content}\n"
 
     @patch.object(PostModel, "format_reactions_to_text")
