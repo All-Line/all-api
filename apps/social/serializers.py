@@ -31,13 +31,29 @@ class ListReactionSerializer(serializers.ModelSerializer):
 class ListAllPostSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
     reactions = ListReactionSerializer(many=True)
+    comments = serializers.SerializerMethodField()
     attachment_type = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
 
     class Meta:
         model = PostModel
-        fields = "__all__"
+        fields = [
+            "id",
+            "author",
+            "reactions",
+            "comments",
+            "date_joined",
+            "attachment",
+            "attachment_type",
+            "my_reaction",
+            "description",
+        ]
         depth = 1
+
+    def get_comments(self, obj):
+        return {
+            "length": obj.comments.filter(is_deleted=False).count(),
+        }
 
     def get_my_reaction(self, obj):
         request = self.context["request"]

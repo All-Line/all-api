@@ -19,6 +19,7 @@ from apps.social.serializers import (
     CompleteMissionSerializer,
     CreatePostCommentSerializer,
     CreateReactionSerializer,
+    ListAllPostSerializer,
     ListMissionSerializer,
     ListPostCommentSerializer,
     ListPostSerializer,
@@ -62,7 +63,17 @@ class TestListPostSerializer:
         assert self.serializer.Meta.model == PostModel
 
     def test_meta_fields(self):
-        assert self.serializer.Meta.fields == "__all__"
+        assert self.serializer.Meta.fields == [
+            "id",
+            "author",
+            "reactions",
+            "comments",
+            "date_joined",
+            "attachment",
+            "attachment_type",
+            "my_reaction",
+            "description",
+        ]
 
     def test_meta_depth(self):
         assert self.serializer.Meta.depth == 1
@@ -144,6 +155,19 @@ class TestCreatePostCommentSerializer:
         )
 
         assert result == mock_post_comment_model_objects_create.return_value
+
+
+class TestListAllPostSerializer:
+    def test_get_comments(self):
+        mock_obj = Mock()
+        result = ListAllPostSerializer.get_comments(Mock(), mock_obj)
+
+        mock_obj.comments.filter.assert_called_once_with(is_deleted=False)
+        mock_obj.comments.filter.return_value.count.assert_called_once()
+
+        assert result == {
+            "length": mock_obj.comments.filter.return_value.count.return_value,
+        }
 
 
 class TestUpdatePostCommentSerializer:

@@ -61,9 +61,10 @@ class PostViewSet(
     permission_classes = [IsAuthenticated]
     queryset = (
         PostModel.objects.prefetch_related("reactions")
-        .select_related("service", "event", "author")
+        .select_related("author")
         .filter(is_active=True)
         .order_by("-date_joined")
+        .only("id", "author", "reactions", "date_joined", "attachment", "description")
     )
     serializers = {
         "list": ListAllPostSerializer,
