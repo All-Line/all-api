@@ -13,6 +13,7 @@ from apps.social.serializers import (
     CreatePostCommentSerializer,
     CreateReactionSerializer,
     GuestEventSerializer,
+    ListAllPostSerializer,
     ListMissionSerializer,
     ListPostSerializer,
     ListReactTypesSerializer,
@@ -51,7 +52,7 @@ class TestPostViewSet:
 
     def test_serializers(self):
         assert PostViewSet.serializers == {
-            "list": ListPostSerializer,
+            "list": ListAllPostSerializer,
             "retrieve": ListPostSerializer,
             "comment": CreatePostCommentSerializer,
             "react": CreateReactionSerializer,

@@ -28,9 +28,8 @@ class ListReactionSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class ListPostSerializer(serializers.ModelSerializer):
+class ListAllPostSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
-    comments = serializers.SerializerMethodField()
     reactions = ListReactionSerializer(many=True)
     attachment_type = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
@@ -39,13 +38,6 @@ class ListPostSerializer(serializers.ModelSerializer):
         model = PostModel
         fields = "__all__"
         depth = 1
-
-    def get_comments(self, obj):
-        return ListPostCommentSerializer(
-            obj.comments.filter(is_deleted=False).order_by("-date_joined"),
-            many=True,
-            context=self.context,
-        ).data
 
     def get_my_reaction(self, obj):
         request = self.context["request"]
@@ -57,6 +49,17 @@ class ListPostSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_attachment_type(obj):
         return obj.attachment_type
+
+
+class ListPostSerializer(ListAllPostSerializer):
+    comments = serializers.SerializerMethodField()
+
+    def get_comments(self, obj):
+        return ListPostCommentSerializer(
+            obj.comments.filter(is_deleted=False).order_by("-date_joined"),
+            many=True,
+            context=self.context,
+        ).data
 
 
 class CreatePostCommentSerializer(serializers.Serializer):

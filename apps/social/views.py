@@ -25,6 +25,7 @@ from .serializers import (
     CreatePostCommentSerializer,
     CreateReactionSerializer,
     GuestEventSerializer,
+    ListAllPostSerializer,
     ListMissionSerializer,
     ListPostCommentSerializer,
     ListPostSerializer,
@@ -65,7 +66,7 @@ class PostViewSet(
         .order_by("-date_joined")
     )
     serializers = {
-        "list": ListPostSerializer,
+        "list": ListAllPostSerializer,
         "retrieve": ListPostSerializer,
         "comment": CreatePostCommentSerializer,
         "update_comment": UpdatePostCommentSerializer,
