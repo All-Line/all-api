@@ -170,6 +170,16 @@ class TestListAllPostSerializer:
             "length": mock_obj.comments.filter.return_value.count.return_value,
         }
 
+    def test_get_reactions(self):
+        mock_obj = Mock()
+        result = ListAllPostSerializer.get_reactions(Mock(), mock_obj)
+
+        mock_obj.reactions.count.assert_called_once()
+
+        assert result == {
+            "length": mock_obj.reactions.count.return_value,
+        }
+
 
 class TestUpdatePostCommentSerializer:
     @classmethod

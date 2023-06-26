@@ -30,7 +30,7 @@ class ListReactionSerializer(serializers.ModelSerializer):
 
 class ListAllPostSerializer(serializers.ModelSerializer):
     author = UserDataSerializer(read_only=True)
-    reactions = ListReactionSerializer(many=True)
+    reactions = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
     attachment_type = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
@@ -54,6 +54,11 @@ class ListAllPostSerializer(serializers.ModelSerializer):
     def get_comments(self, obj):
         return {
             "length": obj.comments.filter(is_deleted=False).count(),
+        }
+
+    def get_reactions(self, obj):
+        return {
+            "length": obj.reactions.count(),
         }
 
     def get_my_reaction(self, obj):
