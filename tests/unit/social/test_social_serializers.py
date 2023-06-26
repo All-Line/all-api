@@ -66,6 +66,7 @@ class TestListPostSerializer:
         assert self.serializer.Meta.fields == [
             "id",
             "author",
+            "event",
             "reactions",
             "comments",
             "date_joined",
