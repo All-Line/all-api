@@ -180,6 +180,16 @@ class TestListAllPostSerializer:
             "length": mock_obj.reactions.count.return_value,
         }
 
+    def test_get_event(self):
+        mock_obj = Mock()
+        result = ListAllPostSerializer.get_event(Mock(), mock_obj)
+
+        assert result == {
+            "id": mock_obj.event.id,
+            "title": mock_obj.event.title,
+            "description": mock_obj.event.description,
+        }
+
 
 class TestUpdatePostCommentSerializer:
     @classmethod

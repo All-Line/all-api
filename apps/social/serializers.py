@@ -34,6 +34,7 @@ class ListAllPostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     attachment_type = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
+    event = serializers.SerializerMethodField()
 
     class Meta:
         model = PostModel
@@ -59,6 +60,14 @@ class ListAllPostSerializer(serializers.ModelSerializer):
     def get_reactions(self, obj):
         return {
             "length": obj.reactions.count(),
+        }
+
+    def get_event(self, obj):
+        event = obj.event
+        return {
+            "id": event.id,
+            "title": event.title,
+            "description": event.description,
         }
 
     def get_my_reaction(self, obj):
