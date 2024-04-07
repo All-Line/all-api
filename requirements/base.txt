@@ -314,8 +314,6 @@ urllib3==1.26.15
     #   chatgptonic
     #   requests
     #   safety
-werkzeug==2.2.2
-    # via zappa
 wheel==0.43.0
     # via zappa
 wsgi-request-logger==0.4.6
