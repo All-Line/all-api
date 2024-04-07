@@ -85,7 +85,7 @@ def get_social_network_image(param, providers, color="#66c2a5"):
         "Twitter": _twitter_provider_flow,
     }
     data = []
-    for provider in providers:
+    for provider in list(set(providers)):
         if provider in flows:
             data.append(flows[provider](param))
 

@@ -168,10 +168,6 @@ class SocialGraphModel(BaseModel):
         return f"{self.service.name}'s Social Graph"
 
     def generate_graph_image(self):
-        providers = self.provider.values_list("name", flat=True)
-        color = self.color.color if self.color else "#66c2a5"
-        graph_bytes = get_social_network_image(self.searcher, providers, color)
-        today = datetime.now().strftime("%Y-%m-%d")
         s3 = boto3.client(
             "s3",
             aws_access_key_id=base64.b64decode("QUtJQVNMSkJMUkZMVFhCQURMR0M=").decode(
@@ -181,8 +177,6 @@ class SocialGraphModel(BaseModel):
                 "bEZZbS9wSjRtTk1uazV5b2R3ZmZNMlpIODNpSXFtK0pPSm1hUXVmSg=="
             ).decode("utf-8"),
         )
-
-        file_name = f"{self.searcher}_{today}_{str(uuid4())}.png"
 
         if self.graph_image:
             old_file_name = self.graph_image.split("/")[-1]
@@ -196,6 +190,13 @@ class SocialGraphModel(BaseModel):
                 )
             except Exception:  # noqa
                 pass
+
+        providers = self.provider.distinct().values_list("name", flat=True)
+        color = self.color.color if self.color else "#66c2a5"
+        graph_bytes = get_social_network_image(self.searcher, providers, color)
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        file_name = f"{self.searcher}_{today}_{str(uuid4())}.png"
 
         s3.upload_fileobj(
             graph_bytes,
