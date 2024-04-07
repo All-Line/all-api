@@ -173,7 +173,7 @@ class SocialGraphModel(BaseModel):
         color = self.color.color if self.color else "#66c2a5"
         graph_bytes = get_social_network_image(self.searcher, providers, color)
         today = datetime.now().strftime("%Y-%m-%d")
-
+        print(env("AWS_ACCESS_KEY_ID"), env("AWS_SECRET_ACCESS_KEY"))  # noqa
         s3 = boto3.client(
             "s3",
             aws_access_key_id=env("AWS_ACCESS_KEY_ID"),
