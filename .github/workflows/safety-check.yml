@@ -25,6 +25,7 @@ jobs:
         python-version: "3.8"
     - name: Install dependencies
       run:
+        pip install --upgrade pip
         pip install safety
     - name: Safety Check
       run: |
