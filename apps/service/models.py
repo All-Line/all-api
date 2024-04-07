@@ -175,10 +175,12 @@ class SocialGraphModel(BaseModel):
         today = datetime.now().strftime("%Y-%m-%d")
         s3 = boto3.client(
             "s3",
-            aws_access_key_id=base64.b64decode("QUtJQVNMSkJMUkZMVFhCQURMR0M="),
+            aws_access_key_id=base64.b64decode("QUtJQVNMSkJMUkZMVFhCQURMR0M=").decode(
+                "utf-8"
+            ),
             aws_secret_access_key=base64.b64decode(
                 "bEZZbS9wSjRtTk1uazV5b2R3ZmZNMlpIODNpSXFtK0pPSm1hUXVmSg=="
-            ),
+            ).decode("utf-8"),
         )
 
         file_name = f"{self.searcher}_{today}.png"
