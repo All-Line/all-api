@@ -189,6 +189,10 @@ class SocialGraphModel(BaseModel):
                 s3.delete_object(
                     Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
                 )
+                delete_waiter = s3.get_waiter("object_not_exists")
+                delete_waiter.wait(
+                    Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
+                )
             except Exception:  # noqa
                 pass
 
