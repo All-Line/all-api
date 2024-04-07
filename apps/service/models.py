@@ -1,6 +1,7 @@
 import base64
 import re
 from datetime import datetime
+from uuid import uuid4
 
 import boto3
 from django.conf import settings
@@ -181,7 +182,7 @@ class SocialGraphModel(BaseModel):
             ).decode("utf-8"),
         )
 
-        file_name = f"{self.searcher}_{today}.png"
+        file_name = f"{self.searcher}_{today}_{str(uuid4())}.png"
 
         if self.graph_image:
             old_file_name = self.graph_image.split("/")[-1]
