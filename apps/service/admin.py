@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -12,6 +13,7 @@ from .models import (
     ServiceCredentialConfigModel,
     ServiceEmailConfigModel,
     ServiceModel,
+    SocialGraphModel,
 )
 
 
@@ -196,3 +198,129 @@ class ServiceClientAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(SocialGraphModel)
+class SocialGraphModelAdmin(admin.ModelAdmin):
+    list_display = [
+        "service",
+        "providers",
+        "searcher",
+        "graph_image_preview_basic",
+        "generate_graph_image_button",
+    ]
+    readonly_fields = [
+        "id",
+        "date_joined",
+        "date_modified",
+        "graph_image_preview",
+        "generate_graph_image_button_retrieved",
+    ]
+    list_filter = ["service", "provider", "searcher"]
+    fieldsets = (
+        (
+            _("Service"),
+            {"fields": ("service",)},
+        ),
+        (
+            _("Config"),
+            {
+                "fields": (
+                    "provider",
+                    "searcher",
+                    "color",
+                )
+            },
+        ),
+        (
+            _("Social Graph"),
+            {
+                "fields": (
+                    "graph_image_preview",
+                    "generate_graph_image_button_retrieved",
+                )
+            },
+        ),
+    )
+    filter_horizontal = ["provider"]
+    actions = ["generate_graph_image"]
+
+    def generate_graph_image(self, request, queryset):
+        for social_graph in queryset:
+            social_graph.generate_graph_image()
+
+    generate_graph_image.short_description = _("Generate Social Graph Image")
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Graph Image"))
+    def graph_image_preview(obj):
+        if not obj.graph_image:
+            return _("No attachment")
+
+        return mark_safe(f'<img src="{obj.graph_image}" width="100%" />')
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Graph Image"))
+    def graph_image_preview_basic(obj):
+        if not obj.graph_image:
+            return _("No attachment")
+
+        return mark_safe(f'<img src="{obj.graph_image}" width="300px" />')
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Providers"))
+    def providers(obj):
+        return ", ".join([provider.name for provider in obj.provider.all()])
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Action"))
+    def generate_graph_image_button(obj):
+        return (
+            "<a "
+            'class="btn btn-high btn-success" '
+            f'href="/admin/service/socialgraphmodel/{obj.id}/generate_graph_image/">'
+            f'{_("Generate Graph Image")}'
+            "</a>"
+        )
+
+    @staticmethod
+    @admin_method_attributes(short_description=_("Action"))
+    def generate_graph_image_button_retrieved(obj):
+        return (
+            "<a "
+            'class="btn btn-high btn-success" '
+            f'href="/admin/service/socialgraphmodel/{obj.id}'
+            '/generate_graph_image_retrieved/">'
+            f'{_("Generate Graph Image")}'
+            "</a>"
+        )
+
+    def get_urls(self):
+        from django.urls import path
+
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "<int:social_graph_id>/generate_graph_image/",
+                self.admin_site.admin_view(self.generate_graph_image_view),
+                name="generate_graph_image",
+            ),
+            path(
+                "<int:social_graph_id>/generate_graph_image_retrieved/",
+                self.admin_site.admin_view(self.generate_graph_image_view_retrieved),
+                name="generate_graph_image_retrieved",
+            ),
+        ]
+        return custom_urls + urls
+
+    def generate_graph_image_view(self, request, social_graph_id):
+        social_graph = SocialGraphModel.objects.get(id=social_graph_id)
+        social_graph.generate_graph_image()
+        return self.response_change(request, social_graph)
+
+    def generate_graph_image_view_retrieved(self, request, social_graph_id):
+        social_graph = SocialGraphModel.objects.get(id=social_graph_id)
+        social_graph.generate_graph_image()
+
+        # Precisa continuar na página de edição para exibir a imagem
+        return redirect(f"/admin/service/socialgraphmodel/{social_graph_id}/change/")

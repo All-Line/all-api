@@ -29,6 +29,7 @@ example: * date_at - fixed some bug.
 
 ### Added
 
+* 2024-04-07 - Adicionado gráfico social
 * 2023-05-20 - Adicionado `User Missions` e `User Comments` na sessão de
 `Social` do admin
 * 2023-05-20 - Adicionado preview de `attachment` nos paineis do admin
