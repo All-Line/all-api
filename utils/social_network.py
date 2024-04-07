@@ -46,6 +46,7 @@ def draw_social_graph(graph, color):
     plt.axis("off")
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png", dpi=400)
+    plt.clf()
     buffer.seek(0)
 
     return buffer

@@ -178,18 +178,7 @@ class SocialGraphModel(BaseModel):
             ).decode("utf-8"),
         )
 
-        if self.graph_image:
-            old_file_name = self.graph_image.split("/")[-1]
-            try:
-                s3.delete_object(
-                    Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
-                )
-                delete_waiter = s3.get_waiter("object_not_exists")
-                delete_waiter.wait(
-                    Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
-                )
-            except Exception:  # noqa
-                pass
+        self._delete_graph_from_s3(s3)
 
         providers = self.provider.distinct().values_list("name", flat=True)
         color = self.color.color if self.color else "#66c2a5"
@@ -200,17 +189,40 @@ class SocialGraphModel(BaseModel):
 
         s3.upload_fileobj(
             graph_bytes,
-            settings.AWS_STORAGE_BUCKET_NAME,
+            "allline-zappa-static",
             file_name,
             ExtraArgs={"ContentType": "image/png"},
         )
         waiter = s3.get_waiter("object_exists")
-        waiter.wait(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=file_name)
+        waiter.wait(Bucket="allline-zappa-static", Key=file_name)
 
-        self.graph_image = (
-            f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file_name}"
-        )
+        self.graph_image = f"https://allline-zappa-static.s3.amazonaws.com/{file_name}"
         self.save(update_fields=["graph_image"])
+
+    def _delete_graph_from_s3(self, s3):
+        if self.graph_image:
+            old_file_name = self.graph_image.split("/")[-1]
+            try:
+                s3.delete_object(Bucket="allline-zappa-static", Key=old_file_name)
+                delete_waiter = s3.get_waiter("object_not_exists")
+                delete_waiter.wait(Bucket="allline-zappa-static", Key=old_file_name)
+            except Exception:  # noqa
+                pass
+
+    def delete(self, using=None, keep_parents=False):
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=base64.b64decode("QUtJQVNMSkJMUkZMVFhCQURMR0M=").decode(
+                "utf-8"
+            ),
+            aws_secret_access_key=base64.b64decode(
+                "bEZZbS9wSjRtTk1uazV5b2R3ZmZNMlpIODNpSXFtK0pPSm1hUXVmSg=="
+            ).decode("utf-8"),
+        )
+
+        self._delete_graph_from_s3(s3)
+
+        super().delete(using=using, keep_parents=keep_parents)
 
 
 class ServiceEmailConfigModel(BaseModel):
