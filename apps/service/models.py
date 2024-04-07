@@ -1,8 +1,6 @@
 import base64
-import os
 import re
 from datetime import datetime
-from urllib.parse import urlparse
 
 import boto3
 from django.conf import settings
@@ -186,7 +184,7 @@ class SocialGraphModel(BaseModel):
         file_name = f"{self.searcher}_{today}.png"
 
         if self.graph_image:
-            old_file_name = os.path.basename(urlparse(self.graph_image).path)
+            old_file_name = self.graph_image.split("/")[-1]
             try:
                 s3.delete_object(
                     Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
@@ -200,9 +198,8 @@ class SocialGraphModel(BaseModel):
             file_name,
             ExtraArgs={"ContentType": "image/png"},
         )
-        s3.get_waiter("object_exists").wait(
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=file_name
-        )
+        waiter = s3.get_waiter("object_exists")
+        waiter.wait(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=file_name)
 
         self.graph_image = (
             f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file_name}"
