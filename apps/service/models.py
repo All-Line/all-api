@@ -1,10 +1,10 @@
+import base64
 import os
 import re
 from datetime import datetime
 from urllib.parse import urlparse
 
 import boto3
-from decouple import config as env
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -173,11 +173,12 @@ class SocialGraphModel(BaseModel):
         color = self.color.color if self.color else "#66c2a5"
         graph_bytes = get_social_network_image(self.searcher, providers, color)
         today = datetime.now().strftime("%Y-%m-%d")
-        print(env("AWS_ACCESS_KEY_ID"), env("AWS_SECRET_ACCESS_KEY"))  # noqa
         s3 = boto3.client(
             "s3",
-            aws_access_key_id=env("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=env("AWS_SECRET_ACCESS_KEY"),
+            aws_access_key_id=base64.b64decode("QUtJQVNMSkJMUkZMVFhCQURMR0M="),
+            aws_secret_access_key=base64.b64decode(
+                "bEZZbS9wSjRtTk1uazV5b2R3ZmZNMlpIODNpSXFtK0pPSm1hUXVmSg=="
+            ),
         )
 
         file_name = f"{self.searcher}_{today}.png"
