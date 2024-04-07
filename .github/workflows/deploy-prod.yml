@@ -53,6 +53,13 @@ jobs:
         echo SLACK_MESSAGE_URL=${{ secrets.SLACK_MESSAGE_URL }} >> .env
         echo OPEN_AI_KEY=${{ secrets.OPEN_AI_KEY }} >> .env
         echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env
+
+        echo CSRF_TWITTER=${{ secrets.CSRF_TWITTER }} >> .env
+        echo CLIENT_UUID_TWITTER=${{ secrets.CLIENT_UUID_TWITTER }} >> .env
+        echo CLIENT_TRANSACTION_ID_TWITTER=${{ secrets.CLIENT_TRANSACTION_ID_TWITTER }} >> .env
+        echo COOKIE_TWITTER=${{ secrets.COOKIE_TWITTER }} >> .env
+        echo AUTHORIZATION_TWITTER=${{ secrets.AUTHORIZATION_TWITTER }} >> .env
+
         echo ENVIRONMENT=prod >> .env
 
     - name: Install dependencies

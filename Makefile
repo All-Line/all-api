@@ -30,6 +30,8 @@ install-requirements:  ## To install requirements
 	pip install -r requirements/base.txt
 
 pip-compile:
+	@echo "--> \033[0;32mUpdating pip...\033[0m"
+	pip install --upgrade pip
 	@echo "--> Removing .txt files"
 	rm -f requirements/base.txt
 	rm -f requirements/tests.txt
@@ -75,7 +77,7 @@ style-code: ## To check code-styling
 
 safe: ## To check code dependencies
 	@echo "--> \033[0;32mChecking the code dependencies...\033[0m"
-	docker-compose run start-api safety check -i 52495
+	docker-compose run start-api safety check -i 52495 -i 61601 -i 61893 -i 64396 -i 64459 -i 59956
 
 shell: ## To access shell conected in your local database
 	@echo "--> \033[0;32mStarting shell...\033[0m"

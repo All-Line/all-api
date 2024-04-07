@@ -260,9 +260,9 @@ class ListMissionSerializer(
         return (
             {
                 "content": completed_info.content,
-                "attachment": completed_info.attachment.url
-                if completed_info.attachment
-                else None,
+                "attachment": (
+                    completed_info.attachment.url if completed_info.attachment else None
+                ),
                 "attachment_type": completed_info.attachment_type,
             }
             if completed_info
