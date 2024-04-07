@@ -4,5 +4,5 @@ from .views import CourseViewSet, LiveViewSet
 
 app_name = "apps.material"
 
-router.register(r"course", CourseViewSet, basename="course")
-router.register(r"live", LiveViewSet, basename="course")
+router.register(r"course", CourseViewSet)
+router.register(r"live", LiveViewSet)

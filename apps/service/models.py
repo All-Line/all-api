@@ -1,14 +1,19 @@
+import os
 import re
+from datetime import datetime
+from urllib.parse import urlparse
 
+import boto3
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from apps.service.email_sender_backend import SENDER_BACKENDS
-from apps.visual_structure.models import ColorPaletteModel
+from apps.visual_structure.models import ColorModel, ColorPaletteModel
 from utils.abstract_models.base_model import BaseModel
 from utils.choices.language_choices import LANGUAGE_CHOICES
+from utils.social_network import get_social_network_image
 
 
 class ServiceModel(BaseModel):
@@ -109,6 +114,96 @@ class ServiceModel(BaseModel):
         if not self.has_credential_configs():
             for config in settings.DEFAULT_CREDENTIAL_CONFIGS:
                 ServiceCredentialConfigModel.objects.create(service=self, **config)
+
+
+class SocialGraphProviderModel(BaseModel):
+    name = models.CharField(max_length=255, verbose_name=_("Name"))
+
+    class Meta:
+        verbose_name = _("Social Graph Provider")
+        verbose_name_plural = _("Social Graph Providers")
+
+    def __str__(self):
+        return self.name
+
+
+class SocialGraphModel(BaseModel):
+    service = models.ForeignKey(
+        ServiceModel,
+        related_name="social_graphs",
+        verbose_name=_("Service"),
+        on_delete=models.CASCADE,
+    )
+    provider = models.ManyToManyField(
+        SocialGraphProviderModel,
+        related_name="social_graphs",
+        verbose_name=_("Provider"),
+        blank=True,
+    )
+    color = models.ForeignKey(
+        ColorModel,
+        related_name="social_graphs",
+        verbose_name=_("Color"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text=_(
+            "The color that will be used to generate the graph image. "
+            "If empty, the default color (##66c2a5) will be used."
+        ),
+    )
+
+    searcher = models.CharField(
+        max_length=255,
+        verbose_name=_("Searcher"),
+        help_text=_("The search engine that will be used to search for data"),
+    )
+    graph_image = models.URLField(verbose_name=_("Graph Image"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Social Graph")
+        verbose_name_plural = _("Social Graphs")
+
+    def __str__(self):
+        return f"{self.service.name}'s Social Graph"
+
+    def generate_graph_image(self):
+        providers = self.provider.values_list("name", flat=True)
+        color = self.color.color if self.color else "#66c2a5"
+        graph_bytes = get_social_network_image(self.searcher, providers, color)
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+
+        file_name = f"{self.searcher}_{today}.png"
+
+        if self.graph_image:
+            old_file_name = os.path.basename(urlparse(self.graph_image).path)
+            try:
+                s3.delete_object(
+                    Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=old_file_name
+                )
+            except Exception:  # noqa
+                pass
+
+        s3.upload_fileobj(
+            graph_bytes,
+            settings.AWS_STORAGE_BUCKET_NAME,
+            file_name,
+            ExtraArgs={"ContentType": "image/png"},
+        )
+        s3.get_waiter("object_exists").wait(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=file_name
+        )
+
+        self.graph_image = (
+            f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{file_name}"
+        )
+        self.save(update_fields=["graph_image"])
 
 
 class ServiceEmailConfigModel(BaseModel):
