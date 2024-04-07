@@ -4,6 +4,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 import boto3
+from decouple import config as env
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -175,8 +176,8 @@ class SocialGraphModel(BaseModel):
 
         s3 = boto3.client(
             "s3",
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=env("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=env("AWS_SECRET_ACCESS_KEY"),
         )
 
         file_name = f"{self.searcher}_{today}.png"
