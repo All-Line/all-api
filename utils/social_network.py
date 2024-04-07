@@ -78,6 +78,10 @@ def get_tweets(query):
         for entry in entries
         if "itemContent" in entry["content"]
         and "tweet_results" in entry["content"]["itemContent"]
+        and "result" in entry["content"]["itemContent"]["tweet_results"]
+        and "legacy" in entry["content"]["itemContent"]["tweet_results"]["result"]
+        and "full_text"
+        in entry["content"]["itemContent"]["tweet_results"]["result"]["legacy"]
     ]
 
 
